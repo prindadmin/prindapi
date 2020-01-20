@@ -1,0 +1,342 @@
+Resources:
+  CognitoUserPool:
+    Type: AWS::Cognito::UserPool
+    Properties:
+      # Generate a name based on the stage
+      UserPoolName: ${self:app}-${self:provider.stage}-user-pool
+      # Set email as an alias
+      UsernameAttributes:
+        - email
+      AutoVerifiedAttributes:
+        - email
+      Policies:
+        PasswordPolicy:
+          MinimumLength: 8
+          RequireLowercase: True
+          RequireNumbers: True
+          RequireSymbols: False
+          RequireUppercase: True
+          TemporaryPasswordValidityDays: 7
+      SmsVerificationMessage: "Your verification code is {####}. "
+      EmailVerificationMessage: "Your verification code is {####}. "
+      EmailVerificationSubject: "Your verification code"
+      VerificationMessageTemplate:
+        SmsMessage: "Your verification code is {####}. "
+        EmailMessage: "Your verification code is {####}. "
+        EmailSubject: "Your verification code"
+        DefaultEmailOption: "CONFIRM_WITH_CODE"
+      SmsAuthenticationMessage: "Your authentication code is {####}. "
+      # MfaConfiguration: "OPTIONAL"
+      DeviceConfiguration:
+        ChallengeRequiredOnNewDevice: false
+        DeviceOnlyRememberedOnUserPrompt: false
+      EmailConfiguration:
+        SourceArn: "arn:aws:ses:eu-west-1:514296467270:identity/mail@buildingim.com"
+        EmailSendingAccount: "DEVELOPER"
+      SmsConfiguration:
+        SnsCallerArn: "arn:aws:iam::514296467270:role/service-role/Foundations-SMS-Role"
+        ExternalId: "748e57e2-0e87-4a7c-8ee1-bebb043575b3"
+      AdminCreateUserConfig:
+        AllowAdminCreateUserOnly: false
+        # TemporaryPasswordValidityDays: 7
+        InviteMessageTemplate:
+          SMSMessage: "Your username is {username} and temporary password is {####}. "
+          EmailMessage: "Your username is {username} and temporary password is {####}. "
+          EmailSubject: "Your temporary password"
+      Schema:
+        - Name: sub
+          AttributeDataType: String
+          DeveloperOnlyAttribute: false
+          Mutable: false
+          Required: true
+
+        - Name: name
+          AttributeDataType: String
+          DeveloperOnlyAttribute: false
+          Mutable: true
+          Required: false
+
+        - Name: given_name
+          AttributeDataType: String
+          DeveloperOnlyAttribute: false
+          Mutable: true
+          Required: false
+
+        - Name: family_name
+          AttributeDataType: String
+          DeveloperOnlyAttribute: false
+          Mutable: true
+          Required: false
+
+        - Name: middle_name
+          AttributeDataType: String
+          DeveloperOnlyAttribute: false
+          Mutable: true
+          Required: false
+
+        - Name: nickname
+          AttributeDataType: String
+          DeveloperOnlyAttribute: false
+          Mutable: true
+          Required: false
+
+        - Name: preferred_username
+          AttributeDataType: String
+          DeveloperOnlyAttribute: false
+          Mutable: true
+          Required: false
+
+        - Name: profile
+          AttributeDataType: String
+          DeveloperOnlyAttribute: false
+          Mutable: true
+          Required: false
+
+        - Name: picture
+          AttributeDataType: String
+          DeveloperOnlyAttribute: false
+          Mutable: true
+          Required: false
+
+        - Name: website
+          AttributeDataType: String
+          DeveloperOnlyAttribute: false
+          Mutable: true
+          Required: false
+
+        - Name: email
+          AttributeDataType: String
+          DeveloperOnlyAttribute: false
+          Mutable: true
+          Required: false
+
+        - Name: email_verified
+          AttributeDataType: Boolean
+          DeveloperOnlyAttribute: false
+          Mutable: true
+          Required: false
+
+        - Name: gender
+          AttributeDataType: String
+          DeveloperOnlyAttribute: false
+          Mutable: true
+          Required: false
+
+        - Name: birthdate
+          AttributeDataType: String
+          DeveloperOnlyAttribute: false
+          Mutable: true
+          Required: false
+          StringAttributeConstraints:
+            MinLength: 10
+            MaxLength: 10
+
+        - Name: zoneinfo
+          AttributeDataType: String
+          DeveloperOnlyAttribute: false
+          Mutable: true
+          Required: false
+
+        - Name: locale
+          AttributeDataType: String
+          DeveloperOnlyAttribute: false
+          Mutable: true
+          Required: false
+
+        - Name: phone_number
+          AttributeDataType: String
+          DeveloperOnlyAttribute: false
+          Mutable: true
+          Required: false
+
+        - Name: phone_verified
+          AttributeDataType: Boolean
+          DeveloperOnlyAttribute: false
+          Mutable: true
+          Required: false
+
+        - Name: address
+          AttributeDataType: String
+          DeveloperOnlyAttribute: false
+          Mutable: true
+          Required: false
+
+        - Name: updated_at
+          AttributeDataType: Number
+          DeveloperOnlyAttribute: false
+          Mutable: true
+          Required: false
+          NumberAttributeConstraints:
+            MinValue: 0
+
+  CognitoIosUserPoolClient:
+    Type: AWS::Cognito::UserPoolClient
+    Properties:
+      # Generate an app client name based on the stage
+      ClientName: ${self:app}-${self:provider.stage}-ios-client
+      UserPoolId:
+        Ref: CognitoUserPool
+      GenerateSecret: true
+      RefreshTokenValidity: 30
+      ReadAttributes:
+        - "address"
+        - "birthdate"
+        - "email"
+        - "email_verified"
+        - "family_name"
+        - "gender"
+        - "given_name"
+        - "locale"
+        - "middle_name"
+        - "name"
+        - "nickname"
+        - "phone_number"
+        - "phone_number_verified"
+        - "picture"
+        - "preferred_username"
+        - "profile"
+        - "updated_at"
+        - "website"
+        - "zoneinfo"
+      WriteAttributes:
+        - "address"
+        - "birthdate"
+        - "email"
+        - "family_name"
+        - "gender"
+        - "given_name"
+        - "locale"
+        - "middle_name"
+        - "name"
+        - "nickname"
+        - "phone_number"
+        - "picture"
+        - "preferred_username"
+        - "profile"
+        - "updated_at"
+        - "website"
+        - "zoneinfo"
+      AllowedOAuthFlowsUserPoolClient: false
+
+  CognitoAndroidUserPoolClient:
+    Type: AWS::Cognito::UserPoolClient
+    Properties:
+      ClientName: ${self:app}-${self:provider.stage}-android-client
+      UserPoolId:
+        Ref: CognitoUserPool
+      GenerateSecret: true
+      RefreshTokenValidity: 30
+      ReadAttributes:
+        - "address"
+        - "birthdate"
+        - "email"
+        - "email_verified"
+        - "family_name"
+        - "gender"
+        - "given_name"
+        - "locale"
+        - "middle_name"
+        - "name"
+        - "nickname"
+        - "phone_number"
+        - "phone_number_verified"
+        - "picture"
+        - "preferred_username"
+        - "profile"
+        - "updated_at"
+        - "website"
+        - "zoneinfo"
+      WriteAttributes:
+        - "address"
+        - "birthdate"
+        - "email"
+        - "family_name"
+        - "gender"
+        - "given_name"
+        - "locale"
+        - "middle_name"
+        - "name"
+        - "nickname"
+        - "phone_number"
+        - "picture"
+        - "preferred_username"
+        - "profile"
+        - "updated_at"
+        - "website"
+        - "zoneinfo"
+      AllowedOAuthFlowsUserPoolClient: false
+
+
+  CognitoAdminUserPoolClient:
+    Type: AWS::Cognito::UserPoolClient
+    Properties:
+      ClientName: ${self:app}-${self:provider.stage}-admin
+      UserPoolId:
+        Ref: CognitoUserPool
+      ExplicitAuthFlows:
+        - ADMIN_NO_SRP_AUTH
+        - USER_PASSWORD_AUTH
+      ReadAttributes:
+        - "address"
+        - "birthdate"
+        - "email"
+        - "email_verified"
+        - "family_name"
+        - "gender"
+        - "given_name"
+        - "locale"
+        - "middle_name"
+        - "name"
+        - "nickname"
+        - "phone_number"
+        - "phone_number_verified"
+        - "picture"
+        - "preferred_username"
+        - "profile"
+        - "updated_at"
+        - "website"
+        - "zoneinfo"
+      WriteAttributes:
+        - "address"
+        - "birthdate"
+        - "email"
+        - "family_name"
+        - "gender"
+        - "given_name"
+        - "locale"
+        - "middle_name"
+        - "name"
+        - "nickname"
+        - "phone_number"
+        - "picture"
+        - "preferred_username"
+        - "profile"
+        - "updated_at"
+        - "website"
+        - "zoneinfo"
+      AllowedOAuthFlowsUserPoolClient: false
+
+# Print out the Id of the User Pool that is created
+Outputs:
+  UserPoolId:
+    Value:
+      Ref: CognitoUserPool
+
+  IosUserPoolClientId:
+    Value:
+      Ref: CognitoIosUserPoolClient
+
+  AndroidUserPoolClientId:
+    Value:
+      Ref: CognitoAndroidUserPoolClient
+
+  AdminUserPoolClientId:
+    Value:
+      Ref: CognitoAdminUserPoolClient
+
+
+
+
+
+
+

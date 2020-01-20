@@ -1,0 +1,106 @@
+org: kool4caats
+service: prind-api
+app: prind
+
+plugins:
+  - serverless-python-requirements
+  - serverless-pseudo-parameters
+  - serverless-aws-documentation
+  - serverless-openapi-documentation
+  - serverless-reqvalidator-plugin
+  - check-git-branch-before-deploy
+  - serverless-plugin-aws-alerts
+
+
+custom:
+  checkGitBranchBeforeDeploy:
+      dev: dev
+      staging: staging
+      production: master
+  pythonRequirements:
+    dockerizePip: true
+  myEnvironment:
+ 
+  documentation:
+    api:
+      info:
+        version: v0.0.1 
+        title: Prind API
+    models:
+
+provider:
+  name: aws
+  runtime: python3.7
+  region: ${opt:region, 'eu-west-1'}
+  stage: ${opt:stage, 'dev'}
+
+  environment:
+
+  iamRoleStatements:
+    # - Effect: "Allow"
+    #   Action:
+    #     - 'dynamodb:PutItem'
+    #     - 'dynamodb:GetItem'
+    #     - 'dynamodb:UpdateItem'
+    #     - 'dynamodb:DeleteItem'
+    #     - 'dynamodb:Query'
+    #   Resource: arn:aws:dynamodb:#{AWS::Region}:#{AWS::AccountId}:table/${self:provider.environment.TABLE_NAME}
+
+
+package:
+  exclude:
+    - node_modules/**
+    - venv/**
+    - __pycache__/**
+
+
+
+functions:
+  get-sts:
+    handler: get-sts.lambda_handler
+    events:
+    - http:
+        path: /get-sts
+        method: get          
+        response:
+          statusCodes:
+            200:
+              pattern: '' # Default response method
+            400:
+              pattern: '.*"statusCode":400,.*'
+            500:
+              pattern: '.*"statusCode":500,.*'
+        cors: true
+        integration: lambda
+        # documentation:
+        #   methodResponses:
+        #     - statusCode: "200"
+        #       responseBody:
+        #         description: "Successful Response"
+        #       responseModels:
+        #         application/json: "userDetailsGetResponse"
+        #     - statusCode: "400"
+        #       responseBody:
+        #         description: "A client error occurred"
+        #       responseModels:
+        #         application/json: "errorResponse"
+        #     - statusCode: "500"
+        #       responseBody:
+        #         description: "A server error occurred"
+        #       responseModels:
+        #         application/json: "errorResponse"
+        # authorizer: 
+        #   type: COGNITO_USER_POOLS
+        #   authorizerId: 
+        #     Ref: ApiGatewayAuthorizer
+
+
+  # resources:
+  # # Cognito
+  # - ${file(resources/cognito-user-pool.yml)}
+
+  # # Cognito Authorizer
+  # - ${file(resources/cognito-authorizer.yml)}
+
+  # # RequestValidator
+  # - ${file(resources/request-validator.yml)}

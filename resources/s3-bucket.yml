@@ -1,0 +1,37 @@
+Resources:
+  CognitoUserPool:
+    Type: AWS::S3::Bucket
+    Properties: 
+      AccelerateConfiguration: 
+        AccelerateConfiguration
+      AccessControl: String
+      AnalyticsConfigurations: 
+        - AnalyticsConfiguration
+      BucketEncryption: 
+        BucketEncryption
+      BucketName: String
+      CorsConfiguration: 
+        CorsConfiguration
+      InventoryConfigurations: 
+        - InventoryConfiguration
+      LifecycleConfiguration: 
+        LifecycleConfiguration
+      LoggingConfiguration: 
+        LoggingConfiguration
+      MetricsConfigurations: 
+        - MetricsConfiguration
+      NotificationConfiguration: 
+        NotificationConfiguration
+      ObjectLockConfiguration: 
+        ObjectLockConfiguration
+      ObjectLockEnabled: Boolean
+      PublicAccessBlockConfiguration: 
+        PublicAccessBlockConfiguration
+      ReplicationConfiguration: 
+        ReplicationConfiguration
+      Tags: 
+        - Tag
+      VersioningConfiguration: 
+        VersioningConfiguration
+      WebsiteConfiguration: 
+        WebsiteConfiguration
