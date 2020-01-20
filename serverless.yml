@@ -35,6 +35,10 @@ provider:
   stage: ${opt:stage, 'dev'}
 
   environment:
+    S3_BUCKET_ARN:     
+      Fn::GetAtt: 
+        - UserFilesS3Bucket
+        - Arn
 
   iamRoleStatements:
     # - Effect: "Allow"
@@ -95,12 +99,15 @@ functions:
         #     Ref: ApiGatewayAuthorizer
 
 
-  # resources:
-  # # Cognito
-  # - ${file(resources/cognito-user-pool.yml)}
+resources:
+  # Cognito
+  - ${file(resources/cognito-user-pool.yml)}
 
-  # # Cognito Authorizer
-  # - ${file(resources/cognito-authorizer.yml)}
+  # Cognito Authorizer
+  - ${file(resources/cognito-authorizer.yml)}
 
-  # # RequestValidator
-  # - ${file(resources/request-validator.yml)}
+  # RequestValidator
+  - ${file(resources/request-validator.yml)}
+
+    # S3 Bucket
+  - ${file(resources/s3-bucket.yml)}

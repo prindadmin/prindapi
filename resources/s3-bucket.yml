@@ -1,37 +1,12 @@
 Resources:
-  CognitoUserPool:
+  UserFilesS3Bucket:
     Type: AWS::S3::Bucket
     Properties: 
-      AccelerateConfiguration: 
-        AccelerateConfiguration
-      AccessControl: String
-      AnalyticsConfigurations: 
-        - AnalyticsConfiguration
-      BucketEncryption: 
-        BucketEncryption
-      BucketName: String
-      CorsConfiguration: 
-        CorsConfiguration
-      InventoryConfigurations: 
-        - InventoryConfiguration
-      LifecycleConfiguration: 
-        LifecycleConfiguration
-      LoggingConfiguration: 
-        LoggingConfiguration
-      MetricsConfigurations: 
-        - MetricsConfiguration
-      NotificationConfiguration: 
-        NotificationConfiguration
-      ObjectLockConfiguration: 
-        ObjectLockConfiguration
-      ObjectLockEnabled: Boolean
-      PublicAccessBlockConfiguration: 
-        PublicAccessBlockConfiguration
-      ReplicationConfiguration: 
-        ReplicationConfiguration
-      Tags: 
-        - Tag
+      AccessControl: Private
+      BucketName: prind-portal-user-files-${self:provider.stage}
+      PublicAccessBlockConfiguration:
+        BlockPublicAcls: True
+        BlockPublicPolicy: True
       VersioningConfiguration: 
-        VersioningConfiguration
-      WebsiteConfiguration: 
-        WebsiteConfiguration
+        Status: "Enabled"
+

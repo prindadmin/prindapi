@@ -6,13 +6,28 @@ import boto3
 import json
 import os
 
+
+def get_cognito_username(token):
+
+    logger.info(log.function_start_output())
+
+    decoded = jwt.decode(token, verify=False)
+    
+    # Output the local variables
+    logger.debug(log.function_end_output(locals()))
+    
+    return decoded['cognito:username']
+
+
 def lambda_handler(event, context):
 
     try:
         
         jwt_token = event['headers']['Authorization']
 
-        stage_log_level = os.environ['S3_BUCKET_ARN']
+        cognito_username = get_cognito_username(jwt_token)
+
+        s3_bucket_arn = os.environ['S3_BUCKET_ARN']
 
 
         #Connect to the STS system
@@ -29,8 +44,8 @@ def lambda_handler(event, context):
                         "s3:PutObject",
                         "s3:GetObject"
                     ],
-                    "Resource": ["arn:aws:s3:::como-ifc-files/" + str(cognitoID) + '/*',
-                                 "arn:aws:s3:::como-ifc-files/demonstration_sites/*"]
+                    "Resource": ["{s3_bucket_arn}/{cognito_username}/*",
+                                 "{s3_bucket_arn}/demonstration_sites/*"]
                 }
             ]
         })

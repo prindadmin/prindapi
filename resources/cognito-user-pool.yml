@@ -31,11 +31,11 @@ Resources:
         ChallengeRequiredOnNewDevice: false
         DeviceOnlyRememberedOnUserPrompt: false
       EmailConfiguration:
-        SourceArn: "arn:aws:ses:eu-west-1:514296467270:identity/mail@buildingim.com"
+        SourceArn: "arn:aws:ses:eu-west-1:434494845257:identity/mail@prind.tech"
         EmailSendingAccount: "DEVELOPER"
       SmsConfiguration:
-        SnsCallerArn: "arn:aws:iam::514296467270:role/service-role/Foundations-SMS-Role"
-        ExternalId: "748e57e2-0e87-4a7c-8ee1-bebb043575b3"
+        SnsCallerArn: "arn:aws:iam::434494845257:role/service-role/prindportalusersdevelopment-SMS-Role"
+        ExternalId: "2b54d3ee-efd8-40ee-a25c-32ef4b354f85"
       AdminCreateUserConfig:
         AllowAdminCreateUserOnly: false
         # TemporaryPasswordValidityDays: 7
@@ -169,15 +169,19 @@ Resources:
           NumberAttributeConstraints:
             MinValue: 0
 
-  CognitoIosUserPoolClient:
+  CognitoBrowserUserPoolClient:
     Type: AWS::Cognito::UserPoolClient
     Properties:
       # Generate an app client name based on the stage
-      ClientName: ${self:app}-${self:provider.stage}-ios-client
+      ClientName: ${self:app}-${self:provider.stage}-browser
       UserPoolId:
         Ref: CognitoUserPool
       GenerateSecret: true
       RefreshTokenValidity: 30
+      ExplicitAuthFlows:
+        - ALLOW_CUSTOM_AUTH
+        - ALLOW_USER_SRP_AUTH
+        - ALLOW_REFRESH_TOKEN_AUTH
       ReadAttributes:
         - "address"
         - "birthdate"
@@ -217,55 +221,6 @@ Resources:
         - "website"
         - "zoneinfo"
       AllowedOAuthFlowsUserPoolClient: false
-
-  CognitoAndroidUserPoolClient:
-    Type: AWS::Cognito::UserPoolClient
-    Properties:
-      ClientName: ${self:app}-${self:provider.stage}-android-client
-      UserPoolId:
-        Ref: CognitoUserPool
-      GenerateSecret: true
-      RefreshTokenValidity: 30
-      ReadAttributes:
-        - "address"
-        - "birthdate"
-        - "email"
-        - "email_verified"
-        - "family_name"
-        - "gender"
-        - "given_name"
-        - "locale"
-        - "middle_name"
-        - "name"
-        - "nickname"
-        - "phone_number"
-        - "phone_number_verified"
-        - "picture"
-        - "preferred_username"
-        - "profile"
-        - "updated_at"
-        - "website"
-        - "zoneinfo"
-      WriteAttributes:
-        - "address"
-        - "birthdate"
-        - "email"
-        - "family_name"
-        - "gender"
-        - "given_name"
-        - "locale"
-        - "middle_name"
-        - "name"
-        - "nickname"
-        - "phone_number"
-        - "picture"
-        - "preferred_username"
-        - "profile"
-        - "updated_at"
-        - "website"
-        - "zoneinfo"
-      AllowedOAuthFlowsUserPoolClient: false
-
 
   CognitoAdminUserPoolClient:
     Type: AWS::Cognito::UserPoolClient
@@ -322,15 +277,11 @@ Outputs:
     Value:
       Ref: CognitoUserPool
 
-  IosUserPoolClientId:
+  CognitoBrowserUserPoolClient:
     Value:
-      Ref: CognitoIosUserPoolClient
+      Ref: CognitoBrowserUserPoolClient
 
-  AndroidUserPoolClientId:
-    Value:
-      Ref: CognitoAndroidUserPoolClient
-
-  AdminUserPoolClientId:
+  CognitoAdminUserPoolClient:
     Value:
       Ref: CognitoAdminUserPoolClient
 
