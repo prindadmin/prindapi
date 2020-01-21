@@ -41,14 +41,10 @@ provider:
         - Arn
 
   iamRoleStatements:
-    # - Effect: "Allow"
-    #   Action:
-    #     - 'dynamodb:PutItem'
-    #     - 'dynamodb:GetItem'
-    #     - 'dynamodb:UpdateItem'
-    #     - 'dynamodb:DeleteItem'
-    #     - 'dynamodb:Query'
-    #   Resource: arn:aws:dynamodb:#{AWS::Region}:#{AWS::AccountId}:table/${self:provider.environment.TABLE_NAME}
+    - Effect: "Allow"
+      Action:
+        - 'sts:AssumeRole'
+      Resource: arn:aws:iam::#{AWS::AccountId}:role/webClientRole
 
 
 package:
@@ -93,10 +89,10 @@ functions:
         #         description: "A server error occurred"
         #       responseModels:
         #         application/json: "errorResponse"
-        # authorizer: 
-        #   type: COGNITO_USER_POOLS
-        #   authorizerId: 
-        #     Ref: ApiGatewayAuthorizer
+        authorizer: 
+          type: COGNITO_USER_POOLS
+          authorizerId: 
+            Ref: ApiGatewayAuthorizer
 
 
 resources:
