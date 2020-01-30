@@ -1,0 +1,44 @@
+[
+  {
+    "pk": "role_client",
+    "sk": "role-name",
+    "data": "Client"
+
+  },
+  {
+    "pk": "role_clientTeamRepresentative",
+    "sk": "role-name",
+    "data": "Client Team Representative"
+
+  },
+  {
+    "pk": "role_principalDesigner",
+    "sk": "role-name",
+    "data": "Principal Designer"
+
+  },
+  {
+    "pk": "role_projectConsultant",
+    "sk": "role-name",
+    "data": "Project Consultant"
+
+  },
+  {
+    "pk": "role_designer",
+    "sk": "role-name",
+    "data": "Designer"
+
+  },
+  {
+    "pk": "role_principalContractor",
+    "sk": "role-name",
+    "data": "Principal Contractor"
+
+  },
+  {
+    "pk": "role_contractor",
+    "sk": "role-name",
+    "data": "Contractor"
+
+  }
+]

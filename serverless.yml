@@ -27,6 +27,18 @@ custom:
         version: v0.0.1 
         title: Prind API
     models:
+      - name: emptyResponse
+        description: The response given when there is no data to return
+        contentType: "application/json"
+        schema: ${file(models/emptyResponse.json)}
+      - name: errorResponse
+        description:
+        contentType: "application/json"
+        schema: ${file(models/errorResponse.json)}
+      - name: rolesGetResponse
+        description:
+        contentType: "application/json"
+        schema: ${file(models/rolesGetResponse.json)}
 
 provider:
   name: aws
@@ -35,6 +47,7 @@ provider:
   stage: ${opt:stage, 'dev'}
 
   environment:
+    TABLE_NAME: ${self:app}-${self:provider.stage}
     S3_BUCKET_ARN:     
       Fn::GetAtt: 
         - UserFilesS3Bucket
@@ -108,6 +121,44 @@ functions:
           #         description: "A server error occurred"
           #       responseModels:
           #         application/json: "errorResponse"
+          authorizer: 
+            type: COGNITO_USER_POOLS
+            authorizerId: 
+              Ref: ApiGatewayAuthorizer
+
+  get-roles:
+    handler: get-roles.lambda_handler
+    events:
+      - http:
+          path: /roles/get-roles
+          method: get
+          cors: true
+          response:
+            statusCodes:
+              200:
+                pattern: '' # Default response method
+              400:
+                pattern: '.*"statusCode":400,.*'
+              500:
+                pattern: '.*"statusCode":500,.*'
+          integration: lambda
+          documentation:
+            methodResponses:
+              - statusCode: "200"
+                responseBody:
+                  description: "Successful Response"
+                responseModels:
+                  application/json: "rolesGetResponse"
+              - statusCode: "400"
+                responseBody:
+                  description: "A client error occurred"
+                responseModels:
+                  application/json: "errorResponse"
+              - statusCode: "500"
+                responseBody:
+                  description: "A server error occurred"
+                responseModels:
+                  application/json: "errorResponse"
           authorizer: 
             type: COGNITO_USER_POOLS
             authorizerId: 
