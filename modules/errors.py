@@ -11,7 +11,7 @@ class ApplicationError(Exception):
             "ErrorNumber" : self.number
         }
 
-        logger.error('Exception raised: {}'.format(self.error_dict))
+        #logger.error('Exception raised: {}'.format(self.error_dict))
 
     def get_error_dict(self):
    
@@ -31,5 +31,5 @@ class UnhandledException(ApplicationError):
 # CognitoUsername does not have a DID
 class DIDNotFound(ApplicationError):
     def __init__(self, message):
-        ApplicationError.__init__(self, message, "DID_NOT_FOUND", "0001")
+        ApplicationError.__init__(self, message, "DID_NOT_FOUND", "0002")
 
