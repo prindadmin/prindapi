@@ -1,0 +1,32 @@
+Resources:  
+  prind:
+    Type: AWS::DynamoDB::Table
+    Properties:
+      TableName: ${self:app}-${self:provider.stage}
+      AttributeDefinitions:
+      - AttributeName: pk
+        AttributeType: S
+      - AttributeName: sk
+        AttributeType: S
+      - AttributeName: data
+        AttributeType: S
+      KeySchema:
+      - AttributeName: pk
+        KeyType: HASH
+      - AttributeName: sk
+        KeyType: RANGE
+      ProvisionedThroughput:
+        ReadCapacityUnits: 5
+        WriteCapacityUnits: 5
+      GlobalSecondaryIndexes:
+      - IndexName: GSI1
+        KeySchema:
+        - AttributeName: sk
+          KeyType: HASH
+        - AttributeName: data
+          KeyType: RANGE
+        ProvisionedThroughput:
+          ReadCapacityUnits: 5
+          WriteCapacityUnits: 5
+        Projection:
+          ProjectionType: ALL

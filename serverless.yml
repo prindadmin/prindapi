@@ -46,6 +46,25 @@ provider:
         - 'sts:AssumeRole'
       Resource: arn:aws:iam::#{AWS::AccountId}:role/webClientRole
 
+      # Permissions for the main table
+    - Effect: "Allow"
+      Action:
+        - 'dynamodb:PutItem'
+        - 'dynamodb:GetItem'
+        - 'dynamodb:UpdateItem'
+        - 'dynamodb:DeleteItem'
+        - 'dynamodb:Query'
+      Resource: arn:aws:dynamodb:#{AWS::Region}:#{AWS::AccountId}:table/${self:provider.environment.TABLE_NAME}
+      # Permissions for the GSI1 index
+    - Effect: "Allow"
+      Action:
+        - 'dynamodb:PutItem'
+        - 'dynamodb:GetItem'
+        - 'dynamodb:UpdateItem'
+        - 'dynamodb:DeleteItem'
+        - 'dynamodb:Query'
+      Resource: arn:aws:dynamodb:#{AWS::Region}:#{AWS::AccountId}:table/${self:provider.environment.TABLE_NAME}/index/GSI1
+
 
 package:
   exclude:
@@ -59,43 +78,47 @@ functions:
   get-sts:
     handler: get-sts.lambda_handler
     events:
-    - http:
-        path: /get-sts
-        method: get          
-        response:
-          statusCodes:
-            200:
-              pattern: '' # Default response method
-            400:
-              pattern: '.*"statusCode":400,.*'
-            500:
-              pattern: '.*"statusCode":500,.*'
-        cors: true
-        integration: lambda
-        # documentation:
-        #   methodResponses:
-        #     - statusCode: "200"
-        #       responseBody:
-        #         description: "Successful Response"
-        #       responseModels:
-        #         application/json: "userDetailsGetResponse"
-        #     - statusCode: "400"
-        #       responseBody:
-        #         description: "A client error occurred"
-        #       responseModels:
-        #         application/json: "errorResponse"
-        #     - statusCode: "500"
-        #       responseBody:
-        #         description: "A server error occurred"
-        #       responseModels:
-        #         application/json: "errorResponse"
-        authorizer: 
-          type: COGNITO_USER_POOLS
-          authorizerId: 
-            Ref: ApiGatewayAuthorizer
+      - http:
+          path: /user/get-sts
+          method: get
+          cors: true
+          response:
+            statusCodes:
+              200:
+                pattern: '' # Default response method
+              400:
+                pattern: '.*"statusCode":400,.*'
+              500:
+                pattern: '.*"statusCode":500,.*'
+          integration: lambda
+          # documentation:
+          #   methodResponses:
+          #     - statusCode: "200"
+          #       responseBody:
+          #         description: "Successful Response"
+          #       responseModels:
+          #         application/json: "userDetailsGetResponse"
+          #     - statusCode: "400"
+          #       responseBody:
+          #         description: "A client error occurred"
+          #       responseModels:
+          #         application/json: "errorResponse"
+          #     - statusCode: "500"
+          #       responseBody:
+          #         description: "A server error occurred"
+          #       responseModels:
+          #         application/json: "errorResponse"
+          authorizer: 
+            type: COGNITO_USER_POOLS
+            authorizerId: 
+              Ref: ApiGatewayAuthorizer
 
 
 resources:
+
+  # DynamoDB Table
+  - ${file(resources/dynamodb-table.yml)}
+
   # Cognito
   - ${file(resources/cognito-user-pool.yml)}
 
