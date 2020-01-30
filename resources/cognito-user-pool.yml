@@ -22,9 +22,9 @@ Resources:
       EmailVerificationSubject: "Your verification code"
       VerificationMessageTemplate:
         SmsMessage: "Your verification code is {####}. "
-        EmailMessage: "Your verification code is {####}. "
-        EmailSubject: "Your verification code"
-        DefaultEmailOption: "CONFIRM_WITH_CODE"
+        EmailMessage: "Your verification link is {####}. "
+        EmailSubject: "Your verification link"
+        DefaultEmailOption: "CONFIRM_WITH_LINK"
       SmsAuthenticationMessage: "Your authentication code is {####}. "
       # MfaConfiguration: "OPTIONAL"
       DeviceConfiguration:
@@ -176,7 +176,6 @@ Resources:
       ClientName: ${self:app}-${self:provider.stage}-browser
       UserPoolId:
         Ref: CognitoUserPool
-      GenerateSecret: true
       RefreshTokenValidity: 30
       ExplicitAuthFlows:
         - ALLOW_CUSTOM_AUTH
