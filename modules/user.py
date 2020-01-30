@@ -42,3 +42,17 @@ def write_did(cognito_username, did):
             "data": did
         }
     )
+
+def get_cognito_username(did):
+
+    response = table.query(
+        IndexName="GSI1",
+        KeyConditionExpression=Key("sk").eq("did")&Key("data").eq(did)
+    )
+
+    try:
+        cognito_username = response.get("Items")[0]["pk"].split('_')[1]
+    except (TypeError, KeyError, IndexError):
+        raise errors.DIDNotFound("The DID given is not in the database")
+
+    return cognito_username
