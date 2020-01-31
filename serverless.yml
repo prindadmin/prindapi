@@ -20,6 +20,15 @@ custom:
   pythonRequirements:
     dockerizePip: true
   myEnvironment:
+    # map Factom network based on stage
+    FOUNDATIONS_API_ID:
+      dev: 'w9t59cws74'
+      staging: ''
+      production: ''
+    SP_DID:
+      dev: 'did:fctr:d85be1f5baa83fa83850d8b58731a7f7c8ba65c33dec107c2e16e0dd65c7bcc7'
+      staging: ''
+      production: ''
  
   documentation:
     api:
@@ -45,9 +54,11 @@ provider:
   runtime: python3.7
   region: ${opt:region, 'eu-west-1'}
   stage: ${opt:stage, 'dev'}
-
   environment:
     TABLE_NAME: ${self:app}-${self:provider.stage}
+    FOUNDATIONS_API_STAGE: ${self:provider.stage}
+    FOUNDATIONS_API_ID: ${self:custom.myEnvironment.FOUNDATIONS_API_ID.${self:provider.stage}}
+    SP_DID: ${self:custom.myEnvironment.SP_DID.${self:provider.stage}}
     S3_BUCKET_ARN:     
       Fn::GetAtt: 
         - UserFilesS3Bucket
@@ -149,6 +160,78 @@ functions:
                   description: "Successful Response"
                 responseModels:
                   application/json: "rolesGetResponse"
+              - statusCode: "400"
+                responseBody:
+                  description: "A client error occurred"
+                responseModels:
+                  application/json: "errorResponse"
+              - statusCode: "500"
+                responseBody:
+                  description: "A server error occurred"
+                responseModels:
+                  application/json: "errorResponse"
+          authorizer: 
+            type: COGNITO_USER_POOLS
+            authorizerId: 
+              Ref: ApiGatewayAuthorizer
+
+  get-document:
+    handler: get-document-versions.lambda_handler
+    events:
+      - http:
+          path: /document/{document_did}
+          method: get
+          cors: true
+          response:
+            statusCodes:
+              200:
+                pattern: '' # Default response method
+              400:
+                pattern: '.*"statusCode":400,.*'
+              500:
+                pattern: '.*"statusCode":500,.*'
+          integration: lambda
+          documentation:
+            methodResponses:
+              - statusCode: "200"
+                responseBody:
+                  description: "Successful Response"
+              - statusCode: "400"
+                responseBody:
+                  description: "A client error occurred"
+                responseModels:
+                  application/json: "errorResponse"
+              - statusCode: "500"
+                responseBody:
+                  description: "A server error occurred"
+                responseModels:
+                  application/json: "errorResponse"
+          authorizer: 
+            type: COGNITO_USER_POOLS
+            authorizerId: 
+              Ref: ApiGatewayAuthorizer
+
+  get-document-version-signatures:
+    handler: get-document-version-signatures.lambda_handler
+    events:
+      - http:
+          path: /document/{document_did}/version-signatures/{document_version}
+          method: get
+          cors: true
+          response:
+            statusCodes:
+              200:
+                pattern: '' # Default response method
+              400:
+                pattern: '.*"statusCode":400,.*'
+              500:
+                pattern: '.*"statusCode":500,.*'
+          integration: lambda
+          documentation:
+            methodResponses:
+              - statusCode: "200"
+                responseBody:
+                  description: "Successful Response"
               - statusCode: "400"
                 responseBody:
                   description: "A client error occurred"

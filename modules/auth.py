@@ -31,8 +31,6 @@ def get_foundations_jwt(did):
     except (TypeError, KeyError):
         raise errors.DIDNotFound("There is no JWT for this DID")
 
-    print(expiry_time)
-
     # create a new JWT if this JWT expires in less than 5 mins
     if (int(expiry_time) - time.time()) < 300:
         print('seconds different', int(expiry_time) - time.time())
