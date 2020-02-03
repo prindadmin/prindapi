@@ -33,3 +33,27 @@ class DIDNotFound(ApplicationError):
     def __init__(self, message):
         ApplicationError.__init__(self, message, "DID_NOT_FOUND", "0002")
 
+# Project does not exist in the database
+class ProjectNotFound(ApplicationError):
+    def __init__(self, message):
+        ApplicationError.__init__(self, message, "PROJECT_NOT_FOUND", "0003")
+
+# Role does not exist in the database
+class RoleNotFound(ApplicationError):
+    def __init__(self, message):
+        ApplicationError.__init__(self, message, "ROLE_NOT_FOUND", "0004")
+
+# User does not exist in the database
+class UserNotFound(ApplicationError):
+    def __init__(self, message):
+        ApplicationError.__init__(self, message, "USER_NOT_FOUND", "0005")
+
+# Project ID is not unique
+class ProjectAlreadyExists(ApplicationError):
+    def __init__(self, message):
+        ApplicationError.__init__(self, message, "PROJECT_ALREADY_EXISTS", "0006")
+
+class InsufficientPermission(ApplicationError):
+    def __init__(self, message):
+        ApplicationError.__init__(self, message, "INSUFFICIENT_PERMISSION", "0007")
+

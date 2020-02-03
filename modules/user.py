@@ -15,44 +15,89 @@ from modules import errors
 dynamodb = boto3.resource("dynamodb")
 table = dynamodb.Table(os.environ["TABLE_NAME"])
 
-def get_did(cognito_username):
 
-    response = table.get_item(
-         Key={
-            "pk": f"user_{cognito_username}",
-            "sk": "did"
-        }
-    )
-    
-    try:
-        did = response.get("Item")["data"]
-    except (TypeError, KeyError):
-        raise errors.DIDNotFound("This username does not have a DID")
-    
-   
-    return did
+class User():
+
+    def __init__(self, username):
+
+        # logger.info(log.function_start_output())
+
+        response = table.get_item(
+            Key={
+                "pk": f"user_{username}",
+                "sk": "user-name"
+            }
+        )
+
+        try:
+            item = response['Item']
+        except KeyError:
+            raise UserNotFound(f"A user with name {username} was not found.")
+        
+        self.username = username
+        self.name = item['data']
+
+    def get_did(self):
+
+        response = table.get_item(
+             Key={
+                "pk": f"user_{self.username}",
+                "sk": "did"
+            }
+        )
+        
+        try:
+            did = response.get("Item")["data"]
+        except (TypeError, KeyError):
+            raise errors.DIDNotFound("This username does not have a DID")
+        
+        return did
 
 
-def write_did(cognito_username, did):
+    def write_did(self, did):
+
+        table.put_item(
+            Item={
+                "pk": f"user_{self.username}",
+                "sk": "did",
+                "data": did
+            }
+        )
+
+
+def create_user(username, name):
+
 
     table.put_item(
         Item={
-            "pk": f"user_{cognito_username}",
-            "sk": "did",
-            "data": did
+            "pk": f"user_{username}",
+            "sk": "user-name",
+            "data": name
         }
     )
 
-def get_cognito_username(did):
+def list_all_users():
 
     response = table.query(
-        IndexName="GSI1",
-        KeyConditionExpression=Key("sk").eq("did")&Key("data").eq(did)
+        IndexName="GSI1", 
+        KeyConditionExpression=Key("sk").eq("user-name")
     )
 
     try:
-        cognito_username = response.get("Items")[0]["pk"].split('_')[1]
-    except (TypeError, KeyError, IndexError):
-        raise errors.DIDNotFound("The DID given is not in the database")
+        items = response['Items']
+    except KeyError:
+        items = []
 
-    return cognito_username
+    users = []
+
+    for item in items:
+        print('item')
+        item['username'] = item.pop('pk').split('user_')[1]
+        item.pop('sk')
+        item['name'] = item.pop('data')
+        
+        users.append(item)
+
+    return users
+
+

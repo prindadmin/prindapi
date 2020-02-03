@@ -7,6 +7,8 @@ from botocore.exceptions import ClientError
 from boto3.dynamodb.conditions import Key, Attr
 
 from modules import errors
+from modules import user
+from modules import role
 
 
 
@@ -14,6 +16,151 @@ from modules import errors
 
 dynamodb = boto3.resource("dynamodb")
 table = dynamodb.Table(os.environ["TABLE_NAME"])
+
+class Project():
+
+    def __init__(self, project_id):
+
+        # logger.info(log.function_start_output())
+
+        response = table.get_item(
+            Key={
+                "pk": f"project_{project_id}",
+                "sk": "project"
+            }
+        )
+
+        try:
+            item = response['Item']
+        except KeyError:
+            raise errors.ProjectNotFound(f"A project with ID {project_id} was not found.")
+
+        self.project_id = project_id
+        self.name = item['displayName']
+        self.description = item['description']
+        self.site_address = item['siteAddress']
+        self.occupied_during_works = item['occupiedDuringWorks']
+        self.workplace_when_completed = item['workplaceWhenCompleted']
+
+    def get_user_role(self, user_name):
+
+
+        response = table.get_item(
+            Key={
+                "pk": f"user_{user_name}",
+                "sk": f"role_{self.project_id}"
+            }
+        )
+
+        try:
+            return response['Item']['data']
+        except:
+            return None
+
+    def get_project_roles(self):
+        
+        response = table.query(
+            IndexName="GSI1",
+            KeyConditionExpression=Key("sk").eq(f"role_{self.project_id}")
+        )
+
+        try:
+            items = response['Items']
+        except:
+            items = []
+
+        project_roles = []
+
+        for item in items:
+
+            item["username"] = item.pop("pk").split("user_")[1]
+            item.pop("sk")
+            item["roleId"] = item.pop("data")
+
+            project_roles.append(item)
+
+        return project_roles
+
+
+    def add_user_role(
+            self,
+            requesting_user_name,
+            user_to_add,
+            role_id
+        ):
+
+        # check if requesting user is the owner of the project, or has a role on the project
+        project_owner = self.get_owner()
+        print(project_owner)
+
+        if project_owner == requesting_user_name:
+            pass
+        elif get_user_role(requesting_user_name):
+            pass
+        else:
+           raise errors.InsufficientPermission("Requesting user does not have permission to add a role to this project") 
+
+        # check that role is assignable
+        assigned_role = role.Role(role_id)
+
+        table.put_item(
+            Item={    
+                "pk": f"user_{user_to_add}",
+                "sk": f"role_{self.project_id}",
+                "data": assigned_role.role_id 
+            }
+        )
+
+    def get_owner(self):
+
+        response = table.query(
+            IndexName="GSI1",
+            KeyConditionExpression=Key("sk").eq(f"project-owner_{self.project_id}")
+        )
+
+        item = response['Items'][0]
+        owner = item['pk'].split('user_')[1]
+
+        return owner
+
+
+    def update(
+            self,
+            project_name=None,
+            project_description=None,
+            site_address=None,
+            occupied_during_works=None,
+            workplace_when_completed=None
+        ):
+
+        if project_name == None:
+            project_name = self.name
+        if project_description == None:
+            project_description = self.description
+        if site_address == None:
+            site_address = self.site_address
+        if occupied_during_works == None:
+            occupied_during_works = self.occupied_during_works
+        if workplace_when_completed == None:
+            workplace_when_completed = self.workplace_when_completed
+
+        table.put_item(
+            Item={    
+                "pk": f"project_{self.project_id}",
+                "sk": "project",
+                "data": self.project_id, 
+                "displayName": project_name,
+                "description": project_description,
+                "siteAddress": site_address,
+                "occupiedDuringWorks": occupied_during_works,
+                "workplaceWhenCompleted": workplace_when_completed
+            }
+        )
+
+
+
+
+
 
 
 def camelize(string):
@@ -23,43 +170,69 @@ def camelize(string):
 
 def create_project(
         project_name,
+        project_creator,
         project_description,
         site_address,
         occupied_during_works=False,
-        workplace_when_complete=False
+        workplace_when_completed=False
     ):
 
-    project_name_camelcase = camelize(project_name)
+    project_id = camelize(project_name)
 
-    table.put_item(
-        Item={    
-            "pk": f"project_{project_name_camelcase}",
-            "sk": "project", 
-            "displayName": project_name,
-            "description": project_description,
-            "siteAddress": site_address,
-            "occupiedDuringWorks": occupied_during_works,
-            "workplaceWhenCompleted": workplace_when_complete
-        }
-    )
+    project_owner = user.User(project_creator)
 
-def get_project(project_id):
+    # check if project exists before adding it
+    try:
+        project = Project(project_id)
+    except errors.ProjectNotFound:
+        table.put_item(
+            Item={    
+                "pk": f"project_{project_id}",
+                "sk": "project",
+                "data": project_id, 
+                "displayName": project_name,
+                "description": project_description,
+                "siteAddress": site_address,
+                "occupiedDuringWorks": occupied_during_works,
+                "workplaceWhenCompleted": workplace_when_completed
+            }
+        )
 
-    response = table.get_item(
-        Key={
-            "pk": f"project_{project_id}",
-            "sk": "project"
-        }
+        # add the creating user as the owner of the project
+        table.put_item(
+            Item={
+                "pk": f"user_{project_owner.username}",
+                "sk": f"project-owner_{project_id}",
+                "data": str(int(time.time()))
+            }
+        )
+    else:
+        raise errors.ProjectAlreadyExists(f"A project with the ID {project_id} already exists")
+
+
+def list_all_projects():
+
+    response = table.query(
+        IndexName="GSI1",
+        KeyConditionExpression=Key("sk").eq("project")
     )
 
     try:
-        item = response['Item']
-    except KeyError:
-        return None
+        items = response['Items']
+    except:
+        items = []
 
-    return item
+    projects = []
 
+    for item in items:
+        
+        item['project_id'] = item.pop('pk').split('project_')[1]
+        item.pop('sk')
+        item['project_name'] = item.pop('data')
+        
+        projects.append(item)
 
+    return projects
 
 
 if __name__ == "__main__":

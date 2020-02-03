@@ -9,7 +9,7 @@ def lambda_handler(event, context):
 
 
 
-    roles = role.get_all_roles()
+    roles = role.list_all_roles()
 
     
     return {
