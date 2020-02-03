@@ -159,10 +159,6 @@ class Project():
 
 
 
-
-
-
-
 def camelize(string):
     from re import split
     return ''.join(a.capitalize() for a in split('([^a-zA-Z0-9])', string)
@@ -226,9 +222,9 @@ def list_all_projects():
 
     for item in items:
         
-        item['project_id'] = item.pop('pk').split('project_')[1]
+        item['projectId'] = item.pop('pk').split('project_')[1]
         item.pop('sk')
-        item['project_name'] = item.pop('data')
+        item['projectName'] = item.pop('data')
         
         projects.append(item)
 
