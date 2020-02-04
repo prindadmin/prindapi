@@ -3,10 +3,20 @@ Resources:
     Type: AWS::S3::Bucket
     Properties: 
       AccessControl: Private
-      BucketName: prind-portal-user-files-${self:provider.stage}
+      BucketName: ${self:custom.s3BucketName}
       PublicAccessBlockConfiguration:
         BlockPublicAcls: True
         BlockPublicPolicy: True
       VersioningConfiguration: 
         Status: "Enabled"
+      CorsConfiguration:
+        CorsRules:
+            - AllowedHeaders: 
+                - "*"
+              AllowedMethods: 
+                - GET
+                - PUT
+              AllowedOrigins: 
+                - "*"
+
 

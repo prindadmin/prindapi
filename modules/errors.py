@@ -57,3 +57,7 @@ class InsufficientPermission(ApplicationError):
     def __init__(self, message):
         ApplicationError.__init__(self, message, "INSUFFICIENT_PERMISSION", "0007")
 
+class DocumentNotFound(ApplicationError):
+    def __init__(self, message):
+        ApplicationError.__init__(self, message, "DOCUMENT_NOT_FOUND", "0008")
+
