@@ -32,14 +32,10 @@ class Document():
         except KeyError:
             raise errors.DocumentNotFound(f"A document with DID {document_did} was not found.")
 
-        
-        s3BucketName, s3Key, filename, versionNumber 
-
         self.document_did = document_did
         self.s3_bucket_name = item['s3BucketName']
         self.s3_key = item['s3Key']
         self.filename = item['filename']
-        self.versionNumber = item['versionNumber']
 
 
 if __name__ == "__main__":

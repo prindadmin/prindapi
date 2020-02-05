@@ -91,6 +91,7 @@ provider:
     - Effect: "Allow"
       Action:
         - "s3:GetObject"
+        - "s3:GetObjectVersion"
         - "s3:PutObject"
       Resource: "${self:provider.environment.S3_BUCKET_ARN}/*"
 
@@ -182,12 +183,39 @@ functions:
 
   create-document:
     handler: create-document.lambda_handler
-    # events:
-    #   - s3:
-    #       bucket: ${self:custom.s3BucketName}
-    #       event: s3:ObjectCreated:*
-    #       # existing: true
-    #       versioning: true
+    events:
+      - http:
+          path: /document/create
+          method: post
+          cors: true
+          response:
+            statusCodes:
+              200:
+                pattern: '' # Default response method
+              400:
+                pattern: '.*"statusCode":400,.*'
+              500:
+                pattern: '.*"statusCode":500,.*'
+          integration: lambda
+          documentation:
+            methodResponses:
+              - statusCode: "200"
+                responseBody:
+                  description: "Successful Response"
+              - statusCode: "400"
+                responseBody:
+                  description: "A client error occurred"
+                responseModels:
+                  application/json: "errorResponse"
+              - statusCode: "500"
+                responseBody:
+                  description: "A server error occurred"
+                responseModels:
+                  application/json: "errorResponse"
+          authorizer: 
+            type: COGNITO_USER_POOLS
+            authorizerId: 
+              Ref: ApiGatewayAuthorizer
 
   get-document:
     handler: get-document-versions.lambda_handler
@@ -195,6 +223,42 @@ functions:
       - http:
           path: /document/{document_did}
           method: get
+          cors: true
+          response:
+            statusCodes:
+              200:
+                pattern: '' # Default response method
+              400:
+                pattern: '.*"statusCode":400,.*'
+              500:
+                pattern: '.*"statusCode":500,.*'
+          integration: lambda
+          documentation:
+            methodResponses:
+              - statusCode: "200"
+                responseBody:
+                  description: "Successful Response"
+              - statusCode: "400"
+                responseBody:
+                  description: "A client error occurred"
+                responseModels:
+                  application/json: "errorResponse"
+              - statusCode: "500"
+                responseBody:
+                  description: "A server error occurred"
+                responseModels:
+                  application/json: "errorResponse"
+          authorizer: 
+            type: COGNITO_USER_POOLS
+            authorizerId: 
+              Ref: ApiGatewayAuthorizer
+
+  update-document:
+    handler: update-document.lambda_handler
+    events:
+      - http:
+          path: /document/{document_did}/update
+          method: post
           cors: true
           response:
             statusCodes:

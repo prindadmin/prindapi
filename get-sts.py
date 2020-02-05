@@ -41,8 +41,7 @@ def lambda_handler(event, context):
                     "s3:PutObject",
                     "s3:GetObject"
                 ],
-                "Resource": [f"{s3_bucket_arn}/{cognito_username}/*",
-                            f"{s3_bucket_arn}/demonstration_sites/*"]
+                "Resource": [f"{s3_bucket_arn}/*"]
             }
         ]
     })

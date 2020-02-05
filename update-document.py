@@ -6,7 +6,7 @@ import requests
 
 from modules import errors
 from modules import auth
-from modules import project
+from modules import document
 
 from botocore.exceptions import ClientError
 from boto3.dynamodb.conditions import Key, Attr
@@ -14,7 +14,7 @@ from boto3.dynamodb.conditions import Key, Attr
 dynamodb = boto3.resource("dynamodb")
 table = dynamodb.Table(os.environ["TABLE_NAME"])
 
-s3 = boto3.client('s3')
+s3 = boto3.resource('s3')
 
 def lambda_handler(event, context):
 
@@ -26,34 +26,35 @@ def lambda_handler(event, context):
         sp_did = os.environ["SP_DID"]
         api_stage = os.environ["FOUNDATIONS_API_STAGE"]
 
-        foundations_jwt = auth.get_foundations_jwt(sp_did)
-        api_url=f"https://{api_id}.execute-api.eu-west-1.amazonaws.com/{api_stage}/sp/document/create"
-
-        
-        document_name = event['body']['title']
-        document_tags = event['body']['tags']
-        project_id = event['body']['projectId']
-        s3_key = event['body']['s3Key']
+        document_did = event['path']['document_did']
         s3_version_id = event['body']['s3VersionId']
-        filename = event['body']['filename']
 
+        foundations_jwt = auth.get_foundations_jwt(sp_did)
+        api_url=f"https://{api_id}.execute-api.eu-west-1.amazonaws.com/{api_stage}/sp/document-did/{document_did}/update"
 
-        # validate project
-        document_project = project.Project(project_id)
+        document_version = document.Document(document_did)
 
-        print('s3_bucket_name',s3_bucket_name,'s3_bucket_arn',s3_bucket_arn)
+        object_version = s3.ObjectVersion(
+            s3_bucket_name, 
+            document_version.s3_key, 
+            s3_version_id
+        )    
+        
+        response = object_version.get()
 
-        response = s3.get_object(Bucket=s3_bucket_name, Key=s3_key)
         uploaded_file = response['Body']
      
         file_bytes = uploaded_file.read()    
         file_hash = hashlib.sha256(file_bytes).hexdigest();
 
+        print(file_hash)
+
         params = {
-            "documentName": document_name,
             "documentHash": file_hash,
             "requesterReference": "File Uploader"
         }
+
+        print(params)
 
         response = requests.post(
             api_url,
@@ -61,63 +62,37 @@ def lambda_handler(event, context):
             headers={'Authorization': foundations_jwt}
         )
 
+
         response_dict = json.loads(response.content.decode('utf-8'))
 
-        if not response.status_code == 200:
+        if not response.status_code == 202:
             
             print("status code was", response.status_code)
             print("response content was", response_dict)
             
             raise Exception('API call failed')
         
+
         print(response_dict)
 
-        document_did = response_dict['body']['documentDid']
+        document_version_number = response_dict['body']['documentVersionNumber']
 
-        
-        table.put_item(
-            Item={    
-                "pk": f"document_{document_did}",
-                "sk": "document",
-                "data": document_name,
-                "s3BucketName": s3_bucket_name ,
-                "s3Key": s3_key,
-                "filename": filename
-            }
-        )
-
-        for tag in document_tags:
-            table.put_item(
-                Item={    
-                    "pk": f"document_{document_did}",
-                    "sk": f"document-tag_{tag}",
-                    "data": document_did 
-                }
-            )
-
-        table.put_item(
-            Item={    
-                "pk": f"document_{document_did}",
-                "sk": "document-project",
-                "data": project_id 
-            }
-        )
 
         table.put_item(
             Item={    
                 "pk": f"document_v0_{document_did}",
                 "sk": "document-version",
                 "s3VersionId": s3_version_id,
-                "versionNumber": 1
+                "versionNumber": document_version_number
             }
         )
 
         table.put_item(
             Item={    
-                "pk": f"document_v1_{document_did}",
+                "pk": f"document_v{document_version_number}_{document_did}",
                 "sk": "document-version",
                 "s3VersionId": s3_version_id,
-                "versionNumber": 1
+                "versionNumber": document_version_number
             }
         )
 
@@ -150,17 +125,14 @@ def lambda_handler(event, context):
 if __name__ == '__main__':
 
     event = {
+        "path": {
+            "document_did": "did:fnds:fb926075aec4f9108cf79689680dd085257daaf50d7eb635252c03fcf9666af6"
+        },
         "body": {
-            "title": "Test Document",
-            "tags": ["Test", "Document"],
-            "projectId": "ProjectNumberFour",
-            "s3BucketName": "prind-portal-user-files-dev",
-            "s3Key": "test-document.txt",
-            "s3VersionId": '9fb119dd751a6bcda45f1be11d4cb49bea57e7f1e3419bfbeb5485cbe01ad8c6',
-            "filename": 'test-document.txt'
-            "pageName": "Page Name",
-            "fieldId": "Field ID"  
+            "s3VersionId": "P17H4iYV2442nCea9yZzx3XVvzW7lWLM",
         }
     }
 
+    # "documentDid": "did:fnds:fb926075aec4f9108cf79689680dd085257daaf50d7eb635252c03fcf9666af6"
+    
     lambda_handler(event, {})
