@@ -1,0 +1,12 @@
+[
+  {
+    "pk": "defaultField_design",
+    "sk": "fieldIndex_1",
+    "id": "1",
+    "title": "Please Upload your Design Risk Assessment (DRA)",
+    "description": "This document is required before any design work can start.",
+    "type": "file",
+    "editable": true,
+    "fileDetails": []
+  }
+]

@@ -1,0 +1,12 @@
+[
+  {
+    "pk": "defaultField_occupation",
+    "sk": "fieldIndex_1",
+    "id": "1",
+    "title": "Please upload the Health and Safety file (HSF)",
+    "description": ".",
+    "type": "file",
+    "editable": true,
+    "fileDetails": []
+  }
+]

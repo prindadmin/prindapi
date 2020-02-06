@@ -1,0 +1,12 @@
+[
+  {
+    "pk": "defaultField_handover",
+    "sk": "fieldIndex_1",
+    "id": "1",
+    "title": "Please upload your Practical Completion Certification",
+    "description": ".",
+    "type": "file",
+    "editable": true,
+    "fileDetails": []
+  }
+]

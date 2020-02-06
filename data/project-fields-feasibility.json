@@ -1,0 +1,22 @@
+[
+  {
+    "pk": "defaultField_feasibility",
+    "sk": "fieldIndex_1",
+    "id": "1",
+    "title": "Please upload your feasibility study",
+    "description": "The project feasibility study is required for ...",
+    "type": "file",
+    "editable": true,
+    "fileDetails": []
+  },
+  {
+    "pk": "defaultField_feasibility",
+    "sk": "fieldIndex_2",
+    "id": "2",
+    "title": "Please upload your other document",
+    "description": "This document is required for the project to start.  Nobody will use this document.",
+    "type": "file",
+    "editable": true,
+    "fileDetails": []
+  }
+]
