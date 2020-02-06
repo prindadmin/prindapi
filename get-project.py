@@ -13,8 +13,8 @@ def lambda_handler(event, context):
 
         return_dict = {
             "Id": this_project.project_id,
-            "name": this_project.name,
-            "description": this_project.description,
+            "name": this_project.project_name,
+            "description": this_project.project_description,
             "siteAddress": this_project.site_address,
             "occupiedDuringWorks": this_project.occupied_during_works,
             "workplaceWhenCompleted": this_project.workplace_when_completed

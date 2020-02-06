@@ -36,8 +36,8 @@ class Project():
             raise errors.ProjectNotFound(f"A project with ID {project_id} was not found.")
 
         self.project_id = project_id
-        self.name = item['displayName']
-        self.description = item['description']
+        self.project_name = item['displayName']
+        self.project_description = item['description']
         self.site_address = item['siteAddress']
         self.occupied_during_works = item['occupiedDuringWorks']
         self.workplace_when_completed = item['workplaceWhenCompleted']
@@ -134,7 +134,7 @@ class Project():
         ):
 
         if project_name == None:
-            project_name = self.name
+            project_name = self.project_name
         if project_description == None:
             project_description = self.description
         if site_address == None:

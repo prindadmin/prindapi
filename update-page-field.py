@@ -17,10 +17,24 @@ def lambda_handler(event, context):
 
         project_id = event['path']['project_id']
         page_name = event['path']['page']
+        field_index = event['path']['field_index']
+
+        field_data = event['body']['fieldData']
+        title = event['body']['title']
+        description = event['body']['description'] 
+        field_type = event['body']['type']
+        editable = event['body']['editable']
 
         this_page = page.Page(page=page_name, project_id=project_id)
 
-        page_fields = this_page.get_resultant_fields()
+        this_page.write_field(
+            field_index=field_index, 
+            field_data=field_data, 
+            title=title, 
+            description=description, 
+            field_type=field_type, 
+            editable=editable
+        )
 
     # catch any application errors
     except:
@@ -44,7 +58,7 @@ def lambda_handler(event, context):
     
     return {
         "statusCode": 200,
-        "body": page_fields
+        "body": "completed"
     }
 
 
@@ -53,7 +67,29 @@ if __name__ == '__main__':
     event = {
         "path": {
             "project_id": "ProjectNumberFour",
-            "page": "feasibility"
+            "page": "feasibility",
+            "field_index": 2
+        },
+        "body": {
+            "fieldData": {
+              "dropdownValue": "No",
+              "textboxValue": ".",
+              "dropdownOptions": [
+                {
+                  "id": "1",
+                  "name": "Yes"
+                },
+                {
+                  "id": "2",
+                  "name": "No"
+                }
+              ],
+              "optionOpensTextBox": "Yes"
+            },
+            "title": "This is a test drop-down box", 
+            "description": "This is a test field",
+            "type": "dropdown",
+            "editable": True
         }
     }
 
