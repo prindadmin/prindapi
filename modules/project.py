@@ -115,7 +115,7 @@ class Project():
 
         response = table.query(
             IndexName="GSI1",
-            KeyConditionExpression=Key("sk").eq(f"project-owner_{self.project_id}")
+            KeyConditionExpression=Key("sk").eq(f"projectOwner_{self.project_id}")
         )
 
         item = response['Items'][0]
@@ -198,7 +198,7 @@ def create_project(
         table.put_item(
             Item={
                 "pk": f"user_{project_owner.username}",
-                "sk": f"project-owner_{project_id}",
+                "sk": f"projectOwner_{project_id}",
                 "data": str(int(time.time()))
             }
         )
