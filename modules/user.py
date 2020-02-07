@@ -25,14 +25,14 @@ class User():
         response = table.get_item(
             Key={
                 "pk": f"user_{username}",
-                "sk": "user-name"
+                "sk": "userName"
             }
         )
 
         try:
             item = response['Item']
         except KeyError:
-            raise UserNotFound(f"A user with name {username} was not found.")
+            raise errors.UserNotFound(f"A user with name {username} was not found.")
         
         self.username = username
         self.name = item['data']
@@ -71,7 +71,7 @@ def create_user(username, name):
     table.put_item(
         Item={
             "pk": f"user_{username}",
-            "sk": "user-name",
+            "sk": "userName",
             "data": name
         }
     )
@@ -80,7 +80,7 @@ def list_all_users():
 
     response = table.query(
         IndexName="GSI1", 
-        KeyConditionExpression=Key("sk").eq("user-name")
+        KeyConditionExpression=Key("sk").eq("userName")
     )
 
     try:
