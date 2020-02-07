@@ -75,3 +75,18 @@ print(this_project.site_address)
 print(this_project.occupied_during_works)
 print(this_project.workplace_when_completed)
 
+# get document version signatures
+from modules import document
+this_document = document.Document('did:fnds:fb926075aec4f9108cf79689680dd085257daaf50d7eb635252c03fcf9666af6')
+this_document.get_version_signatures(1)
+
+# get document versions
+from modules import document
+this_document = document.Document('did:fnds:fb926075aec4f9108cf79689680dd085257daaf50d7eb635252c03fcf9666af6')
+this_document.get_versions()
+
+# get all document info
+from modules import document
+this_document = document.Document('did:fnds:fb926075aec4f9108cf79689680dd085257daaf50d7eb635252c03fcf9666af6')
+this_document.get_all_info()
+
