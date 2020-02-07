@@ -19,7 +19,9 @@ s3 = boto3.resource('s3')
 def lambda_handler(event, context):
 
     try:
-       
+ 
+        cognito_username = event['cognitoPoolClaims']['sub']
+
         s3_bucket_name = os.environ.get("S3_BUCKET_NAME", "prind-portal-user-files-dev")
         s3_bucket_arn = os.environ.get("S3_BUCKET_ARN", "arn:aws:s3:::prind-portal-user-files-dev")
         api_id = os.environ["FOUNDATIONS_API_ID"]
@@ -81,18 +83,20 @@ def lambda_handler(event, context):
         table.put_item(
             Item={    
                 "pk": f"document_v0_{document_did}",
-                "sk": "document-version",
+                "sk": "documentVersion",
                 "s3VersionId": s3_version_id,
-                "versionNumber": document_version_number
+                "versionNumber": document_version_number,
+                "uploadedBy": cognito_username
             }
         )
 
         table.put_item(
             Item={    
                 "pk": f"document_v{document_version_number}_{document_did}",
-                "sk": "document-version",
+                "sk": "documentVersion",
                 "s3VersionId": s3_version_id,
-                "versionNumber": document_version_number
+                "versionNumber": document_version_number,
+                "uploadedBy": cognito_username
             }
         )
 

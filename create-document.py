@@ -19,6 +19,8 @@ s3 = boto3.client('s3')
 def lambda_handler(event, context):
 
     try:
+
+        cognito_username = event['cognitoPoolClaims']['sub']
        
         s3_bucket_name = os.environ.get("S3_BUCKET_NAME", "prind-portal-user-files-dev")
         s3_bucket_arn = os.environ.get("S3_BUCKET_ARN", "arn:aws:s3:::prind-portal-user-files-dev")
@@ -90,7 +92,7 @@ def lambda_handler(event, context):
             table.put_item(
                 Item={    
                     "pk": f"document_{document_did}",
-                    "sk": f"document-tag_{tag}",
+                    "sk": f"documentTag_{tag}",
                     "data": document_did 
                 }
             )
@@ -98,7 +100,7 @@ def lambda_handler(event, context):
         table.put_item(
             Item={    
                 "pk": f"document_{document_did}",
-                "sk": "document-project",
+                "sk": "documentProject",
                 "data": project_id 
             }
         )
@@ -106,18 +108,20 @@ def lambda_handler(event, context):
         table.put_item(
             Item={    
                 "pk": f"document_v0_{document_did}",
-                "sk": "document-version",
+                "sk": "documentVersion",
                 "s3VersionId": s3_version_id,
-                "versionNumber": 1
+                "versionNumber": 1,
+                "uploadedBy": cognito_username
             }
         )
 
         table.put_item(
             Item={    
                 "pk": f"document_v1_{document_did}",
-                "sk": "document-version",
+                "sk": "documentVersion",
                 "s3VersionId": s3_version_id,
-                "versionNumber": 1
+                "versionNumber": 1,
+                "uploadedBy": cognito_username
             }
         )
 

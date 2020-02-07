@@ -55,7 +55,7 @@ class Document():
         response = table.get_item(
             Key={
                 "pk": f"document_v0__{document_did}",
-                "sk": "document-version"
+                "sk": "documentVersion"
             }
         )
 
