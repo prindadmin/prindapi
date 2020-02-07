@@ -65,3 +65,7 @@ class PageNotFound(ApplicationError):
     def __init__(self, message):
         ApplicationError.__init__(self, message, "PAGE_NOT_FOUND", "0009")
 
+class DocumentVersionNotFound(ApplicationError):
+    def __init__(self, message):
+        ApplicationError.__init__(self, message, "DOCUMENT_VERSION_FOUND", "0010")
+
