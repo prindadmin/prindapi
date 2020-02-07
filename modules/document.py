@@ -10,6 +10,8 @@ from boto3.dynamodb.conditions import Key, Attr
 
 from modules import errors
 from modules import auth
+from modules import user
+from modules import did
 
 
 # If logger hasn"t been set up by a calling function, set it here
@@ -101,14 +103,16 @@ class Document():
 
         latest_version_signatures = self.get_version_signatures(latest_version)['signatures']
 
-        # print(latest_version_signatures)
-
         for signing in latest_version_signatures:
 
-            # print(signing)
-
             signing['signedBy'] = signing.pop('signingDid')
-            signing['signerName'] = "Someone"
+ 
+            try:     
+                signing_username = did.Did(signing['signedBy']).get_cognito_username()
+            except errors.DIDNotFound:
+                signing_username = 'Unregistered User'
+
+            signing['signerName'] = user.User(signing_username).name
             signed_at_unixtime = signing.pop('signedAt')
             signing['signatureDateTime'] = datetime.utcfromtimestamp(signed_at_unixtime).isoformat()
             entry_hash = signing.pop('entryHash')

@@ -16,16 +16,23 @@ dynamodb = boto3.resource("dynamodb")
 table = dynamodb.Table(os.environ["TABLE_NAME"])
 
 
-def get_cognito_username(did):
+class Did():
 
-    response = table.query(
-        IndexName="GSI1",
-        KeyConditionExpression=Key("sk").eq("did")&Key("data").eq(did)
-    )
+    def __init__(self, did):
 
-    try:
-        cognito_username = response.get("Items")[0]["pk"].split('_')[1]
-    except (TypeError, KeyError, IndexError):
-        raise errors.DIDNotFound("The DID given is not in the database")
+        self.did = did
 
-    return cognito_username
+    def get_cognito_username(self):
+
+        response = table.query(
+            IndexName="GSI1",
+            KeyConditionExpression=Key("sk").eq("userDid")&Key("data").eq(self.did)
+        )
+
+        try:
+            cognito_username = response.get("Items")[0]["pk"].split('_')[1]
+        except (TypeError, KeyError, IndexError):
+            raise errors.DIDNotFound("The DID given is not in the database")
+
+        return cognito_username
+

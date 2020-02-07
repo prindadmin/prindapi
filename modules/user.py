@@ -42,7 +42,7 @@ class User():
         response = table.get_item(
              Key={
                 "pk": f"user_{self.username}",
-                "sk": "did"
+                "sk": "userDid"
             }
         )
         
@@ -59,7 +59,7 @@ class User():
         table.put_item(
             Item={
                 "pk": f"user_{self.username}",
-                "sk": "did",
+                "sk": "userDid",
                 "data": did
             }
         )
