@@ -7,6 +7,7 @@
     "description": "A construction phase plan is a document required under CDM. It is required on all construction projects and is used to plan and manage the construction works in a safe manner.",
     "type": "file",
     "editable": true,
+    "default": true,
     "fileDetails": []
   },
   {
@@ -17,6 +18,7 @@
     "description": "Meeting records should be uploaded for the project record to allow all parties to stay informed about progress on the project.",
     "type": "file",
     "editable": true,
+    "default": true,
     "fileDetails": []
   },
   {
@@ -27,6 +29,7 @@
     "description": "This field should be used to upload any meeting notes held by the project CDM team.",
     "type": "file",
     "editable": true,
+    "default": true,
     "fileDetails": []
   }
 ]

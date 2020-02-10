@@ -7,6 +7,7 @@
     "description": "The project brief is required for the project to start.  Everyone will use this document.",
     "type": "file",
     "editable": true,
+    "default": true,
     "fileDetails": []
   },
   {
@@ -17,6 +18,7 @@
     "description": "This is asked to ensure that any plans will take into account any members of the public who might be moving around the building / site.",
     "type": "dropdown",
     "editable": true,
+    "default": true,
     "fieldDetails": {
       "dropdownOptions": [
         {
@@ -39,6 +41,7 @@
     "description": "This is asked to ensure that the project starts on schedule.",
     "type": "calendar",
     "editable": true,
+    "default": true,
     "fieldDetails": {}
   },
   {
@@ -49,6 +52,7 @@
     "description": "This is asked to ensure that the project ends on schedule.",
     "type": "calendar",
     "editable": true,
+    "default": true,
     "fieldDetails": {}
   },
   {
@@ -59,6 +63,7 @@
     "description": "This is asked to ensure that any plans will take into account any phasing requirements.",
     "type": "dropdown",
     "editable": true,
+    "default": true,
     "fieldDetails": {
       "dropdownOptions": [
         {
@@ -81,6 +86,7 @@
     "description": "This can be key dates, key stakeholders, or any additional information about the project that the project team could find helpful.",
     "type": "longText",
     "editable": true,
+    "default": true,
     "fieldDetails": {}
   }
 ]
