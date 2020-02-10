@@ -57,6 +57,19 @@ class Project():
         except:
             return None
 
+    def user_has_permission(self, user_name):
+
+        project_owner = self.get_owner()
+        print(project_owner)
+
+        if project_owner == user_name:
+            return True
+        elif get_user_role(user_name):
+            return True
+        else:
+           return False
+
+
     def get_project_roles(self):
         
         response = table.query(
@@ -90,14 +103,7 @@ class Project():
         ):
 
         # check if requesting user is the owner of the project, or has a role on the project
-        project_owner = self.get_owner()
-        print(project_owner)
-
-        if project_owner == requesting_user_name:
-            pass
-        elif get_user_role(requesting_user_name):
-            pass
-        else:
+        if not self.user_has_permission(requesting_user_name):
            raise errors.InsufficientPermission("Requesting user does not have permission to add a role to this project") 
 
         # check that role is assignable
