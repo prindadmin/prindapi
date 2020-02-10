@@ -147,21 +147,19 @@ if __name__ == '__main__':
 
     event = {
         "cognitoPoolClaims": {
-            "sub": "81de030e-7a68-4426-9c12-160fca975a92"
+            "sub": "778bd486-4684-482b-9565-1c2a51367b8c"
         },
         "path": {
-            "document_did": "did:fnds:fb926075aec4f9108cf79689680dd085257daaf50d7eb635252c03fcf9666af6"
+            "document_did": "did:fnds:c25eb417ffa90f8fedf29b385fc91f58831a470805f38474bd71f327b860f946"
         },
         "body": {
-            "s3VersionId": "P17H4iYV2442nCea9yZzx3XVvzW7lWLM",
+            "s3VersionId": "aACPyGfvlK5VOKq4fDKaw6kcmMAz3diX",
             "projectId": "ProjectNumberFour",
             "page": "inception",
-            "fieldIndex": 1,
-            "title": "Test title update from update-document",
-            "description": "test description update from update-document"  
+            "fieldIndex": 1
         }
     }
 
     # "documentDid": "did:fnds:fb926075aec4f9108cf79689680dd085257daaf50d7eb635252c03fcf9666af6"
-    {'documentDid': 'did:fnds:245a22623f2f10cadf0d02c052f41ac44dfcfd6621f02f488b4a7b724154e1de'}
+    #{'documentDid': 'did:fnds:245a22623f2f10cadf0d02c052f41ac44dfcfd6621f02f488b4a7b724154e1de'}
     lambda_handler(event, {})

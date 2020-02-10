@@ -150,8 +150,14 @@ class Document():
             
             try:
                 uploaded_by_username = prind_version_info['uploadedBy']
-                uploaded_by_fullname = user.User(uploaded_by_username).name
+                
+                try:
+                    uploaded_by_fullname = user.User(uploaded_by_username).name
+                except errors.UserNotFound:
+                    uploaded_by_fullname = "A User"
+
                 version['uploadedBy'] = uploaded_by_fullname
+            
             except KeyError:
                 version['uploadedBy'] = "A User"
             

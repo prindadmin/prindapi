@@ -129,7 +129,7 @@ def lambda_handler(event, context):
         )
 
         # update the file field on the page
-        if page_name and field_index:
+        if page_name and field_index and project_id:
             this_page = page.Page(page_name, project_id)
             this_page.write_document_field(
                 field_index=field_index,
@@ -170,16 +170,16 @@ if __name__ == '__main__':
 
     event = {
         "cognitoPoolClaims": {
-            "sub": "81de030e-7a68-4426-9c12-160fca975a92"
+            "sub": "778bd486-4684-482b-9565-1c2a51367b8c"
         },
         "body": {
-            "title": "Test Document",
-            "tags": ["Test", "Document"],
+            "title": "Test Document 2",
+            "tags": ["Test", "Document", "2"],
             "projectId": "ProjectNumberFour",
             "s3BucketName": "prind-portal-user-files-dev",
-            "s3Key": "test-document.txt",
-            "s3VersionId": '9fb119dd751a6bcda45f1be11d4cb49bea57e7f1e3419bfbeb5485cbe01ad8c6',
-            "filename": 'test-document.txt',
+            "s3Key": "test-document2.txt",
+            "s3VersionId": '.O.H36bCD30kYbcTPZAILIUpnPxN74Jp',
+            "filename": 'test-document.txt2',
             "page": "inception",
             "fieldIndex": 1  
         }

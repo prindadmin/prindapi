@@ -8,6 +8,7 @@ from boto3.dynamodb.conditions import Key, Attr
 
 from modules import errors
 from modules import project
+from modules import document
 
 
 
@@ -52,6 +53,16 @@ class Page(project.Project):
         for item in items:
             item.pop('pk')
             item.pop('sk')
+
+            # Add any file details
+            if item['type'] == 'file':
+
+                if item.get('fieldDetails'):
+                    document_did = item['fieldDetails'].get('documentDid')
+
+                    if document_did:
+                        this_document = document.Document(document_did)
+                        item['fileDetails'] = this_document.get_all_info()
             
             populated_fields[str(item["id"])] = item
 
@@ -90,7 +101,10 @@ class Page(project.Project):
             }
         )
 
+
         existing_field = response.get('Item')
+
+        print(existing_field)
 
         try:
             default_field = self.default_fields[field_index-1]
@@ -112,7 +126,7 @@ class Page(project.Project):
             "title": title,
             "description": description,
             "editable": editable,
-            "field_data": field_data
+            "fieldDetails": field_data
         }
 
         for key in optional_args.keys():
@@ -131,7 +145,7 @@ class Page(project.Project):
                 "description": optional_args['description'],
                 "type": field_type,
                 "editable": optional_args['editable'],
-                "fieldDetails": optional_args['field_data']
+                "fieldDetails": optional_args['fieldDetails']
                 
             }
         )
