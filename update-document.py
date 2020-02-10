@@ -7,6 +7,7 @@ import requests
 from modules import errors
 from modules import auth
 from modules import document
+from modules import page
 
 from botocore.exceptions import ClientError
 from boto3.dynamodb.conditions import Key, Attr
@@ -27,6 +28,12 @@ def lambda_handler(event, context):
         api_id = os.environ["FOUNDATIONS_API_ID"]
         sp_did = os.environ["SP_DID"]
         api_stage = os.environ["FOUNDATIONS_API_STAGE"]
+        
+        project_id = event['body'].get('projectId')
+        page_name = event['body'].get('page')
+        field_index = event['body'].get('fieldIndex')
+        title = event['body'].get('title')
+        description = event['body'].get('description')
 
         document_did = event['path']['document_did']
         s3_version_id = event['body']['s3VersionId']
@@ -100,6 +107,16 @@ def lambda_handler(event, context):
             }
         )
 
+        # update title and description if specified
+        if page_name and field_index and project_id:
+            this_page = page.Page(page_name, project_id)
+            this_page.write_field(
+                field_type="file",
+                field_index=field_index,
+                title=title,
+                description=description
+            )
+
     # catch any application errors
     except:
         raise
@@ -129,14 +146,22 @@ def lambda_handler(event, context):
 if __name__ == '__main__':
 
     event = {
+        "cognitoPoolClaims": {
+            "sub": "81de030e-7a68-4426-9c12-160fca975a92"
+        },
         "path": {
             "document_did": "did:fnds:fb926075aec4f9108cf79689680dd085257daaf50d7eb635252c03fcf9666af6"
         },
         "body": {
             "s3VersionId": "P17H4iYV2442nCea9yZzx3XVvzW7lWLM",
+            "projectId": "ProjectNumberFour",
+            "page": "inception",
+            "fieldIndex": 1,
+            "title": "Test title update from update-document",
+            "description": "test description update from update-document"  
         }
     }
 
     # "documentDid": "did:fnds:fb926075aec4f9108cf79689680dd085257daaf50d7eb635252c03fcf9666af6"
-    
+    {'documentDid': 'did:fnds:245a22623f2f10cadf0d02c052f41ac44dfcfd6621f02f488b4a7b724154e1de'}
     lambda_handler(event, {})
