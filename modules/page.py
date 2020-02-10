@@ -71,7 +71,7 @@ class Page(project.Project):
 
         return resultant_fields
 
-    def write_field(self, field_index, field_data, title, description, field_type, editable=True):
+    def write_field(self, field_index, field_type, field_data=None, title=None, description=None, editable=None):
 
         """
         If a document, field_data is:
@@ -83,21 +83,76 @@ class Page(project.Project):
         Otherwise fieldDetails is exactly the same as what was downloaded
         """
 
+        response = table.get_item(
+            Key={
+                "pk": f"project_{self.project_id}",
+                "sk": f"field_{self.page_name}_{field_index}" 
+            }
+        )
+
+        existing_field = response.get('Item')
+
+        try:
+            default_field = self.default_fields[field_index-1]
+        except IndexError:
+            default_field = None
+
+
+        if existing_field:
+            default_values = existing_field
+        elif default_field:
+            default_values = default_field
+            # don't try to change the field type if a default exists
+            if field_type != default_field['type']:
+                raise Exception('The field type does not match the default')
+        else:
+            default_values = {}
+
+        optional_args = {
+            "title": title,
+            "description": description,
+            "editable": editable,
+            "field_data": field_data
+        }
+
+        for key in optional_args.keys():
+            if not optional_args[key]: 
+                optional_args[key] = default_values.get(key)
+
+     
+        print(optional_args)
+
         table.put_item(
             Item={
                 "pk": f"project_{self.project_id}",
                 "sk": f"field_{self.page_name}_{field_index}",
                 "id": str(field_index),
-                "title": title,
-                "description": description,
+                "title": optional_args['title'],
+                "description": optional_args['description'],
                 "type": field_type,
-                "editable": editable,
-                "fieldDetails": field_data
+                "editable": optional_args['editable'],
+                "fieldDetails": optional_args['field_data']
                 
             }
         )
 
 
+    def write_document_field(self, field_index, document_did, title=None, description=None, editable=None):
+
+        field_data = {
+            "documentDid": document_did 
+        }
+
+        self.write_field(
+            field_index=field_index, 
+            field_type='file', 
+            field_data=field_data, 
+            title=title, 
+            description=description, 
+            editable=editable
+        )
+
+            
 
 
 

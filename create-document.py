@@ -7,6 +7,7 @@ import requests
 from modules import errors
 from modules import auth
 from modules import project
+from modules import page
 
 from botocore.exceptions import ClientError
 from boto3.dynamodb.conditions import Key, Attr
@@ -38,7 +39,9 @@ def lambda_handler(event, context):
         s3_key = event['body']['s3Key']
         s3_version_id = event['body']['s3VersionId']
         filename = event['body']['filename']
-
+        page_name = event['body'].get('page')
+        field_index = event['body'].get('fieldIndex')
+        description = event['body'].get('description')
 
         # validate project
         document_project = project.Project(project_id)
@@ -65,7 +68,7 @@ def lambda_handler(event, context):
 
         response_dict = json.loads(response.content.decode('utf-8'))
 
-        if not response.status_code == 200:
+        if not response.status_code == 202:
             
             print("status code was", response.status_code)
             print("response content was", response_dict)
@@ -125,6 +128,18 @@ def lambda_handler(event, context):
             }
         )
 
+        # update the file field on the page
+        if page_name and field_index:
+            this_page = page.Page(page_name, project_id)
+            this_page.write_document_field(
+                field_index=field_index,
+                document_did=document_did,
+                title=document_name,
+                description=description
+            )
+
+
+
     # catch any application errors
     except:
         raise
@@ -154,6 +169,9 @@ def lambda_handler(event, context):
 if __name__ == '__main__':
 
     event = {
+        "cognitoPoolClaims": {
+            "sub": "81de030e-7a68-4426-9c12-160fca975a92"
+        },
         "body": {
             "title": "Test Document",
             "tags": ["Test", "Document"],
@@ -161,9 +179,9 @@ if __name__ == '__main__':
             "s3BucketName": "prind-portal-user-files-dev",
             "s3Key": "test-document.txt",
             "s3VersionId": '9fb119dd751a6bcda45f1be11d4cb49bea57e7f1e3419bfbeb5485cbe01ad8c6',
-            "filename": 'test-document.txt'
-            "pageName": "Page Name",
-            "fieldId": "Field ID"  
+            "filename": 'test-document.txt',
+            "page": "inception",
+            "fieldIndex": 1  
         }
     }
 

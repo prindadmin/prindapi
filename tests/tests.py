@@ -75,6 +75,22 @@ print(this_project.site_address)
 print(this_project.occupied_during_works)
 print(this_project.workplace_when_completed)
 
+# get page default fields
+from modules import page
+this_page = page.Page('inception', 'ProjectNumberFour')
+print(this_page.default_fields)
+
+# write field
+from modules import page
+this_page = page.Page('construction', 'ProjectNumberFour')
+this_page.write_field(field_index=2, field_type='dropdown', field_data='hello')
+
+# write document field
+from modules import page
+document_did = 'did:fnds:123451235612346236'
+this_page = page.Page('inception', 'ProjectNumberFour')
+this_page.write_document_field(field_index=1, document_did=document_did)
+
 # get document version signatures
 from modules import document
 this_document = document.Document('did:fnds:fb926075aec4f9108cf79689680dd085257daaf50d7eb635252c03fcf9666af6')
