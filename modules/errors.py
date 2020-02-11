@@ -69,3 +69,8 @@ class DocumentVersionNotFound(ApplicationError):
     def __init__(self, message):
         ApplicationError.__init__(self, message, "DOCUMENT_VERSION_FOUND", "0010")
 
+# Role does not exist in the database
+class NotifiatinoNotFound(ApplicationError):
+    def __init__(self, message):
+        ApplicationError.__init__(self, message, "NOTIFICATION_NOT_FOUND", "00011")
+

@@ -106,3 +106,24 @@ from modules import document
 this_document = document.Document('did:fnds:fb926075aec4f9108cf79689680dd085257daaf50d7eb635252c03fcf9666af6')
 this_document.get_all_info()
 
+# create a notification
+username = "778bd486-4684-482b-9565-1c2a51367b8c"
+from modules import notification
+notification.create_notification(username, "test subject 2", "test message 2")
+
+# initialise notification object
+username = "778bd486-4684-482b-9565-1c2a51367b8c"
+from modules import notification
+this_notification = notification.Notification(username, "notification_unread_15814182191147676")
+
+# archive notification
+username = "778bd486-4684-482b-9565-1c2a51367b8c"
+from modules import notification
+this_notification = notification.Notification(username, "notification_15814298872689934")
+this_notification.archive()
+
+
+# get notifications
+username = "778bd486-4684-482b-9565-1c2a51367b8c"
+from modules import notification
+notification.get_notifications(username, state='archived')
