@@ -22,20 +22,26 @@ class User():
 
         # logger.info(log.function_start_output())
 
-        response = table.get_item(
-            Key={
-                "pk": f"user_{username}",
-                "sk": "userName"
-            }
+        response = table.query(
+            KeyConditionExpression=Key("pk").eq(f"user_{username}") & Key("sk").begins_with("userDetails_")
         )
 
         try:
-            item = response['Item']
+            items = response['Items']
         except KeyError:
             raise errors.UserNotFound(f"A user with name {username} was not found.")
         
+        values = {}
+
+        for item in items:    
+            attribute_name = item['sk'].split('userDetails_')[1]
+            values[attribute_name] = item['data']
+
+        self.email_address = values.get('emailAddress')
+        self.first_name = values.get('firstName')
+        self.last_name = values.get('lastName')
         self.username = username
-        self.name = item['data']
+
 
     def get_did(self):
 
@@ -65,39 +71,57 @@ class User():
         )
 
 
-def create_user(username, name):
+def create_user(username, first_name=None, last_name=None, email_address=None):
 
+    if first_name:
+        table.put_item(
+            Item={
+                "pk": f"user_{username}",
+                "sk": "userDetails_firstName",
+                "data": first_name
+            }
+        )
 
-    table.put_item(
-        Item={
-            "pk": f"user_{username}",
-            "sk": "userName",
-            "data": name
-        }
-    )
+    if last_name:
+        table.put_item(
+            Item={
+                "pk": f"user_{username}",
+                "sk": "userDetails_lastName",
+                "data": last_name
+            }
+        )
 
-def list_all_users():
+    if email_address:
+        table.put_item(
+            Item={
+                "pk": f"user_{username}",
+                "sk": "userDetails_lastName",
+                "data": email_address
+            }
+        )
 
-    response = table.query(
-        IndexName="GSI1", 
-        KeyConditionExpression=Key("sk").eq("userName")
-    )
+# def list_all_users():
 
-    try:
-        items = response['Items']
-    except KeyError:
-        items = []
+#     response = table.query(
+#         IndexName="GSI1", 
+#         KeyConditionExpression=Key("sk").eq("userDetails")
+#     )
 
-    users = []
+#     try:
+#         items = response['Items']
+#     except KeyError:
+#         items = []
 
-    for item in items:
-        print('item')
-        item['username'] = item.pop('pk').split('user_')[1]
-        item.pop('sk')
-        item['name'] = item.pop('data')
+#     users = []
+
+#     for item in items:
+#         print('item')
+#         item['username'] = item.pop('pk').split('user_')[1]
+#         item.pop('sk')
+#         item['name'] = item.pop('data')
         
-        users.append(item)
+#         users.append(item)
 
-    return users
+#     return users
 
 
