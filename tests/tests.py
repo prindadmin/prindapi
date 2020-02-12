@@ -127,3 +127,10 @@ this_notification.archive()
 username = "778bd486-4684-482b-9565-1c2a51367b8c"
 from modules import notification
 notification.get_notifications(username, state='archived')
+
+# get users projects
+username = "778bd486-4684-482b-9565-1c2a51367b8c"
+#username = "aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaa"
+from modules import user
+this_user = user.User(username)
+this_user.get_projects()

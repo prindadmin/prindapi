@@ -7,6 +7,7 @@ from botocore.exceptions import ClientError
 from boto3.dynamodb.conditions import Key, Attr
 
 from modules import errors
+from modules import project
 
 
 
@@ -69,6 +70,12 @@ class User():
                 "data": did
             }
         )
+
+    def get_projects(self):
+
+        projects = project.get_user_projects(self.username)
+
+        return projects
 
 
 def create_user(username, first_name=None, last_name=None, email_address=None):

@@ -163,6 +163,48 @@ class Project():
             }
         )
 
+def get_user_projects(username):
+
+    response = table.query(
+        KeyConditionExpression=Key("pk").eq(f"user_{username}") & Key("sk").begins_with("role_")
+    )
+
+    items = response.get('Items', [])
+
+    project_roles = []
+
+    for item in items:
+        project_id = item.pop('sk').split('role_')[1]
+        role_id = item.pop('data')
+        item.pop('pk')
+        item['projectId'] = project_id
+        item['projectName'] = Project(project_id).project_name
+        item['roleName'] = role.Role(role_id).role_name
+
+        project_roles.append(item)
+
+
+    response = table.query(
+        KeyConditionExpression=Key("pk").eq(f"user_{username}") & Key("sk").begins_with("projectOwner_")
+    )
+
+    items = response.get('Items', [])
+
+    project_ownerships = []
+
+    for item in items:
+        project_id = item.pop('sk').split('projectOwner_')[1]
+        item.pop('pk')
+        item.pop('data')
+        item['projectId'] = project_id
+        item['projectName'] = Project(project_id).project_name
+
+        project_ownerships.append(item)
+
+    return {
+        "projectOwner": project_ownerships,
+        "projectRole": project_roles
+    }
 
 
 def camelize(string):

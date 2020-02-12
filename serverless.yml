@@ -186,6 +186,44 @@ functions:
             authorizerId: 
               Ref: ApiGatewayAuthorizer
 
+  get-accessible-projects:
+    handler: get-accessible-projects.lambda_handler
+    events:
+      - http:
+          path: /user/get-accessible-projects
+          method: get
+          cors: true
+          response:
+            statusCodes:
+              200:
+                pattern: '' # Default response method
+              400:
+                pattern: '.*"statusCode":400,.*'
+              500:
+                pattern: '.*"statusCode":500,.*'
+          integration: lambda
+          documentation:
+            methodResponses:
+              - statusCode: "200"
+                responseBody:
+                  description: "Successful Response"
+                responseModels:
+                  application/json: "rolesGetResponse"
+              - statusCode: "400"
+                responseBody:
+                  description: "A client error occurred"
+                responseModels:
+                  application/json: "errorResponse"
+              - statusCode: "500"
+                responseBody:
+                  description: "A server error occurred"
+                responseModels:
+                  application/json: "errorResponse"
+          authorizer: 
+            type: COGNITO_USER_POOLS
+            authorizerId: 
+              Ref: ApiGatewayAuthorizer
+
   create-document:
     handler: create-document.lambda_handler
     events:
