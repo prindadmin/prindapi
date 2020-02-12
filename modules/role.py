@@ -58,3 +58,5 @@ def list_all_roles():
         roles.append(item)
 
     return roles
+
+

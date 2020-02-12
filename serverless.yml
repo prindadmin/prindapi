@@ -29,6 +29,10 @@ custom:
       dev: 'did:fctr:d85be1f5baa83fa83850d8b58731a7f7c8ba65c33dec107c2e16e0dd65c7bcc7'
       staging: ''
       production: ''
+    FACTOM_EXPLORER_DOMAIN:
+      dev: 'testnet.factoid.org'
+      staging: 'testnet.factoid.org'
+      production: 'explorer.factoid.org'
   s3BucketName: prind-portal-user-files-${self:provider.stage}
  
   documentation:
@@ -52,7 +56,7 @@ custom:
 
 provider:
   name: aws
-  runtime: python3.7
+  runtime: python3.7  
   region: ${opt:region, 'eu-west-1'}
   stage: ${opt:stage, 'dev'}
   environment:
@@ -60,6 +64,7 @@ provider:
     FOUNDATIONS_API_STAGE: ${self:provider.stage}
     FOUNDATIONS_API_ID: ${self:custom.myEnvironment.FOUNDATIONS_API_ID.${self:provider.stage}}
     SP_DID: ${self:custom.myEnvironment.SP_DID.${self:provider.stage}}
+    FACTOM_EXPLORER_DOMAIN: ${self:custom.myEnvironment.FACTOM_EXPLORER_DOMAIN.${self:provider.stage}}
     S3_BUCKET_NAME: ${self:custom.s3BucketName} 
     S3_BUCKET_ARN: "arn:aws:s3:::${self:custom.s3BucketName}"    
 
@@ -109,7 +114,7 @@ functions:
     handler: get-sts.lambda_handler
     events:
       - http:
-          path: /user/get-sts
+          path: /project/{project_id}/page/{page}/get-sts
           method: get
           cors: true
           response:
@@ -366,6 +371,42 @@ functions:
     events:
       - http:
           path: /project/{project_id}
+          method: get
+          cors: true
+          response:
+            statusCodes:
+              200:
+                pattern: '' # Default response method
+              400:
+                pattern: '.*"statusCode":400,.*'
+              500:
+                pattern: '.*"statusCode":500,.*'
+          integration: lambda
+          documentation:
+            methodResponses:
+              - statusCode: "200"
+                responseBody:
+                  description: "Successful Response"
+              - statusCode: "400"
+                responseBody:
+                  description: "A client error occurred"
+                responseModels:
+                  application/json: "errorResponse"
+              - statusCode: "500"
+                responseBody:
+                  description: "A server error occurred"
+                responseModels:
+                  application/json: "errorResponse"
+          authorizer: 
+            type: COGNITO_USER_POOLS
+            authorizerId: 
+              Ref: ApiGatewayAuthorizer
+
+  get-project-members:
+    handler: get-project-members.lambda_handler
+    events:
+      - http:
+          path: /project/{project_id}/members
           method: get
           cors: true
           response:

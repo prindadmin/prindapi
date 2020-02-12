@@ -70,7 +70,7 @@ class Project():
            return False
 
 
-    def get_project_roles(self):
+    def get_roles(self):
         
         response = table.query(
             IndexName="GSI1",
