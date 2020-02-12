@@ -1,0 +1,2 @@
+Amazon SES Test (Python)
+This email was sent with Amazon SES using the AWS SDK for Python (Boto).
