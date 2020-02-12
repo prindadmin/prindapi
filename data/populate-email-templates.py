@@ -1,3 +1,12 @@
+"""
+Put the text version of the template in email-templates/text
+and the html version of the template in email-templates/html
+then populate the templates object below with the template name, 
+file names and subject
+
+update of create the templates usin the functions below.
+"""
+
 import boto3
 from botocore.exceptions import ClientError
 
@@ -12,6 +21,12 @@ templates = [
         "text_file_name": "email-template-test.txt",
         "html_file_name": "email-template-test.html",
         "subject": "Test email template"
+    },
+    {
+        "template_name": "project-invitation",
+        "text_file_name": "email-template-project-invitation.txt",
+        "html_file_name": "email-template-project-invitation.html",
+        "subject": "You have been invited to join project {{projectName}}"
     }
 ]
 
@@ -22,37 +37,66 @@ text_templates_folder = f"{current_directory}/email-templates/text"
 
 # files = [f for f in listdir(html_templates_folder) if isfile(join(html_templates_folder, f))]
 
-for template in templates:
+def create_all_templates():
 
-    # file_name_without_extension = f"{file.split('.html')[-2]}"
+    template_names = [template['template_name'] for template in templates]
 
-    # html_file_name = f"{file_name_without_extension}.html"
-    # text_file_name = f"{file_name_without_extension}.txt"
+    create_templates(template_names)
 
-    # template_name = file_name_without_extension.split('email-template-')[0]
+def create_templates(template_names):
 
-    # print(template['template_name'])
+    for template in templates:
 
-    html_file_object = open(join(html_templates_folder, template['html_file_name']))
-    text_file_object = open(join(text_templates_folder, template['text_file_name']))
+        if template['template_name'] in template_names:
 
-    # print(html_file_object.read())
-    
-    try:
-        response = client.create_template(
-            Template={
-                'TemplateName': template['template_name'],
-                'SubjectPart': template['subject'],
-                'TextPart': text_file_object.read(),
-                'HtmlPart': html_file_object.read()
-            }
-        )
-    except ClientError as e:
-        print(e.response['Error']['Message'])
-    else:
-        print("Template created")
+            html_file_object = open(join(html_templates_folder, template['html_file_name']))
+            text_file_object = open(join(text_templates_folder, template['text_file_name']))
+            
+            try:
+                response = client.create_template(
+                    Template={
+                        'TemplateName': template['template_name'],
+                        'SubjectPart': template['subject'],
+                        'TextPart': text_file_object.read(),
+                        'HtmlPart': html_file_object.read()
+                    }
+                )
+            except ClientError as e:
+                print(e.response['Error']['Message'])
+            else:
+                print("Template created")
 
-    html_file_object.close()
-    text_file_object.close()
+            html_file_object.close()
+            text_file_object.close()
 
+def update_templates(template_names):
 
+    for template in templates:
+
+        if template['template_name'] in template_names:
+
+            html_file_object = open(join(html_templates_folder, template['html_file_name']))
+            text_file_object = open(join(text_templates_folder, template['text_file_name']))
+
+            try:
+                response = client.update_template(
+                    Template={
+                        'TemplateName': template['template_name'],
+                        'SubjectPart': template['subject'],
+                        'TextPart': text_file_object.read(),
+                        'HtmlPart': html_file_object.read()
+                    }
+                )
+            except ClientError as e:
+                print(e.response['Error']['Message'])
+            else:
+                print("Template created")
+
+            html_file_object.close()
+            text_file_object.close()
+
+if __name__ == '__main__':
+
+    create_templates(['project-invitation'])
+    #create_all_templates()
+    #update_templates(['test-template'])
