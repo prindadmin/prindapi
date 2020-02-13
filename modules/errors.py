@@ -74,3 +74,8 @@ class NotifiatinoNotFound(ApplicationError):
     def __init__(self, message):
         ApplicationError.__init__(self, message, "NOTIFICATION_NOT_FOUND", "00011")
 
+# Email template not found
+class TemplateNotFound(ApplicationError):
+    def __init__(self, message):
+        ApplicationError.__init__(self, message, "TEMPLATE_NOT_FOUND", "00012")
+

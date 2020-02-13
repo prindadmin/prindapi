@@ -134,3 +134,18 @@ username = "778bd486-4684-482b-9565-1c2a51367b8c"
 from modules import user
 this_user = user.User(username)
 this_user.get_projects()
+
+# send email
+from modules import mail
+mail.send_email(
+    username="778bd486-4684-482b-9565-1c2a51367b8c",
+    template_name="project-invitation",
+    template_data={"projectName": "project1", "roleName": "role1", "username": "Simon"}
+)
+
+
+# find parameters in template
+from modules import mail
+#mail.find_parameters('agagas{{hello}}agadgadga{{you}}agagagd')
+mail.find_parameters('agagasagagagd')
+
