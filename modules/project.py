@@ -77,10 +77,7 @@ class Project():
             KeyConditionExpression=Key("sk").eq(f"role_{self.project_id}")
         )
 
-        try:
-            items = response['Items']
-        except:
-            items = []
+        items = response['Items']
 
         project_roles = []
 
@@ -261,10 +258,7 @@ def list_all_projects():
         KeyConditionExpression=Key("sk").eq("project")
     )
 
-    try:
-        items = response['Items']
-    except:
-        items = []
+    items = response['Items']
 
     projects = []
 
