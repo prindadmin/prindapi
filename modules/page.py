@@ -28,9 +28,9 @@ class Page(project.Project):
             KeyConditionExpression=Key("pk").eq(f"defaultField_{page}")
         )
 
-        try:
-            items = response['Items']
-        except KeyError:
+        items = response['Items']
+
+        if items == []:
             raise errors.PageNotFound(f"A page with name {page} was not found.")
 
 
@@ -43,10 +43,7 @@ class Page(project.Project):
             KeyConditionExpression=Key("pk").eq(f"project_{self.project_id}") & Key("sk").begins_with(f"field_{self.page_name}")
         )
 
-        try:
-            items = response['Items']
-        except KeyError:
-            items = []
+        items = response['Items']
 
         populated_fields = {}
         
@@ -81,6 +78,27 @@ class Page(project.Project):
                 resultant_fields.append(default)
 
         return resultant_fields
+
+    def get_field(self, field_index):
+
+        response = table.get_item(
+            Key={
+                "pk": f"project_{self.project_id}",
+                "sk": f"field_{self.page_name}_{field_index}" 
+            }
+        )
+
+        try:
+            item = response['Item']
+        except KeyError:
+            raise errors.FieldNotFound(f'The field at index {field_index} was not found')
+
+        item.pop('pk')
+        item.pop('sk')
+
+        return item
+
+
 
     def write_field(self, field_index, field_type, field_data=None, title=None, description=None, editable=None):
 

@@ -43,10 +43,8 @@ def list_all_roles():
         KeyConditionExpression=Key("sk").eq("role-name")
     )
 
-    try:
-        items = response['Items']
-    except KeyError:
-        return None
+    items = response['Items']
+
 
     roles = []
 

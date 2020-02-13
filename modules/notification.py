@@ -14,7 +14,7 @@ from modules import errors
 dynamodb = boto3.resource('dynamodb')
 table = dynamodb.Table(os.environ['TABLE_NAME'])
 
-class Notification():
+class Notification():   
 
     def __init__(self, username, notification_id):
 
@@ -109,11 +109,8 @@ def get_notifications(username, state='unarchived'):
          KeyConditionExpression=Key("pk").eq(f"user_{username}") & Key("sk").begins_with(query_string)
     )
 
-    try:
-        items = response['Items']
-    except KeyError:
-        return None
-
+    items = response['Items']
+    
     notifications = []
 
     for item in items:

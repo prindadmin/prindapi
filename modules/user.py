@@ -26,10 +26,10 @@ class User():
         response = table.query(
             KeyConditionExpression=Key("pk").eq(f"user_{username}") & Key("sk").begins_with("userDetails_")
         )
-
-        try:
-            items = response['Items']
-        except KeyError:
+      
+        items = response['Items']
+        
+        if items == []:
             raise errors.UserNotFound(f"A user with name {username} was not found.")
         
         values = {}
@@ -114,10 +114,8 @@ def create_user(username, first_name=None, last_name=None, email_address=None):
 #         KeyConditionExpression=Key("sk").eq("userDetails")
 #     )
 
-#     try:
-#         items = response['Items']
-#     except KeyError:
-#         items = []
+#     items = response['Items']
+
 
 #     users = []
 
