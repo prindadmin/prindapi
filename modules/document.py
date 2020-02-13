@@ -132,7 +132,8 @@ class Document():
             except errors.DIDNotFound:
                 signing_username = 'Unregistered User'
 
-            signing['signerName'] = user.User(signing_username).name
+            signing_user = user.User(signing_username)
+            signing['signerName'] = f"{signing_user.first_name} {signing_user.last_name}"
             signed_at_unixtime = signing.pop('signedAt')
             signing['signatureDateTime'] = datetime.utcfromtimestamp(signed_at_unixtime).isoformat()
             entry_hash = signing.pop('entryHash')
@@ -152,7 +153,8 @@ class Document():
                 uploaded_by_username = prind_version_info['uploadedBy']
                 
                 try:
-                    uploaded_by_fullname = user.User(uploaded_by_username).name
+                    uploaded_by_user = user.User(uploaded_by_username)
+                    uploaded_by_fullname = f"{uploaded_by_user.first_name} {uploaded_by_user.last_name}"
                 except errors.UserNotFound:
                     uploaded_by_fullname = "A User"
 
