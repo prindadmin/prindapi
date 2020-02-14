@@ -207,8 +207,42 @@ functions:
               - statusCode: "200"
                 responseBody:
                   description: "Successful Response"
+              - statusCode: "400"
+                responseBody:
+                  description: "A client error occurred"
                 responseModels:
-                  application/json: "rolesGetResponse"
+                  application/json: "errorResponse"
+              - statusCode: "500"
+                responseBody:
+                  description: "A server error occurred"
+                responseModels:
+                  application/json: "errorResponse"
+          authorizer: 
+            type: COGNITO_USER_POOLS
+            authorizerId: 
+              Ref: ApiGatewayAuthorizer
+
+  get-signature-requests:
+    handler: get-signature-requests.lambda_handler
+    events:
+      - http:
+          path: /user/get-signature-requests
+          method: get
+          cors: true
+          response:
+            statusCodes:
+              200:
+                pattern: '' # Default response method
+              400:
+                pattern: '.*"statusCode":400,.*'
+              500:
+                pattern: '.*"statusCode":500,.*'
+          integration: lambda
+          documentation:
+            methodResponses:
+              - statusCode: "200"
+                responseBody:
+                  description: "Successful Response"
               - statusCode: "400"
                 responseBody:
                   description: "A client error occurred"
@@ -314,7 +348,79 @@ functions:
           integration: lambda
           documentation:
             methodResponses:
-              - statusCode: "200"
+              - statusCode: "201"
+                responseBody:
+                  description: "Successful Response"
+              - statusCode: "400"
+                responseBody:
+                  description: "A client error occurred"
+                responseModels:
+                  application/json: "errorResponse"
+              - statusCode: "500"
+                responseBody:
+                  description: "A server error occurred"
+                responseModels:
+                  application/json: "errorResponse"
+          authorizer: 
+            type: COGNITO_USER_POOLS
+            authorizerId: 
+              Ref: ApiGatewayAuthorizer
+
+  request-signature:
+    handler: request-signature.lambda_handler
+    events:
+      - http:
+          path: /document/{document_did}/request-signature
+          method: post
+          cors: true
+          response:
+            statusCodes:
+              200:
+                pattern: '' # Default response method
+              400:
+                pattern: '.*"statusCode":400,.*'
+              500:
+                pattern: '.*"statusCode":500,.*'
+          integration: lambda
+          documentation:
+            methodResponses:
+              - statusCode: "201"
+                responseBody:
+                  description: "Successful Response"
+              - statusCode: "400"
+                responseBody:
+                  description: "A client error occurred"
+                responseModels:
+                  application/json: "errorResponse"
+              - statusCode: "500"
+                responseBody:
+                  description: "A server error occurred"
+                responseModels:
+                  application/json: "errorResponse"
+          authorizer: 
+            type: COGNITO_USER_POOLS
+            authorizerId: 
+              Ref: ApiGatewayAuthorizer
+
+  sign-on-foundations:
+    handler: sign-on-foundations.lambda_handler
+    events:
+      - http:
+          path: /document/{document_did}/sign-on-foundations
+          method: post
+          cors: true
+          response:
+            statusCodes:
+              200:
+                pattern: '' # Default response method
+              400:
+                pattern: '.*"statusCode":400,.*'
+              500:
+                pattern: '.*"statusCode":500,.*'
+          integration: lambda
+          documentation:
+            methodResponses:
+              - statusCode: "201"
                 responseBody:
                   description: "Successful Response"
               - statusCode: "400"

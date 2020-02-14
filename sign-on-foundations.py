@@ -35,6 +35,8 @@ def lambda_handler(event, context):
             "signingDid": this_user.get_did()
         }
 
+        print(params)
+
         response = requests.post(
             api_url,
             data=params,
