@@ -72,10 +72,20 @@ class DocumentVersionNotFound(ApplicationError):
 # Role does not exist in the database
 class NotifiatinoNotFound(ApplicationError):
     def __init__(self, message):
-        ApplicationError.__init__(self, message, "NOTIFICATION_NOT_FOUND", "00011")
+        ApplicationError.__init__(self, message, "NOTIFICATION_NOT_FOUND", "0011")
 
 # Email template not found
 class TemplateNotFound(ApplicationError):
     def __init__(self, message):
-        ApplicationError.__init__(self, message, "TEMPLATE_NOT_FOUND", "00012")
+        ApplicationError.__init__(self, message, "TEMPLATE_NOT_FOUND", "0012")
+
+# Field not found
+class FieldNotFound(ApplicationError):
+    def __init__(self, message):
+        ApplicationError.__init__(self, message, "FIELD_NOT_FOUND", "0013")
+
+# Field was not the expected type
+class InvalidFieldType(ApplicationError):
+    def __init__(self, message):
+        ApplicationError.__init__(self, message, "INVALID_FIELD_TYPE", "0014")
 

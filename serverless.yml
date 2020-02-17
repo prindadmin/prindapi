@@ -110,6 +110,15 @@ package:
 
 
 functions:
+
+  post-email-confirmation:
+    handler: post-email-confirmation.lambda_handler
+    events:
+      - cognitoUserPool:
+          pool: ${self:app}-${self:provider.stage}-user-pool
+          trigger: PostConfirmation
+          existing: true
+
   get-sts:
     handler: get-sts.lambda_handler
     events:
@@ -126,23 +135,29 @@ functions:
               500:
                 pattern: '.*"statusCode":500,.*'
           integration: lambda
-          # documentation:
-          #   methodResponses:
-          #     - statusCode: "200"
-          #       responseBody:
-          #         description: "Successful Response"
-          #       responseModels:
-          #         application/json: "userDetailsGetResponse"
-          #     - statusCode: "400"
-          #       responseBody:
-          #         description: "A client error occurred"
-          #       responseModels:
-          #         application/json: "errorResponse"
-          #     - statusCode: "500"
-          #       responseBody:
-          #         description: "A server error occurred"
-          #       responseModels:
-          #         application/json: "errorResponse"
+          authorizer: 
+            type: COGNITO_USER_POOLS
+            authorizerId: 
+              Ref: ApiGatewayAuthorizer
+
+  get-file-download-url:
+    handler: get-file-download-url.lambda_handler
+    events:
+      - http:
+          path: /project/{project_id}/{page}/{field_index}/{version}/get-file-url
+          method: get
+          cors: true
+          response:
+            headers:
+              Content-Disposition: "'attachment'"
+            statusCodes:
+              200:
+                pattern: '' # Default response method
+              400:
+                pattern: '.*"statusCode":400,.*'
+              500:
+                pattern: '.*"statusCode":500,.*'
+          integration: lambda
           authorizer: 
             type: COGNITO_USER_POOLS
             authorizerId: 
