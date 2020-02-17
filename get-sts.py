@@ -7,6 +7,7 @@ import json
 import os
 
 from modules import page
+from modules import errors
 
 
 def get_cognito_username(token):
@@ -34,7 +35,7 @@ def lambda_handler(event, context):
     this_page = page.Page(page_name, project_id)
 
     if not this_page.user_has_permission(cognito_username):
-        raise InsufficientPermission('User does not have permission to this project')
+        raise errors.InsufficientPermission('User does not have permission to this project')
 
     #Create the policy to allow users to add files to their s3 bucket
     policy = json.dumps({
