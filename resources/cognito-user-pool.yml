@@ -26,6 +26,8 @@ Resources:
         EmailSubject: "Your verification link"
         DefaultEmailOption: "CONFIRM_WITH_LINK"
       SmsAuthenticationMessage: "Your authentication code is {####}. "
+      #LambdaConfig:
+      #  PostConfirmation: arn:aws:lambda:eu-west-1:434494845257:function:post-email-confirmation
       # MfaConfiguration: "OPTIONAL"
       DeviceConfiguration:
         ChallengeRequiredOnNewDevice: false
@@ -269,6 +271,13 @@ Resources:
         - "website"
         - "zoneinfo"
       AllowedOAuthFlowsUserPoolClient: false
+
+  CognitoUserPoolDomain:
+    Type: AWS::Cognito::UserPoolDomain
+    Properties: 
+      Domain: ${self:app}-${self:provider.stage}-user-pool
+      UserPoolId:         
+        Ref: CognitoUserPool
 
 # Print out the Id of the User Pool that is created
 Outputs:

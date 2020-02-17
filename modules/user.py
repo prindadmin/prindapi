@@ -102,7 +102,7 @@ def create_user(username, first_name=None, last_name=None, email_address=None):
         table.put_item(
             Item={
                 "pk": f"user_{username}",
-                "sk": "userDetails_lastName",
+                "sk": "userDetails_emailAddress",
                 "data": email_address
             }
         )
