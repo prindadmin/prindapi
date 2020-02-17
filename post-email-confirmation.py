@@ -11,6 +11,7 @@ table = dynamodb.Table(os.environ["TABLE_NAME"])
 
 from modules import user
 from modules import auth
+from modules import mail
 
 def lambda_handler(event, context):
 
@@ -49,15 +50,21 @@ def lambda_handler(event, context):
             
             print("status code was", response.status_code)
             print("response content was", response_dict)
+            did = None
 
         else:
-            
-            print(response_dict)
+
             did = response_dict['body']['did']
-            print(did)
 
             this_user =user.User(username)
             this_user.write_did(did)
+
+        template_data = {
+            "firstName": first_name,
+            "foundationsId": did
+        }
+
+        mail.send_email(email_address, "post-confirmation", template_data)
 
     # catch any application errors
     except:
@@ -88,7 +95,7 @@ if __name__ == '__main__':
       "version": "1",
       "region": "eu-west-1",
       "userPoolId": "eu-west-1_VL7uVkjBo",
-      "userName": "c9b5377d-8503-452a-8d3a-76f734f97c6c",
+      "userName": "6a628546-9b4e-4c43-96a4-4e30c3c37511",
       "callerContext": {
         "awsSdkVersion": "aws-sdk-unknown-unknown",
         "clientId": "1heu4dbau7agvc2nee57o65fl0"
@@ -96,11 +103,11 @@ if __name__ == '__main__':
       "triggerSource": "PostConfirmation_ConfirmSignUp",
       "request": {
         "userAttributes": {
-          "sub": "c9b5377d-8503-452a-8d3a-76f734f97c6c",
-          "cognito:email_alias": "mr.simon.hunt+test6@gmail.com",
+          "sub": "6a628546-9b4e-4c43-96a4-4e30c3c37511",
+          "cognito:email_alias": "mr.simon.hunt+test14@gmail.com",
           "cognito:user_status": "CONFIRMED",
           "email_verified": "true",
-          "email": "mr.simon.hunt+test6@gmail.com",
+          "email": "mr.simon.hunt+test14@gmail.com",
           "given_name": "Simon",
           "family_name": "Hunt"
         }

@@ -99,6 +99,14 @@ provider:
         - "s3:GetObjectVersion"
         - "s3:PutObject"
       Resource: "${self:provider.environment.S3_BUCKET_ARN}/*"
+    # For sending emails using templates
+    - Effect: "Allow"
+      Action: "ses:SendTemplatedEmail"
+      Resource: "*"
+    - Effect: "Allow"
+      Action: "ses:GetTemplate"
+      Resource: "*"
+
 
 
 package:

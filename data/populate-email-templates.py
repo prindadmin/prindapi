@@ -27,6 +27,12 @@ templates = [
         "text_file_name": "email-template-project-invitation.txt",
         "html_file_name": "email-template-project-invitation.html",
         "subject": "You have been invited to join project {{projectName}}"
+    },
+    {
+        "template_name": "post-confirmation",
+        "text_file_name": "email-template-post-confirmation.txt",
+        "html_file_name": "email-template-post-confirmation.html",
+        "subject": "Thanks for confirming your email address"
     }
 ]
 
@@ -97,6 +103,6 @@ def update_templates(template_names):
 
 if __name__ == '__main__':
 
-    create_templates(['project-invitation'])
+    update_templates(['post-confirmation'])
     #create_all_templates()
     #update_templates(['test-template'])

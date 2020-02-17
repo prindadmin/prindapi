@@ -149,3 +149,12 @@ from modules import mail
 #mail.find_parameters('agagas{{hello}}agadgadga{{you}}agagagd')
 mail.find_parameters('agagasagagagd')
 
+
+# send post-confirmation email
+from modules import mail
+template_data = {
+    "firstName": "Simon",
+    "foundationsId": "did:fnds:123456789"
+}
+mail.send_email("09964125-ebd1-45a0-bc74-398de7757987", "post-confirmation", template_data)
+

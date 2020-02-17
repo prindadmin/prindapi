@@ -1,0 +1,16 @@
+
+Welcome to Prin-D Portal
+
+{{#if foundationsId}}
+Hi {{firstName}},
+{{else}}
+Hi,
+{{/if}}
+
+Thanks for confirming your email address
+
+{{#if foundationsId}}
+  A Foundations ID has been found for your email address: {{foundationsId}}
+{{else}}
+  A Foundations ID was not found for your email address. Please download the Foundations app and sign up.
+{{/if}}

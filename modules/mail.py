@@ -2,6 +2,7 @@ import boto3
 import json
 from botocore.exceptions import ClientError
 from modules import errors
+from modules import user
 
 SENDER = "mail@prind.tech"
 AWS_REGION = "eu-west-1"
@@ -66,7 +67,7 @@ def list_template_parameters(template_contents):
     return parameters
 
 
-def send_email(username, template_name, template_data):
+def send_email(email_address, template_name, template_data):
 
     try:
         response = client.get_template(
@@ -87,21 +88,21 @@ def send_email(username, template_name, template_data):
 
     parameters_provided = set(template_data)
 
-    if not parameters_in_template.issubset(parameters_provided):
-        missing_parameters = parameters_in_template.difference(parameters_provided)
-        raise Exception(f'Required parameters not provided: {", ".join(list(missing_parameters))}')
+    # if not parameters_in_template.issubset(parameters_provided):
+    #     missing_parameters = parameters_in_template.difference(parameters_provided)
+    #     raise Exception(f'Required parameters not provided: {", ".join(list(missing_parameters))}')
 
     #
     # Get the email address from the username in future, for now I'm hard coding it
 
-    RECIPIENT = 'simon.hunt@prind.tech'
+    print(email_address)
 
     try:
         #Provide the contents of the email.
         response = client.send_templated_email(
             Destination={
                 'ToAddresses': [
-                    RECIPIENT,
+                    email_address,
                 ],
             },
             Source=SENDER,
@@ -112,12 +113,16 @@ def send_email(username, template_name, template_data):
     except ClientError as e:
         print(e.response['Error']['Message'])
     else:
+        print(response)
         print("Email sent! Message ID:"),
         print(response['MessageId'])
 
 
 if __name__ == '__main__':
 
-    find_parameters('agagas{{hello}}agadgadga')
+    #find_parameters('agagas{{hello}}agadgadga')
     #send_project_invitation_email('a cognito user', 'TestProject1', 'The First Project', 'client', 'The Client')
+
+    pass
+
 
