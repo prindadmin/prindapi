@@ -18,9 +18,11 @@ def lambda_handler(event, context):
         project_id = event['path']['project_id']
         page_name = event['path']['page']
 
-        this_page = page.Page(page=page_name, project_id=project_id)
-
-        page_fields = this_page.get_resultant_fields()
+        try:
+            this_page = page.Page(page=page_name, project_id=project_id)
+            page_fields = this_page.get_resultant_fields()
+        except errors.PageNotFound:
+            page_fields = []    
 
     # catch any application errors
     except:
@@ -53,7 +55,7 @@ if __name__ == '__main__':
     event = {
         "path": {
             "project_id": "ProjectNumberFour",
-            "page": "inception"
+            "page": "refurbishment"
         }
     }
 
