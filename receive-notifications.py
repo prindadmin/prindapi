@@ -8,6 +8,14 @@ def lambda_handler(event, context):
 
         message = record["Sns"]["Message"]
         print(message)
+
+
+        # events
+
+        # - document signed
+        # - user with email address xxxx@example.com has joined foundations with did of xxxx
+        # - subscription request has been accepted
+
  
        
 if __name__ == '__main__':
