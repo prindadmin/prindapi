@@ -4,13 +4,14 @@ import os
 import requests
 
 from modules import auth
+from urllib.parse import unquote
 
 def lambda_handler(event, context):
 
     api_id = os.environ["FOUNDATIONS_API_ID"]
     sp_did = os.environ["SP_DID"]
     api_stage = os.environ["FOUNDATIONS_API_STAGE"]
-    document_did = event["path"]["document_did"]
+    document_did = unquote(event["path"]["document_did"])
     document_version = event["path"]["document_version"]
 
     foundations_jwt = auth.get_foundations_jwt(sp_did)
