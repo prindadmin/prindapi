@@ -3,13 +3,14 @@ import json
 import os
 from modules import project
 from modules import errors
+from urllib.parse import unquote
 
 
 def lambda_handler(event, context):
 
     try:
 
-        this_project = project.Project(event['path']['project_id'])
+        this_project = project.Project(unquote(event['path']['project_id']))
 
         return_dict = {
             "Id": this_project.project_id,

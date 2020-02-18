@@ -7,6 +7,7 @@ from modules import page
 
 from botocore.exceptions import ClientError
 from boto3.dynamodb.conditions import Key, Attr
+from urllib.parse import unquote
 
 dynamodb = boto3.resource("dynamodb")
 table = dynamodb.Table(os.environ["TABLE_NAME"])
@@ -15,8 +16,8 @@ def lambda_handler(event, context):
 
     try:
 
-        project_id = event['path']['project_id']
-        page_name = event['path']['page']
+        project_id = unquote(event['path']['project_id'])
+        page_name = unquote(event['path']['page'])
 
         try:
             this_page = page.Page(page=page_name, project_id=project_id)

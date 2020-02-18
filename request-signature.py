@@ -8,6 +8,7 @@ from modules import user
 
 from botocore.exceptions import ClientError
 from boto3.dynamodb.conditions import Key, Attr
+from urllib.parse import unquote
 
 dynamodb = boto3.resource("dynamodb")
 table = dynamodb.Table(os.environ["TABLE_NAME"])
@@ -19,7 +20,7 @@ def lambda_handler(event, context):
         requesting_user = user.User(event['cognitoPoolClaims']['sub'])
         signing_user = user.User(event['body']['signingUsername'])
 
-        document_did = event['path']['document_did']
+        document_did = unquote(event['path']['document_did'])
 
         # validate page
         this_document = document.Document(document_did)

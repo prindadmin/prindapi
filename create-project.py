@@ -1,7 +1,6 @@
 import boto3
 import json
 import os
-from datetime import date
 from modules import project
 from modules import errors
 
@@ -12,18 +11,6 @@ def lambda_handler(event, context):
         # body = event['body']
 
         authorizing_username = event['cognitoPoolClaims']['sub']
-
-        # {
-        #    projectName: "Test Project",
-        #    projectAddressLine1: "Test",
-        #    projectAddressLine2: "Test",
-        #    projectAddressLine3: "Test",
-        #    projectAddressTown: "Test",
-        #    projectAddressRegion: "Test",
-        #    projectAddressPostalCode: "AB12 3CD",
-        #    projectAddressCountry: "Test",
-        #    projectDescription: "This is a non-descript description"
-        # }
 
         site_address = {
            "projectAddressLine1": event["body"].get("projectAddressLine1"),

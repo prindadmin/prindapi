@@ -9,6 +9,7 @@ import os
 from modules import page
 from modules import errors
 from modules import document
+from urllib.parse import unquote
 
 
 def lambda_handler(event, context):
@@ -24,10 +25,10 @@ def lambda_handler(event, context):
         # #Connect to the STS system
         s3_client = boto3.client('s3')
 
-        project_id = event['path']['project_id']
-        page_name = event['path']['page']
-        field_index = event['path']['field_index']
-        version = event['path']['version']
+        project_id = unquote(event['path']['project_id'])
+        page_name = unquote(event['path']['page'])
+        field_index = unquote(event['path']['field_index'])
+        version = unquote(event['path']['version'])
 
         this_page = page.Page(page_name, project_id)
 

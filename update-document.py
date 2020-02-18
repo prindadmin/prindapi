@@ -11,6 +11,7 @@ from modules import page
 
 from botocore.exceptions import ClientError
 from boto3.dynamodb.conditions import Key, Attr
+from urllib.parse import unquote
 
 dynamodb = boto3.resource("dynamodb")
 table = dynamodb.Table(os.environ["TABLE_NAME"])
@@ -35,7 +36,7 @@ def lambda_handler(event, context):
         title = event['body'].get('title')
         description = event['body'].get('description')
 
-        document_did = event['path']['document_did']
+        document_did = unquote(event['path']['document_did'])
         # s3_version_id = event['body']['s3VersionId']
 
         foundations_jwt = auth.get_foundations_jwt(sp_did)

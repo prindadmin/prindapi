@@ -10,6 +10,7 @@ from modules import auth
 
 from botocore.exceptions import ClientError
 from boto3.dynamodb.conditions import Key, Attr
+from urllib.parse import unquote
 
 dynamodb = boto3.resource("dynamodb")
 table = dynamodb.Table(os.environ["TABLE_NAME"])
@@ -26,7 +27,7 @@ def lambda_handler(event, context):
 
         foundations_jwt = auth.get_foundations_jwt(sp_did)
 
-        document_obj = document.Document(event['path']['document_did'])
+        document_obj = document.Document(unquote(event['path']['document_did']))
         document_version = 0 # latest
 
         api_url=f"https://{api_id}.execute-api.eu-west-1.amazonaws.com/{api_stage}/sp/document-did/{document_obj.document_did}/signing-request/{document_version}"
