@@ -6,6 +6,8 @@ import os
 from botocore.exceptions import ClientError
 from boto3.dynamodb.conditions import Key, Attr
 
+from datetime import date
+
 from modules import errors
 from modules import user
 from modules import role
@@ -39,8 +41,6 @@ class Project():
         self.project_name = item['displayName']
         self.project_description = item['description']
         self.site_address = item['siteAddress']
-        self.occupied_during_works = item['occupiedDuringWorks']
-        self.workplace_when_completed = item['workplaceWhenCompleted']
 
     def get_user_role(self, user_name):
 
@@ -131,9 +131,7 @@ class Project():
             self,
             project_name=None,
             project_description=None,
-            site_address=None,
-            occupied_during_works=None,
-            workplace_when_completed=None
+            site_address=None
         ):
 
         if project_name == None:
@@ -142,10 +140,6 @@ class Project():
             project_description = self.description
         if site_address == None:
             site_address = self.site_address
-        if occupied_during_works == None:
-            occupied_during_works = self.occupied_during_works
-        if workplace_when_completed == None:
-            workplace_when_completed = self.workplace_when_completed
 
         table.put_item(
             Item={    
@@ -155,8 +149,6 @@ class Project():
                 "displayName": project_name,
                 "description": project_description,
                 "siteAddress": site_address,
-                "occupiedDuringWorks": occupied_during_works,
-                "workplaceWhenCompleted": workplace_when_completed
             }
         )
 
@@ -209,16 +201,29 @@ def camelize(string):
     return ''.join(a.capitalize() for a in split('([^a-zA-Z0-9])', string)
        if a.isalnum())
 
+
+
+   # projectName: "Test Project",
+   # projectAddressLine1: "Test",
+   # projectAddressLine2: "Test",
+   # projectAddressLine3: "Test",
+   # projectAddressTown: "Test",
+   # projectAddressRegion: "Test",
+   # projectAddressPostalCode: "AB12 3CD",
+   # projectAddressCountry: "Test",
+   # projectDescription: "This is a non-descript description"
+
+
 def create_project(
         project_name,
         project_creator,
         project_description,
-        site_address,
-        occupied_during_works=False,
-        workplace_when_completed=False
+        site_address
     ):
 
-    project_id = camelize(project_name)
+    date_suffix = date.today().isoformat()
+
+    project_id = camelize(project_name) + date_suffix
 
     project_owner = user.User(project_creator)
 
@@ -234,8 +239,6 @@ def create_project(
                 "displayName": project_name,
                 "description": project_description,
                 "siteAddress": site_address,
-                "occupiedDuringWorks": occupied_during_works,
-                "workplaceWhenCompleted": workplace_when_completed
             }
         )
 
@@ -249,6 +252,11 @@ def create_project(
         )
     else:
         raise errors.ProjectAlreadyExists(f"A project with the ID {project_id} already exists")
+
+    return {
+        "id": project_id,
+        "name": project_name
+    }
 
 
 def list_all_projects():

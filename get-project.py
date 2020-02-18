@@ -16,8 +16,6 @@ def lambda_handler(event, context):
             "name": this_project.project_name,
             "description": this_project.project_description,
             "siteAddress": this_project.site_address,
-            "occupiedDuringWorks": this_project.occupied_during_works,
-            "workplaceWhenCompleted": this_project.workplace_when_completed
         }
 
     # catch any application errors
@@ -42,5 +40,16 @@ def lambda_handler(event, context):
         "body": return_dict
     }
         
+if __name__ == '__main__':
 
+    event = { 
+        "cognitoPoolClaims": {
+            "sub": "6a628546-9b4e-4c43-96a4-4e30c3c37511"
+        },
+        "path": {
+            "project_id": "TestProject2020-02-18"
+        }
+    }
+
+    print(lambda_handler(event, {}))
         
