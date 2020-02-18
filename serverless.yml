@@ -127,6 +127,12 @@ functions:
           trigger: PostConfirmation
           existing: true
 
+  receive-notifications:
+    handler: receive-notifications.lambda_handler
+    events:
+      - sns:
+          arn: arn:aws:sns:eu-west-1:514296467270:d85be1f5baa83fa83850d8b58731a7f7c8ba65c33dec107c2e16e0dd65c7bcc7
+
   get-sts:
     handler: get-sts.lambda_handler
     events:
