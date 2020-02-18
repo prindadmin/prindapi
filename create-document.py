@@ -37,10 +37,10 @@ def lambda_handler(event, context):
         document_tags = event['body']['tags']
         project_id = event['body']['projectId']
         s3_key = event['body']['s3Key']
-        s3_version_id = event['body']['s3VersionId']
         filename = event['body']['filename']
         page_name = event['body'].get('page')
         field_index = event['body'].get('fieldIndex')
+        #s3_version_id = event['body'].get(['s3VersionId'])
         description = event['body'].get('description')
 
         # validate project
@@ -50,6 +50,10 @@ def lambda_handler(event, context):
 
         response = s3.get_object(Bucket=s3_bucket_name, Key=s3_key)
         uploaded_file = response['Body']
+        s3_version_id = response['VersionId']
+
+        print("s3_version_id is:", s3_version_id)
+
      
         file_bytes = uploaded_file.read()    
         file_hash = hashlib.sha256(file_bytes).hexdigest();
@@ -162,7 +166,10 @@ def lambda_handler(event, context):
     
     return {
         "statusCode": 200,
-        "body": "completed"
+        "body": {
+            "documentDid": document_did,
+            "versionId": s3_version_id
+        }
     }
 
 

@@ -15,7 +15,7 @@ from boto3.dynamodb.conditions import Key, Attr
 dynamodb = boto3.resource("dynamodb")
 table = dynamodb.Table(os.environ["TABLE_NAME"])
 
-s3 = boto3.resource('s3')
+s3 = boto3.client('s3')
 
 def lambda_handler(event, context):
 
@@ -36,22 +36,20 @@ def lambda_handler(event, context):
         description = event['body'].get('description')
 
         document_did = event['path']['document_did']
-        s3_version_id = event['body']['s3VersionId']
+        # s3_version_id = event['body']['s3VersionId']
 
         foundations_jwt = auth.get_foundations_jwt(sp_did)
         api_url=f"https://{api_id}.execute-api.eu-west-1.amazonaws.com/{api_stage}/sp/document-did/{document_did}/update"
 
         document_version = document.Document(document_did)
 
-        object_version = s3.ObjectVersion(
-            s3_bucket_name, 
-            document_version.s3_key, 
-            s3_version_id
-        )    
-        
-        response = object_version.get()
+        s3_key = document_version.s3_key
 
+        response = s3.get_object(Bucket=s3_bucket_name, Key=s3_key)
         uploaded_file = response['Body']
+        s3_version_id = response['VersionId']
+
+        print("s3_version_id is:", s3_version_id)
      
         file_bytes = uploaded_file.read()    
         file_hash = hashlib.sha256(file_bytes).hexdigest();
@@ -139,7 +137,10 @@ def lambda_handler(event, context):
     
     return {
         "statusCode": 200,
-        "body": "completed"
+        "body": {
+            "documentDid": document_did,
+            "versionId": s3_version_id
+        }
     }
 
 
@@ -150,10 +151,10 @@ if __name__ == '__main__':
             "sub": "778bd486-4684-482b-9565-1c2a51367b8c"
         },
         "path": {
-            "document_did": "did:fnds:c25eb417ffa90f8fedf29b385fc91f58831a470805f38474bd71f327b860f946"
+            "document_did": "did:fnds:7533fbed7f2f25b9bdf58e94d56c44c87a2144846a82c00ddd1621f6959afc05"
         },
         "body": {
-            "s3VersionId": "aACPyGfvlK5VOKq4fDKaw6kcmMAz3diX",
+            # "s3VersionId": "aACPyGfvlK5VOKq4fDKaw6kcmMAz3diX",
             "projectId": "ProjectNumberFour",
             "page": "inception",
             "fieldIndex": 1
