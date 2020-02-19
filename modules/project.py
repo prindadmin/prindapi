@@ -11,6 +11,7 @@ from datetime import date
 from modules import errors
 from modules import user
 from modules import role
+from modules import mail
 
 
 
@@ -64,7 +65,7 @@ class Project():
 
         if project_owner == user_name:
             return True
-        elif get_user_role(user_name):
+        elif self.get_user_role(user_name):
             return True
         else:
            return False
@@ -99,10 +100,6 @@ class Project():
             role_id
         ):
 
-        # check if requesting user is the owner of the project, or has a role on the project
-        if not self.user_has_permission(requesting_user_name):
-           raise errors.InsufficientPermission("Requesting user does not have permission to add a role to this project") 
-
         # check that role is assignable
         assigned_role = role.Role(role_id)
 
@@ -113,6 +110,97 @@ class Project():
                 "data": assigned_role.role_id 
             }
         )
+
+    def invite_user(
+            self,
+            requesting_user_name,
+            user_to_add,
+            role_id
+        ):
+
+        # check if requesting user is the owner of the project, or has a role on the project
+        if not self.user_has_permission(requesting_user_name):
+           raise errors.InsufficientPermission("Requesting user does not have permission to add a role to this project")
+
+        # check that role is assignable
+        assigned_role = role.Role(role_id)
+
+        table.put_item(
+            Item={    
+                "pk": f"user_{user_to_add}",
+                "sk": f"roleInvitation_{self.project_id}",
+                "data": assigned_role.role_id ,
+                "requestedBy": requesting_user_name,
+                "requestedAt": str(int(time.time()))
+            }
+        )
+
+        user_to_add_obj = user.User(user_to_add)
+
+        template_data = {
+            "firstName": user_to_add_obj.first_name,
+            "projectName": self.project_name,
+            "roleName": assigned_role.role_name
+        }
+
+        mail.send_email(user_to_add_obj.email_address, "project-invitation", template_data)
+
+    def respond_to_invitation(
+            self,
+            username,
+            accepted=True
+        ):
+        
+        # get roleInvitation and archive it as roleIvitationResponse
+        response = table.delete_item(
+            Key={
+                "pk": f"user_{username}",
+                "sk": f"roleInvitation_{self.project_id}"
+            },
+            ReturnValues="ALL_OLD"
+        )
+
+        try:
+            old_item = response["Attributes"]
+        except KeyError:
+            raise errors.InvitationNotFound(f"A Project Invitation for {username} and {self.project_id} was not found")
+        # old_item = {'sk': 'roleInvitation_ProjectNumberFour', 'requestedBy': '778bd486-4684-482b-9565-1c2a51367b8c', 'pk': 'user_d7b4396c-e7d5-4190-b449-6d4cdf976473', 'data': 'projectConsultant', 'requestedAt': '1582041857'}
+        new_item = old_item.copy()
+
+        new_item['sk'] = f"roleInvitationResponse_{self.project_id}"
+        new_item['accepted'] = accepted
+        new_item['respondedAt'] = str(int(time.time()))
+
+        table.put_item(
+            Item=new_item
+        )
+
+        from_username = old_item['requestedBy']
+        role_id = old_item['data']
+
+        # add the user role, if it was accepted
+        if accepted:
+            self.add_user_role(
+                requesting_user_name=from_username,
+                user_to_add=username,
+                role_id=role_id
+            )
+
+        # send email to the inviter with the response
+        from_user_obj = user.User(username)
+        to_user_obj = user.User(from_username)
+
+        template_data = {
+            "inviterFirstName": to_user_obj.first_name,
+            "inviteeFirstName": from_user_obj.first_name,
+            "inviteeLastName": from_user_obj.last_name,
+            "response": "accepted" if accepted else "declined",
+            "projectName": self.project_name
+        }
+
+        print(template_data)
+
+        mail.send_email(to_user_obj.email_address, "project-invitation-response", template_data)
 
     def get_owner(self):
 
@@ -203,17 +291,6 @@ def camelize(string):
 
 
 
-   # projectName: "Test Project",
-   # projectAddressLine1: "Test",
-   # projectAddressLine2: "Test",
-   # projectAddressLine3: "Test",
-   # projectAddressTown: "Test",
-   # projectAddressRegion: "Test",
-   # projectAddressPostalCode: "AB12 3CD",
-   # projectAddressCountry: "Test",
-   # projectDescription: "This is a non-descript description"
-
-
 def create_project(
         project_name,
         project_creator,
@@ -254,8 +331,8 @@ def create_project(
         raise errors.ProjectAlreadyExists(f"A project with the ID {project_id} already exists")
 
     return {
-        "id": project_id,
-        "name": project_name
+        "projectId": project_id,
+        "projectName": project_name
     }
 
 

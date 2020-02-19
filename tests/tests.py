@@ -20,6 +20,12 @@ from modules import user
 myusername="778bd486-4684-482b-9565-1c2a51367b8c"
 user.create_user(username=myusername, name="Bill Smith")
 
+# update a user
+from modules import user
+myuser = user.User("778bd486-4684-482b-9565-1c2a51367b8c")
+myuser.update(email_address="mr.simon.hunt+test1@gmail.com")
+
+
 # create another user
 from modules import user
 this_username="aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaa"
@@ -52,6 +58,33 @@ this_project.add_user_role(
         user_to_add=this_username,
         role_id="projectConsultant"
     )
+
+# invite user to project
+myusername="778bd486-4684-482b-9565-1c2a51367b8c"
+this_username="f9c255cb-a42b-4359-a8bd-2ebec5dfa2fa"
+from modules import project
+this_project = project.Project('ProjectNumberFour')
+this_project.invite_user(
+        requesting_user_name=myusername,
+        user_to_add=this_username,
+        role_id="projectConsultant"
+    )
+
+#respond to invitation
+username="f9c255cb-a42b-4359-a8bd-2ebec5dfa2fa"
+from modules import project
+this_project = project.Project('ProjectNumberFour')
+this_project.respond_to_invitation(
+        username=username,
+        accepted=True
+    )
+
+
+# get project invitations
+username="d7b4396c-e7d5-4190-b449-6d4cdf976473"
+from modules import user
+this_user = user.User(username)
+print(this_user.get_project_invitations()) 
 
 
 # get project roles
@@ -156,5 +189,5 @@ template_data = {
     "firstName": "Simon",
     "foundationsId": "did:fnds:123456789"
 }
-mail.send_email("09964125-ebd1-45a0-bc74-398de7757987", "post-confirmation", template_data)
+mail.send_email("d7b4396c-e7d5-4190-b449-6d4cdf976473", "post-confirmation", template_data)
 

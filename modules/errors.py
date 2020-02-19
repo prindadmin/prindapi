@@ -89,3 +89,8 @@ class InvalidFieldType(ApplicationError):
     def __init__(self, message):
         ApplicationError.__init__(self, message, "INVALID_FIELD_TYPE", "0014")
 
+# Invitation not found
+class InvitationNotFound(ApplicationError):
+    def __init__(self, message):
+        ApplicationError.__init__(self, message, "INVITATION_NOT_FOUND", "0015")
+

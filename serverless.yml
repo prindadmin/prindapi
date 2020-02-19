@@ -467,83 +467,47 @@ functions:
             authorizerId: 
               Ref: ApiGatewayAuthorizer
 
-  get-document-version-signatures:
-    handler: get-document-version-signatures.lambda_handler
-    events:
-      - http:
-          path: /document/{document_did}/version-signatures/{document_version}
-          method: get
-          cors: true
-          response:
-            statusCodes:
-              200:
-                pattern: '' # Default response method
-              400:
-                pattern: '.*"statusCode":400,.*'
-              500:
-                pattern: '.*"statusCode":500,.*'
-          integration: lambda
-          documentation:
-            methodResponses:
-              - statusCode: "200"
-                responseBody:
-                  description: "Successful Response"
-              - statusCode: "400"
-                responseBody:
-                  description: "A client error occurred"
-                responseModels:
-                  application/json: "errorResponse"
-              - statusCode: "500"
-                responseBody:
-                  description: "A server error occurred"
-                responseModels:
-                  application/json: "errorResponse"
-          authorizer: 
-            type: COGNITO_USER_POOLS
-            authorizerId: 
-              Ref: ApiGatewayAuthorizer
+  # get-document-version-signatures:
+  #   handler: get-document-version-signatures.lambda_handler
+  #   events:
+  #     - http:
+  #         path: /document/{document_did}/version-signatures/{document_version}
+  #         method: get
+  #         cors: true
+  #         response:
+  #           statusCodes:
+  #             200:
+  #               pattern: '' # Default response method
+  #             400:
+  #               pattern: '.*"statusCode":400,.*'
+  #             500:
+  #               pattern: '.*"statusCode":500,.*'
+  #         integration: lambda
+  #         documentation:
+  #           methodResponses:
+  #             - statusCode: "200"
+  #               responseBody:
+  #                 description: "Successful Response"
+  #             - statusCode: "400"
+  #               responseBody:
+  #                 description: "A client error occurred"
+  #               responseModels:
+  #                 application/json: "errorResponse"
+  #             - statusCode: "500"
+  #               responseBody:
+  #                 description: "A server error occurred"
+  #               responseModels:
+  #                 application/json: "errorResponse"
+  #         authorizer: 
+  #           type: COGNITO_USER_POOLS
+  #           authorizerId: 
+  #             Ref: ApiGatewayAuthorizer
 
   list-projects:
     handler: list-projects.lambda_handler
     events:
       - http:
           path: /project/list
-          method: get
-          cors: true
-          response:
-            statusCodes:
-              200:
-                pattern: '' # Default response method
-              400:
-                pattern: '.*"statusCode":400,.*'
-              500:
-                pattern: '.*"statusCode":500,.*'
-          integration: lambda
-          documentation:
-            methodResponses:
-              - statusCode: "200"
-                responseBody:
-                  description: "Successful Response"
-              - statusCode: "400"
-                responseBody:
-                  description: "A client error occurred"
-                responseModels:
-                  application/json: "errorResponse"
-              - statusCode: "500"
-                responseBody:
-                  description: "A server error occurred"
-                responseModels:
-                  application/json: "errorResponse"
-          authorizer: 
-            type: COGNITO_USER_POOLS
-            authorizerId: 
-              Ref: ApiGatewayAuthorizer
-
-  get-project:
-    handler: get-project.lambda_handler
-    events:
-      - http:
-          path: /project/{project_id}
           method: get
           cors: true
           response:
@@ -683,8 +647,9 @@ functions:
             authorizerId: 
               Ref: ApiGatewayAuthorizer
 
-  create-project:
-    handler: create-project.lambda_handler
+  
+  project:
+    handler: project.lambda_handler
     events:
       - http:
           path: /project/create
@@ -718,10 +683,38 @@ functions:
             type: COGNITO_USER_POOLS
             authorizerId: 
               Ref: ApiGatewayAuthorizer
-
-  update-project:
-    handler: update-project.lambda_handler
-    events:
+      - http:
+          path: /project/{project_id}
+          method: get
+          cors: true
+          response:
+            statusCodes:
+              200:
+                pattern: '' # Default response method
+              400:
+                pattern: '.*"statusCode":400,.*'
+              500:
+                pattern: '.*"statusCode":500,.*'
+          integration: lambda
+          documentation:
+            methodResponses:
+              - statusCode: "200"
+                responseBody:
+                  description: "Successful Response"
+              - statusCode: "400"
+                responseBody:
+                  description: "A client error occurred"
+                responseModels:
+                  application/json: "errorResponse"
+              - statusCode: "500"
+                responseBody:
+                  description: "A server error occurred"
+                responseModels:
+                  application/json: "errorResponse"
+          authorizer: 
+            type: COGNITO_USER_POOLS
+            authorizerId: 
+              Ref: ApiGatewayAuthorizer
       - http:
           path: /project/{project_id}/update
           method: post
@@ -753,14 +746,122 @@ functions:
           authorizer: 
             type: COGNITO_USER_POOLS
             authorizerId: 
-              Ref: ApiGatewayAuthorizer
+              Ref: ApiGatewayAuthorizer    
 
-  add-project-role:
-    handler: add-project-role.lambda_handler
+  # add-project-member:
+  #   handler: add-project-member.lambda_handler
+  #   events:
+  #     - http:
+  #         path: /project/{project_id}/add-member
+  #         method: post
+  #         cors: true
+  #         response:
+  #           statusCodes:
+  #             200:
+  #               pattern: '' # Default response method
+  #             400:
+  #               pattern: '.*"statusCode":400,.*'
+  #             500:
+  #               pattern: '.*"statusCode":500,.*'
+  #         integration: lambda
+  #         documentation:
+  #           methodResponses:
+  #             - statusCode: "200"
+  #               responseBody:
+  #                 description: "Successful Response"
+  #             - statusCode: "400"
+  #               responseBody:
+  #                 description: "A client error occurred"
+  #               responseModels:
+  #                 application/json: "errorResponse"
+  #             - statusCode: "500"
+  #               responseBody:
+  #                 description: "A server error occurred"
+  #               responseModels:
+  #                 application/json: "errorResponse"
+  #         authorizer: 
+  #           type: COGNITO_USER_POOLS
+  #           authorizerId: 
+  #             Ref: ApiGatewayAuthorizer
+
+  invite-project-member:
+    handler: invite-project-member.lambda_handler
     events:
       - http:
-          path: /project/{project_id}/add-role
+          path: /project/{project_id}/invite-member
           method: post
+          cors: true
+          response:
+            statusCodes:
+              200:
+                pattern: '' # Default response method
+              400:
+                pattern: '.*"statusCode":400,.*'
+              500:
+                pattern: '.*"statusCode":500,.*'
+          integration: lambda
+          documentation:
+            methodResponses:
+              - statusCode: "200"
+                responseBody:
+                  description: "Successful Response"
+              - statusCode: "400"
+                responseBody:
+                  description: "A client error occurred"
+                responseModels:
+                  application/json: "errorResponse"
+              - statusCode: "500"
+                responseBody:
+                  description: "A server error occurred"
+                responseModels:
+                  application/json: "errorResponse"
+          authorizer: 
+            type: COGNITO_USER_POOLS
+            authorizerId: 
+              Ref: ApiGatewayAuthorizer
+
+  post-project-invitation-response:
+    handler: post-project-invitation-response.lambda_handler
+    events:
+      - http:
+          path: /project/{project_id}/respond-to-invitation
+          method: post
+          cors: true
+          response:
+            statusCodes:
+              200:
+                pattern: '' # Default response method
+              400:
+                pattern: '.*"statusCode":400,.*'
+              500:
+                pattern: '.*"statusCode":500,.*'
+          integration: lambda
+          documentation:
+            methodResponses:
+              - statusCode: "200"
+                responseBody:
+                  description: "Successful Response"
+              - statusCode: "400"
+                responseBody:
+                  description: "A client error occurred"
+                responseModels:
+                  application/json: "errorResponse"
+              - statusCode: "500"
+                responseBody:
+                  description: "A server error occurred"
+                responseModels:
+                  application/json: "errorResponse"
+          authorizer: 
+            type: COGNITO_USER_POOLS
+            authorizerId: 
+              Ref: ApiGatewayAuthorizer
+
+  get-project-invitations:
+    handler: get-project-invitations.lambda_handler
+    events:
+      - http:
+          path: /user/get-project-invitations
+          method: get
           cors: true
           response:
             statusCodes:

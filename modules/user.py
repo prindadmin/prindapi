@@ -77,6 +77,56 @@ class User():
 
         return projects
 
+    def get_project_invitations(self):
+
+        response = table.query(
+            KeyConditionExpression=Key("pk").eq(f"user_{self.username}") & Key("sk").begins_with("roleInvitation_")
+        )
+
+        items = response.get("Items")
+        invitations = []
+
+        for item in items:
+
+            item.pop("pk")
+            item["projectId"] = item.pop("sk").split("roleInvitation_")[1]
+            item["roleId"] = item.pop('data')
+
+            invitations.append(item)
+
+        return invitations
+
+    def update(self, first_name=None, last_name=None, email_address=None):
+
+        if first_name:
+            table.put_item(
+                Item={
+                    "pk": f"user_{self.username}",
+                    "sk": "userDetails_firstName",
+                    "data": first_name
+                }
+            )
+
+        if last_name:
+            table.put_item(
+                Item={
+                    "pk": f"user_{self.username}",
+                    "sk": "userDetails_lastName",
+                    "data": last_name
+                }
+            )
+
+        if email_address:
+            table.put_item(
+                Item={
+                    "pk": f"user_{self.username}",
+                    "sk": "userDetails_emailAddress",
+                    "data": email_address
+                }
+            )
+
+
+
 
 def create_user(username, first_name=None, last_name=None, email_address=None):
 
