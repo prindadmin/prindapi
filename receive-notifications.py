@@ -2,23 +2,81 @@ import boto3
 import json
 import os
 
+from botocore.exceptions import ClientError
+from boto3.dynamodb.conditions import Key, Attr
+
+dynamodb = boto3.resource("dynamodb")
+table = dynamodb.Table(os.environ["TABLE_NAME"])
+
+from modules import user
+
 def lambda_handler(event, context):
 
     for record in event["Records"]:
 
-        message = record["Sns"]["Message"]
-        print(message)
+        message = json.loads(record["Sns"]["Message"])
+        
+        # a user has signed up with a previously queried email address
+        if message["notificationType"] == "signUp":
 
+            # first get the username for the email address
+            response = table.query(
+                IndexName="GSI1",
+                KeyConditionExpression=Key("sk").eq("userDetails_emailAddress")&Key("data").eq(message["emailAddress"])
+            )
 
-        # events
+            username = response['Items'][0].get('pk').split("user_")[1]
 
-        # - document signed
-        # - user with email address xxxx@example.com has joined foundations with did of xxxx
-        # - subscription request has been accepted
+            did = message["foundationsId"]
 
- 
+            this_user = user.User(username)
+            this_user.write_did(did)
+
+            print(this_user.get_did())
+
+        elif message["notificationType"] == "fieldRequestApproved":
+            
+            print(message)
+
+        elif message["notificationType"] == "fieldRequestDenied":
+
+            print(message)
+
+        elif message["notificationType"] == "documentSigned":
+
+            print(message)
+
        
 if __name__ == '__main__':
+
+    user_signup_notification = {
+        "notificationType": "signUp",
+        "emailAddress": "mr.simon.hunt+test14@gmail.com",
+        "foundationsId": "did:fnds:161263516316213616236"
+    }
+
+    field_request_approved_notification = {
+        "notificationType" : "fieldRequestApproved",
+        "did" : "did:fnds:161263516316213616236",
+        "field" : "dateOfBirth",
+        "requesterReference" : "Prin-D",
+        "userComments" : "Here are the fields you requested"
+    }
+
+    field_request_denied_notification = {
+        "notificationType" : "fieldRequestDenied",
+        "did" : "did:fnds:161263516316213616236",
+        "field" : "dateOfBirth",
+        "requesterReference" : "Prin-D",
+        "userComments" : "You shouldn't need this field"
+    }
+
+    document_signed_notification = {
+        "notificationType" : "documentSigned",
+        "signingDid" : "did:fnds:161263516316213616236",
+        "documentDid" : "dateOfBirth",
+        "requesterReference" : "Prin-D",
+    }
 
     event = {
       "Records": [
@@ -31,7 +89,7 @@ if __name__ == '__main__':
             "MessageId": "ecab1301-9135-5c53-bf7b-45c4540ad715",
             "TopicArn": "arn:aws:sns:eu-west-1:514296467270:d85be1f5baa83fa83850d8b58731a7f7c8ba65c33dec107c2e16e0dd65c7bcc7",
             "Subject": None,
-            "Message": "{\"testName\": \"agklaslgkjasldgj\"}",
+            "Message": json.dumps(document_signed_notification),
             "Timestamp": "2020-02-18T10:57:03.487Z",
             "SignatureVersion": "1",
             "Signature": "ayqaWSNdyBVO5hl3sQ/PIT3IUSCAPBCrMIdSPoDMxLmF2EVgFGz3xGkHBEKyJbeutr40b5+IXrIJKlq1X0mZ4Nsn9shtcJMNnlVxGV6584n4s6WiJq5kkuDyHcFVpOTuuMfF34W2XGx7dcNcrcMYZb89IrS8VRk00cp4RXfiWTEZyaKn21+Akw7LTUP55JmlJzkVWtugHZmZKt19haEA9CInsWDga8G/hldx2ZkSTJzPjyUUqwxt+2eJHAugZjyP6Lenv2ri638+21mEOVvdiNWUlqes7olPDowRNoFI+e8DULET5L2PUfKxlr91Vr4/ldef46SRUnqBI19XMhCrbw==",
