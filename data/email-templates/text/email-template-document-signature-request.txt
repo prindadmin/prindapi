@@ -1,0 +1,5 @@
+Document Signature Request
+
+You have been requested to sign a document by {{firstName}} {{lastName}}. 
+
+Please log in to the PrinD platform to sign the document.

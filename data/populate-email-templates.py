@@ -39,6 +39,12 @@ templates = [
         "text_file_name": "email-template-post-confirmation.txt",
         "html_file_name": "email-template-post-confirmation.html",
         "subject": "Thanks for confirming your email address"
+    },
+    {
+        "template_name": "document-signature-request",
+        "text_file_name": "email-template-document-signature-request.txt",
+        "html_file_name": "email-template-document-signature-request.html",
+        "subject": "You have received a request to sign a document"
     }
 ]
 
@@ -110,6 +116,6 @@ def update_templates(template_names):
 if __name__ == '__main__':
 
     #update_templates(['post-confirmation'])
-    create_templates(['project-invitation-response'])
+    create_templates(['document-signature-request'])
     #create_all_templates()
     #update_templates(['test-template'])

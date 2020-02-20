@@ -5,6 +5,7 @@ import time
 from modules import errors
 from modules import document
 from modules import user
+from modules import mail
 
 from botocore.exceptions import ClientError
 from boto3.dynamodb.conditions import Key, Attr
@@ -33,6 +34,13 @@ def lambda_handler(event, context):
                 "requestedAt": str(int(time.time()))
             }
         )
+
+        template_data = {
+            "firstName": requesting_user.first_name,
+            "lastName": requesting_user.last_name
+        }
+
+        mail.send_email(signing_user.email_address, "document-signature-request", template_data)
 
    # catch any application errors
     except:
@@ -65,14 +73,14 @@ if __name__ == '__main__':
     event = {
         "cognitoPoolClaims": {
             #"sub": "778bd486-4684-482b-9565-1c2a51367b8c"
-            "sub": "aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaa"
+            "sub": "a9fa394f-ed94-444c-84fe-6821f538ddd9"
         },
         "path": {
             "document_did": "did:fnds:c25eb417ffa90f8fedf29b385fc91f58831a470805f38474bd71f327b860f946"
         },
         "body": {
             #"signingUsername": "aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaa"
-            "signingUsername": "778bd486-4684-482b-9565-1c2a51367b8c"
+            "signingUsername": "f9c255cb-a42b-4359-a8bd-2ebec5dfa2fa"
         }
     }
 
