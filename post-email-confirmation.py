@@ -12,6 +12,7 @@ table = dynamodb.Table(os.environ["TABLE_NAME"])
 from modules import user
 from modules import auth
 from modules import mail
+from modules import errors
 
 def lambda_handler(event, context):
 
@@ -26,38 +27,12 @@ def lambda_handler(event, context):
 
         user.create_user(username, first_name=first_name, last_name=last_name, email_address=email_address)
 
-        api_id = os.environ["FOUNDATIONS_API_ID"]
-        sp_did = os.environ["SP_DID"]
-        api_stage = os.environ["FOUNDATIONS_API_STAGE"]
-
-        foundations_jwt = auth.get_foundations_jwt(sp_did)
-        api_url=f"https://{api_id}.execute-api.eu-west-1.amazonaws.com/{api_stage}/sp/email-address/{email_address}/get-did"
-
-        params = {
-        }
-
-        response = requests.get(
-            api_url,
-            data=params,
-            headers={'Authorization': foundations_jwt}
-        )
-
-        response_dict = json.loads(response.content.decode('utf-8'))
-
-        print(response.status_code)
-
-        if not response_dict['statusCode'] == 200:
-            
-            print("status code was", response.status_code)
-            print("response content was", response_dict)
+        this_user =user.User(username)
+        
+        try:
+            did = this_user.add_foundations_subscription()
+        except errors.DIDNotFound:
             did = None
-
-        else:
-
-            did = response_dict['body']['did']
-
-            this_user =user.User(username)
-            this_user.write_did(did)
 
         template_data = {
             "firstName": first_name,

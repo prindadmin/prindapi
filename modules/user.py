@@ -2,12 +2,14 @@ import boto3
 import time
 import json
 import os
+import requests
 
 from botocore.exceptions import ClientError
 from boto3.dynamodb.conditions import Key, Attr
 
 from modules import errors
 from modules import project
+from modules import auth
 
 
 
@@ -16,6 +18,9 @@ from modules import project
 dynamodb = boto3.resource("dynamodb")
 table = dynamodb.Table(os.environ["TABLE_NAME"])
 
+api_id = os.environ["FOUNDATIONS_API_ID"]
+sp_did = os.environ["SP_DID"]
+api_stage = os.environ["FOUNDATIONS_API_STAGE"]
 
 class User():
 
@@ -71,6 +76,33 @@ class User():
             }
         )
 
+    def get_did_from_foundations(self):
+
+        foundations_jwt = auth.get_foundations_jwt(sp_did)
+        api_url=f"https://{api_id}.execute-api.eu-west-1.amazonaws.com/{api_stage}/sp/email-address/{self.email_address}/get-did"
+
+        params = {}
+
+        response = requests.get(
+            api_url,
+            data=params,
+            headers={'Authorization': foundations_jwt}
+        )
+
+        response_dict = json.loads(response.content.decode('utf-8'))
+      
+        print(response_dict)
+
+        if response_dict["statusCode"] != 200:
+            raise errors.DIDNotFound(f"A DID was not found for the email address {self.email_address}")
+
+        did = response_dict["body"]["did"]
+
+        self.write_did(did)
+
+        return did
+
+
     def get_projects(self):
 
         projects = project.get_user_projects(self.username)
@@ -125,7 +157,60 @@ class User():
                 }
             )
 
+    def add_foundations_subscription(
+        self,
+        fields=None, 
+        comment=None, 
+        requester_reference=None
+    ):
 
+        default_fields = [
+            "firstName",
+            "lastName",
+            "emailAddress",
+            "homePhoneNumber",
+            "mobilePhoneNumber"
+        ]
+
+        if fields == None:
+            fields = default_fields
+            comment = "Please allow these fields for sign-up on Prin-D"
+
+        foundations_jwt = auth.get_foundations_jwt(sp_did)
+
+        try:
+            user_did = self.get_did()
+        except errors.DIDNotFound:
+            try:
+                user_did = self.get_did_from_foundations()
+            except errors.DIDNotFound:
+                # stop here and pass the exception back the caller
+                raise
+
+        api_url=f"https://{api_id}.execute-api.eu-west-1.amazonaws.com/{api_stage}/sp/subscription/{user_did}"
+
+        params = {
+            "requiredFields": fields,
+            "comment": comment,
+            "requesterReference": "Prin-D"
+        }
+
+        response = requests.post(
+            api_url,
+            data=params,
+            headers={'Authorization': foundations_jwt}
+        )
+
+        response_dict = json.loads(response.content.decode('utf-8'))
+
+        print("response_dict was:", response_dict)
+
+        if response_dict["statusCode"] != 201:
+            print("There was an error requesting the subscription")
+        else:
+            print("subscription was requested")
+
+        return user_did
 
 
 def create_user(username, first_name=None, last_name=None, email_address=None):

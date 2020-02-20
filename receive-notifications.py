@@ -32,7 +32,7 @@ def lambda_handler(event, context):
             this_user = user.User(username)
             this_user.write_did(did)
 
-            print(this_user.get_did())
+            this_user.add_foundations_subscription()
 
         elif message["notificationType"] == "fieldRequestApproved":
             

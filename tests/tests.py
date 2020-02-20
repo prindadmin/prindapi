@@ -191,3 +191,10 @@ template_data = {
 }
 mail.send_email("d7b4396c-e7d5-4190-b449-6d4cdf976473", "post-confirmation", template_data)
 
+# get foundations DID
+username = "b966f0b7-4310-4608-b08d-418210e7ff20"
+from modules import user
+this_user = user.User(username)
+did = this_user.get_did_from_foundations()
+print(did)
+
