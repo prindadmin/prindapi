@@ -198,3 +198,9 @@ this_user = user.User(username)
 did = this_user.get_did_from_foundations()
 print(did)
 
+# add foundations subscription
+username = "b966f0b7-4310-4608-b08d-418210e7ff20"
+from modules import user
+this_user = user.User(username)
+this_user.add_foundations_subscription()
+
