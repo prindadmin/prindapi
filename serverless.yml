@@ -173,8 +173,8 @@ functions:
             authorizerId: 
               Ref: ApiGatewayAuthorizer
 
-  get-roles:
-    handler: get-roles.lambda_handler
+  roles:
+    handler: roles.lambda_handler
     events:
       - http:
           path: /roles/get-roles
@@ -492,8 +492,8 @@ functions:
             authorizerId: 
               Ref: ApiGatewayAuthorizer
 
-  get-project-page:
-    handler: get-page.lambda_handler
+  page:
+    handler: page.lambda_handler
     events:
       - http:
           path: /project/{project_id}/page/{page}
@@ -528,8 +528,8 @@ functions:
             authorizerId: 
               Ref: ApiGatewayAuthorizer
 
-  update-project-page-field:
-    handler: update-page-field.lambda_handler
+  field:
+    handler: field.lambda_handler
     events:
       - http:
           path: /project/{project_id}/page/{page}/field/{field_index}
