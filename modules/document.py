@@ -151,6 +151,7 @@ class Document():
             
             try:
                 uploaded_by_username = prind_version_info['uploadedBy']
+                s3_version_id  = prind_version_info['s3VersionId']
                 
                 try:
                     uploaded_by_user = user.User(uploaded_by_username)
@@ -172,6 +173,8 @@ class Document():
                 version['signatures'] = latest_version_signatures
             else:
                 version['signatures'] = []
+
+            version["s3VersionId"] = s3_version_id
 
 
         return versions
