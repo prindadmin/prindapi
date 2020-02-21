@@ -145,15 +145,12 @@ def lambda_handler(event, context):
 
 
     # catch any application errors
-    except:
-        raise
-
-    # except errors.ApplicationError as error:
-    #     return {
-    #         'statusCode': 400,
-    #         "Error": error.get_error_dict()
-    #     }
-    # # catch unhandled exceptions
+    except errors.ApplicationError as error:
+        return {
+            'statusCode': 400,
+            "Error": error.get_error_dict()
+        }
+    # catch unhandled exceptions
     # except Exception as e:
         
     #     # logger.error(log.logging.exception("message"))

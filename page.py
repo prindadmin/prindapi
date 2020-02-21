@@ -26,14 +26,11 @@ def lambda_handler(event, context):
             page_fields = []    
 
     # catch any application errors
-    except:
-        raise
-
-    # except errors.ApplicationError as error:
-    #     return {
-    #         'statusCode': 400,
-    #         "Error": error.get_error_dict()
-    #     }
+    except errors.ApplicationError as error:
+        return {
+            'statusCode': 400,
+            "Error": error.get_error_dict()
+        }
     # # catch unhandled exceptions
     # except Exception as e:
         
