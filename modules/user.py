@@ -128,6 +128,30 @@ class User():
 
         return invitations
 
+    def get_signature_requests(self):     
+
+        response = table.query(
+            KeyConditionExpression=Key("pk").eq(f"user_{self.username}") 
+                                 & Key("sk").begins_with("documentSignRequest_")
+        )
+
+        items = response.get('Items',[])
+
+        signing_requests = []
+
+        for item in items:
+            item.pop('pk')
+            item['documentDid'] = item.pop('sk').split('documentSignRequest_')[1]
+            requesting_user = user.User(item.pop('requestedBy'))
+            item['requestedBy'] = {}
+            item['requestedBy']['username'] = requesting_user.username
+            item['requestedBy']['firstName'] = requesting_user.first_name
+            item['requestedBy']['lastName'] = requesting_user.last_name
+
+            signing_requests.append(item)
+
+        return signing_requests
+
     def update(self, first_name=None, last_name=None, email_address=None):
 
         if first_name:
