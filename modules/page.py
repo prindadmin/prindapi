@@ -9,11 +9,14 @@ from boto3.dynamodb.conditions import Key, Attr
 from modules import errors
 from modules import project
 from modules import document
-
-
-
+from modules import log
 
 # If logger hasn"t been set up by a calling function, set it here
+try:
+    logger
+except:
+    from modules.log import logger
+    log.set_logging_level()
 
 dynamodb = boto3.resource("dynamodb")
 table = dynamodb.Table(os.environ["TABLE_NAME"])
@@ -36,6 +39,8 @@ class Page(project.Project):
 
         self.page_name = page
         self.default_fields = items
+
+        logger.debug(log.function_end_output(locals()))  
 
     def get_populated_fields(self):
 
@@ -63,6 +68,8 @@ class Page(project.Project):
             
             populated_fields[str(item["id"])] = item
 
+        logger.debug(log.function_end_output(locals()))  
+
         return populated_fields
 
     def get_resultant_fields(self):
@@ -76,6 +83,8 @@ class Page(project.Project):
                 resultant_fields.append(value_for_this_index)
             except KeyError:
                 resultant_fields.append(default)
+
+        logger.debug(log.function_end_output(locals()))  
 
         return resultant_fields
 
@@ -95,6 +104,8 @@ class Page(project.Project):
 
         item.pop('pk')
         item.pop('sk')
+
+        logger.debug(log.function_end_output(locals()))  
 
         return item
 
@@ -122,7 +133,7 @@ class Page(project.Project):
 
         existing_field = response.get('Item')
 
-        print(existing_field)
+        logger.debug(existing_field)
 
         try:
             default_field = self.default_fields[int(field_index)-1]
@@ -152,7 +163,7 @@ class Page(project.Project):
                 optional_args[key] = default_values.get(key)
 
      
-        print(optional_args)
+        logger.debug(optional_args)
 
         table.put_item(
             Item={
@@ -167,6 +178,8 @@ class Page(project.Project):
                 
             }
         )
+
+        logger.debug(log.function_end_output(locals()))  
 
 
     def write_document_field(self, field_index, document_did, title=None, description=None, editable=None):
@@ -183,6 +196,8 @@ class Page(project.Project):
             description=description, 
             editable=editable
         )
+
+        logger.debug(log.function_end_output(locals()))  
 
             
 

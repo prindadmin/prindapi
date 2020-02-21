@@ -66,7 +66,8 @@ provider:
     SP_DID: ${self:custom.myEnvironment.SP_DID.${self:provider.stage}}
     FACTOM_EXPLORER_DOMAIN: ${self:custom.myEnvironment.FACTOM_EXPLORER_DOMAIN.${self:provider.stage}}
     S3_BUCKET_NAME: ${self:custom.s3BucketName} 
-    S3_BUCKET_ARN: "arn:aws:s3:::${self:custom.s3BucketName}"    
+    S3_BUCKET_ARN: "arn:aws:s3:::${self:custom.s3BucketName}"
+    PRIND_LOG_LEVEL: 'ERROR'    
 
   iamRoleStatements:
     - Effect: "Allow"

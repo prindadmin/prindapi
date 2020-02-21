@@ -12,10 +12,14 @@ from modules import errors
 from modules import user
 from modules import role
 from modules import mail
-
-
+from modules import log
 
 # If logger hasn"t been set up by a calling function, set it here
+try:
+    logger
+except:
+    from modules.log import logger
+    log.set_logging_level()
 
 dynamodb = boto3.resource("dynamodb")
 table = dynamodb.Table(os.environ["TABLE_NAME"])
@@ -43,6 +47,8 @@ class Project():
         self.project_description = item['description']
         self.site_address = item['siteAddress']
 
+        logger.debug(log.function_end_output(locals()))  
+
     def get_user_role(self, user_name):
 
 
@@ -53,6 +59,8 @@ class Project():
             }
         )
 
+        logger.debug(log.function_end_output(locals()))  
+
         try:
             return response['Item']['data']
         except:
@@ -61,7 +69,10 @@ class Project():
     def user_has_permission(self, user_name):
 
         project_owner = self.get_owner()
-        print(project_owner)
+
+        logger.debug(project_owner)
+
+        logger.debug(log.function_end_output(locals()))  
 
         if project_owner == user_name:
             return True
@@ -90,6 +101,8 @@ class Project():
 
             project_roles.append(item)
 
+        logger.debug(log.function_end_output(locals()))  
+
         return project_roles
 
 
@@ -110,6 +123,8 @@ class Project():
                 "data": assigned_role.role_id 
             }
         )
+
+        logger.debug(log.function_end_output(locals()))  
 
     def invite_user(
             self,
@@ -144,6 +159,8 @@ class Project():
         }
 
         mail.send_email(user_to_add_obj.email_address, "project-invitation", template_data)
+
+        logger.debug(log.function_end_output(locals()))  
 
     def respond_to_invitation(
             self,
@@ -198,9 +215,11 @@ class Project():
             "projectName": self.project_name
         }
 
-        print(template_data)
+        logger.debug(template_data)
 
         mail.send_email(to_user_obj.email_address, "project-invitation-response", template_data)
+
+        logger.debug(log.function_end_output(locals()))  
 
     def get_owner(self):
 
@@ -211,6 +230,8 @@ class Project():
 
         item = response['Items'][0]
         owner = item['pk'].split('user_')[1]
+
+        logger.debug(log.function_end_output(locals()))  
 
         return owner
 
@@ -239,6 +260,8 @@ class Project():
                 "siteAddress": site_address,
             }
         )
+
+        logger.debug(log.function_end_output(locals()))  
 
 def get_user_projects(username):
 
@@ -277,6 +300,8 @@ def get_user_projects(username):
         item['projectName'] = Project(project_id).project_name
 
         project_ownerships.append(item)
+
+    logger.debug(log.function_end_output(locals()))  
 
     return {
         "projectOwner": project_ownerships,
@@ -330,6 +355,8 @@ def create_project(
     else:
         raise errors.ProjectAlreadyExists(f"A project with the ID {project_id} already exists")
 
+    logger.debug(log.function_end_output(locals()))  
+
     return {
         "projectId": project_id,
         "projectName": project_name
@@ -354,6 +381,8 @@ def list_all_projects():
         item['projectName'] = item.pop('data')
         
         projects.append(item)
+
+    logger.debug(log.function_end_output(locals()))  
 
     return projects
 

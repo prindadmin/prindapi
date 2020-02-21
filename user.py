@@ -5,6 +5,19 @@ from modules import user
 from modules import errors
 from urllib.parse import unquote
 
+from modules import log
+from modules.log import logger
+
+try:
+    stage_log_level = os.environ['PRIND_LOG_LEVEL']
+except (NameError, KeyError):
+    stage_log_level = 'CRITICAL'
+
+print('stage_log_level:', stage_log_level)
+
+# set the log level
+log.set_logging_level(stage_log_level)
+
 def lambda_handler(event, context):
 
     try:
@@ -49,11 +62,10 @@ def lambda_handler(event, context):
 
     # catch any application errors
     except errors.ApplicationError as error:
-        raise
-    #     return {
-    #         'statusCode': 400,
-    #         "Error": error.get_error_dict()
-    #     }
+        return {
+            'statusCode': 400,
+            "Error": error.get_error_dict()
+        }
     # # catch unhandled exceptions
     # except Exception as e:
         

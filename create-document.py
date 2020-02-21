@@ -15,6 +15,19 @@ from boto3.dynamodb.conditions import Key, Attr
 dynamodb = boto3.resource("dynamodb")
 table = dynamodb.Table(os.environ["TABLE_NAME"])
 
+from modules import log
+from modules.log import logger
+
+try:
+    stage_log_level = os.environ['PRIND_LOG_LEVEL']
+except (NameError, KeyError):
+    stage_log_level = 'CRITICAL'
+
+print('stage_log_level:', stage_log_level)
+
+# set the log level
+log.set_logging_level(stage_log_level)
+
 s3 = boto3.client('s3')
 
 def lambda_handler(event, context):

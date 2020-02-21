@@ -7,6 +7,19 @@ from modules import role
 from modules import user
 from urllib.parse import unquote
 
+from modules import log
+from modules.log import logger
+
+try:
+    stage_log_level = os.environ['PRIND_LOG_LEVEL']
+except (NameError, KeyError):
+    stage_log_level = 'CRITICAL'
+
+print('stage_log_level:', stage_log_level)
+
+# set the log level
+log.set_logging_level(stage_log_level)
+
 
 def lambda_handler(event, context):
 

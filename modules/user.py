@@ -10,10 +10,14 @@ from boto3.dynamodb.conditions import Key, Attr
 from modules import errors
 from modules import project
 from modules import auth
-
-
+from modules import log
 
 # If logger hasn"t been set up by a calling function, set it here
+try:
+    logger
+except:
+    from modules.log import logger
+    log.set_logging_level()
 
 dynamodb = boto3.resource("dynamodb")
 table = dynamodb.Table(os.environ["TABLE_NAME"])
@@ -48,6 +52,8 @@ class User():
         self.last_name = values.get('lastName')
         self.username = username
 
+        logger.debug(log.function_end_output(locals()))  
+
 
     def get_did(self):
 
@@ -65,6 +71,8 @@ class User():
         
         return did
 
+        logger.debug(log.function_end_output(locals()))  
+
 
     def write_did(self, did):
 
@@ -75,6 +83,8 @@ class User():
                 "data": did
             }
         )
+
+        logger.debug(log.function_end_output(locals()))  
 
     def get_did_from_foundations(self):
 
@@ -91,7 +101,7 @@ class User():
 
         response_dict = json.loads(response.content.decode('utf-8'))
       
-        print(response_dict)
+        logger.debug(response_dict)
 
         if response_dict["statusCode"] != 200:
             raise errors.DIDNotFound(f"A DID was not found for the email address {self.email_address}")
@@ -100,12 +110,16 @@ class User():
 
         self.write_did(did)
 
+        logger.debug(log.function_end_output(locals()))  
+
         return did
 
 
     def get_projects(self):
 
         projects = project.get_user_projects(self.username)
+
+        logger.debug(log.function_end_output(locals()))  
 
         return projects
 
@@ -125,6 +139,8 @@ class User():
             item["roleId"] = item.pop('data')
 
             invitations.append(item)
+
+        logger.debug(log.function_end_output(locals()))  
 
         return invitations
 
@@ -149,6 +165,8 @@ class User():
             item['requestedBy']['lastName'] = requesting_user.last_name
 
             signing_requests.append(item)
+
+        logger.debug(log.function_end_output(locals()))  
 
         return signing_requests
 
@@ -180,6 +198,8 @@ class User():
                     "data": email_address
                 }
             )
+
+        logger.debug(log.function_end_output(locals()))  
 
     def add_foundations_subscription(
         self,
@@ -227,12 +247,14 @@ class User():
 
         response_dict = json.loads(response.content.decode('utf-8'))
 
-        print("response_dict was:", response_dict)
+        logger.debug("response_dict was:", response_dict)
 
         if response_dict["statusCode"] != 201:
-            print("There was an error requesting the subscription")
+            logger.debug("There was an error requesting the subscription")
         else:
-            print("subscription was requested")
+            logger.debug("subscription was requested")
+
+        logger.debug(log.function_end_output(locals()))  
 
         return user_did
 
@@ -265,6 +287,8 @@ def create_user(username, first_name=None, last_name=None, email_address=None):
                 "data": email_address
             }
         )
+
+    logger.debug(log.function_end_output(locals()))  
 
 # def list_all_users():
 

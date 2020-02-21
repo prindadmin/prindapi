@@ -13,8 +13,21 @@ from botocore.exceptions import ClientError
 from boto3.dynamodb.conditions import Key, Attr
 from urllib.parse import unquote
 
+from modules import log
+from modules.log import logger
+
 dynamodb = boto3.resource("dynamodb")
 table = dynamodb.Table(os.environ["TABLE_NAME"])
+
+try:
+    stage_log_level = os.environ['PRIND_LOG_LEVEL']
+except (NameError, KeyError):
+    stage_log_level = 'CRITICAL'
+
+print('stage_log_level:', stage_log_level)
+
+# set the log level
+log.set_logging_level(stage_log_level)
 
 s3 = boto3.client('s3')
 

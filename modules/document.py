@@ -12,9 +12,15 @@ from modules import errors
 from modules import auth
 from modules import user
 from modules import did
+from modules import log
 
 
 # If logger hasn"t been set up by a calling function, set it here
+try:
+    logger
+except:
+    from modules.log import logger
+    log.set_logging_level()
 
 dynamodb = boto3.resource("dynamodb")
 table = dynamodb.Table(os.environ["TABLE_NAME"])
@@ -50,6 +56,8 @@ class Document():
         self.s3_key = item['s3Key']
         self.filename = item['filename']
 
+        logger.debug(log.function_end_output(locals()))  
+
     def get_version(self, version):
 
         response = table.get_item(
@@ -67,6 +75,8 @@ class Document():
         item.pop('pk')
         item.pop('sk')
 
+        logger.debug(log.function_end_output(locals()))  
+
         return item
 
 
@@ -78,6 +88,8 @@ class Document():
                 "sk": "documentVersion"
             }
         )
+
+        logger.debug(log.function_end_output(locals()))  
 
         return response['Item']['versionNumber']
 
@@ -95,6 +107,8 @@ class Document():
 
         versions = json.loads(response.content.decode('utf-8'))['body']
 
+        logger.debug(log.function_end_output(locals()))  
+
         return versions
 
     def get_version_signatures(self, version):
@@ -110,6 +124,8 @@ class Document():
         )
 
         signatures = json.loads(response.content.decode('utf-8'))['body']
+
+        logger.debug(log.function_end_output(locals()))  
 
         return signatures
 
@@ -176,6 +192,7 @@ class Document():
 
             version["s3VersionId"] = s3_version_id
 
+        logger.debug(log.function_end_output(locals()))  
 
         return versions
 

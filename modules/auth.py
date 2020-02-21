@@ -7,8 +7,14 @@ from botocore.exceptions import ClientError
 from boto3.dynamodb.conditions import Key, Attr
 
 from modules import errors
+from modules import log
 
 # If logger hasn"t been set up by a calling function, set it here
+try:
+    logger
+except:
+    from modules.log import logger
+    log.set_logging_level()
 
 dynamodb = boto3.resource("dynamodb")
 table = dynamodb.Table(os.environ["TABLE_NAME"])
@@ -32,9 +38,13 @@ def get_foundations_jwt(did):
         raise errors.DIDNotFound("There is no JWT for this DID")
 
     # create a new JWT if this JWT expires in less than 5 mins
-    if (int(expiry_time) - time.time()) < 300:
-        print('seconds different', int(expiry_time) - time.time())
-        api_key = update_foundations_jwt(did)    
+    seconds_remaining = int(expiry_time) - time.time()
+    
+    if seconds_remaining < 300:
+        logger.debug(f"seconds remaining {seconds_remaining}")
+        api_key = update_foundations_jwt(did) 
+
+    logger.debug(log.function_end_output(locals()))   
 
     return api_key
 
@@ -63,6 +73,8 @@ def update_foundations_jwt(did):
         }
     )
 
+    logger.debug(log.function_end_output(locals()))
+
     return created_jwt
 
 
@@ -79,6 +91,8 @@ def get_private_key(did):
         private_key = response.get("Item")["key"]
     except (TypeError, KeyError):
         raise errors.DIDNotFound("There is no private key for this DID")
+
+    logger.debug(log.function_end_output(locals()))  
 
     return private_key
 

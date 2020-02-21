@@ -3,16 +3,31 @@ import json
 import os
 import requests
 
+from modules import user
+from modules import auth
+from modules import mail
+from modules import errors
+
 from botocore.exceptions import ClientError
 from boto3.dynamodb.conditions import Key, Attr
 
 dynamodb = boto3.resource("dynamodb")
 table = dynamodb.Table(os.environ["TABLE_NAME"])
 
-from modules import user
-from modules import auth
-from modules import mail
-from modules import errors
+from modules import log
+from modules.log import logger
+
+try:
+    stage_log_level = os.environ['PRIND_LOG_LEVEL']
+except (NameError, KeyError):
+    stage_log_level = 'CRITICAL'
+
+print('stage_log_level:', stage_log_level)
+
+# set the log level
+log.set_logging_level(stage_log_level)
+
+
 
 def lambda_handler(event, context):
 

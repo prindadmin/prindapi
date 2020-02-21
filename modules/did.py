@@ -7,10 +7,14 @@ from botocore.exceptions import ClientError
 from boto3.dynamodb.conditions import Key, Attr
 
 from modules import errors
-
-
+from modules import log
 
 # If logger hasn"t been set up by a calling function, set it here
+try:
+    logger
+except:
+    from modules.log import logger
+    log.set_logging_level()
 
 dynamodb = boto3.resource("dynamodb")
 table = dynamodb.Table(os.environ["TABLE_NAME"])
@@ -33,6 +37,8 @@ class Did():
             cognito_username = response.get("Items")[0]["pk"].split('_')[1]
         except (TypeError, KeyError, IndexError):
             raise errors.DIDNotFound("The DID given is not in the database")
+
+        logger.debug(log.function_end_output(locals()))  
 
         return cognito_username
 

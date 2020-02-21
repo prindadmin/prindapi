@@ -7,9 +7,15 @@ from botocore.exceptions import ClientError
 from boto3.dynamodb.conditions import Key, Attr
 
 from modules import errors
+from modules import log
 
 
 # If logger hasn't been set up by a calling function, set it here
+try:
+    logger
+except:
+    from modules.log import logger
+    log.set_logging_level()
 
 dynamodb = boto3.resource('dynamodb')
 table = dynamodb.Table(os.environ['TABLE_NAME'])
@@ -41,6 +47,8 @@ class Notification():
         self.is_read = item.get('status') == 'read'
         self.is_archived = item.get('status') == 'archived'
 
+        logger.debug(log.function_end_output(locals()))  
+
     def change_status(self, state):
 
         if state not in ['read', 'unread', 'archived']:
@@ -67,11 +75,15 @@ class Notification():
             }
         )
 
+        logger.debug(log.function_end_output(locals()))  
+
         return notification_id
 
     def archive(self):
 
         notification_id = self.change_status('archived')
+
+        logger.debug(log.function_end_output(locals()))  
 
         return notification_id
         
@@ -91,6 +103,8 @@ def create_notification(username, subject, message):
             "message": message
         }
     )
+
+    logger.debug(log.function_end_output(locals()))  
 
     return notification_id
 
@@ -118,6 +132,8 @@ def get_notifications(username, state='unarchived'):
         item['notificationId'] = item.pop('sk')
         item.pop('pk')
         notifications.append(item)
+
+    logger.debug(log.function_end_output(locals()))  
 
     return notifications
 
