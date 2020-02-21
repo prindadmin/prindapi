@@ -1,2 +1,2 @@
-# Prind-API
-The API for Prind
+# PrinD-API
+The API for PrinD
