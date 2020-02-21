@@ -125,7 +125,7 @@ class Page(project.Project):
         print(existing_field)
 
         try:
-            default_field = self.default_fields[field_index-1]
+            default_field = self.default_fields[int(field_index)-1]
         except IndexError:
             default_field = None
 

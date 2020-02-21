@@ -18,7 +18,7 @@ def lambda_handler(event, context):
 
         project_id = unquote(event['path']['project_id'])
         page_name = unquote(event['path']['page'])
-        field_index = unquote(event['path']['field_index'])
+        field_index = event['path']['field_index']
 
         field_data = event['body']['fieldData']
         title = event['body']['title']
