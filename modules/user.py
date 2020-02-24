@@ -258,6 +258,46 @@ class User():
 
         return user_did
 
+    def get_foundations_subscription(self):
+
+        try:
+            user_did = self.get_did()
+        except errors.DIDNotFound:
+            return None
+
+        foundations_jwt = auth.get_foundations_jwt(sp_did)
+        
+        api_url=f"https://{api_id}.execute-api.eu-west-1.amazonaws.com/{api_stage}/sp/subscription/{user_did}"
+
+        params = {}
+
+        response = requests.get(
+            api_url,
+            data=params,
+            headers={'Authorization': foundations_jwt}
+        )
+
+        response_dict = json.loads(response.content.decode('utf-8'))
+
+        logger.debug("response_dict was:", response_dict)
+
+        if response_dict["statusCode"] != 200:
+            logger.debug("There was an error getting the subscription")
+        else:
+            logger.debug("subscription API returned normally")
+
+        logger.debug(log.function_end_output(locals()))
+
+        subscription_details = response_dict['body']
+
+        subscription_details['foundationsId'] = user_did  
+
+        return subscription_details
+
+
+
+
+
 
 def create_user(username, first_name=None, last_name=None, email_address=None):
 

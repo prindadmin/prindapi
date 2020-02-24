@@ -60,6 +60,44 @@ def lambda_handler(event, context):
             status_code = 200
             return_body = signing_requests
 
+        elif http_method == "GET" and resource_path.endswith("profile"):
+
+            authenticating_user = user.User(event['cognitoPoolClaims']['sub'])
+            
+            user_details = dict()
+
+            subscription_data = authenticating_user.get_foundations_subscription()
+
+            if subscription_data:
+
+                for key in list(subscription_data["personalDetails"]):
+
+                    user_details[key] = subscription_data["personalDetails"][key]["field"]["value"]
+
+                user_details["foundationsID"] = subscription_data["foundationsId"]
+
+            else:
+        
+                try:
+                    user_details["foundationsID"] = authenticating_user.get_did()
+                except errors.DIDNotFound:
+                    user_details["foundationsID"] = None
+
+            
+            user_details["lastName"] = authenticating_user.last_name
+            user_details["emailAddress"] = authenticating_user.email_address
+
+            if not user_details["firstName"]:
+                user_details["firstName"] = authenticating_user.first_name
+            if not user_details["lastName"]:
+                user_details["lastName"] = authenticating_user.last_name
+            if not user_details["emailAddress"]:
+                user_details["emailAddress"] = authenticating_user.email_address
+
+
+            status_code = 200
+            return_body = user_details
+
     # catch any application errors
     except errors.ApplicationError as error:
         return {
@@ -106,11 +144,19 @@ if __name__ == '__main__':
                 #"sub": "aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaa"
                 "sub": "778bd486-4684-482b-9565-1c2a51367b8c"
             }
+        },
+        "get-profile": {
+            "requestPath": "/user/profile",
+            "method": "GET", 
+            "cognitoPoolClaims": {
+                #"sub": "aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaa"
+                "sub": "778bd486-4684-482b-9565-1c2a51367b8c"
+            }
         }
     }
 
 
 
-    print(lambda_handler(event["get-signature-requests"], {}))
+    print(lambda_handler(event["get-profile"], {}))
 
         
