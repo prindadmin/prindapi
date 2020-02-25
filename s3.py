@@ -99,7 +99,7 @@ def lambda_handler(event, context):
             status_code = 200
             return_body = return_dict
 
-        if http_method == "GET" and resource_path.endswith("get-file-url"):
+        elif http_method == "GET" and resource_path.endswith("get-file-url"):
 
             cognito_username = event['cognitoPoolClaims']['sub']
             s3_bucket_arn = os.environ['S3_BUCKET_ARN']
@@ -157,6 +157,59 @@ def lambda_handler(event, context):
 
             status_code = 200
             return_body = url
+
+        elif http_method == "GET" and resource_path.endswith("/get-sts/profile-avatar"):
+
+            cognito_username = event['cognitoPoolClaims']['sub']
+            
+            # TODO: New bucket ARN required
+            s3_user_profiles_bucket_arn = os.environ['S3_USER_PROFILES_BUCKET_ARN']
+
+            print(cognito_username)
+
+            # #Connect to the STS system
+            client = boto3.client('sts')
+
+            #Create the policy to allow users to add files to their s3 bucket
+            policy = json.dumps({
+                "Version": "2012-10-17",
+                "Statement": [
+                    {
+                        "Sid" : "VisualEditor0",
+                        "Effect": "Allow",
+                        "Action": [
+                            "s3:PutObject",
+                            "s3:GetObject"
+                        ],
+                        "Resource": [f"{s3_user_profiles_bucket_arn}/profile-avatar/{cognito_username}"]
+                    }
+                ]
+            })
+
+            print(policy)
+            
+            #Get tokens for user to assume the role
+            response = client.assume_role(
+                RoleArn = "arn:aws:iam::434494845257:role/webClientRole",
+                Policy = policy,
+                RoleSessionName = "webClientRole",
+                DurationSeconds = 3600
+            )
+                  
+            # except Exception as e:
+            #     print(e)
+                
+            #     return {"Error" : "Internal server error when getting STS Token"}, 500
+
+            return_dict = {
+                "SessionToken" : response["Credentials"]["SessionToken"],
+                "Expiration" : response["Credentials"]["Expiration"].timestamp(),
+                "AccessKeyId" : response["Credentials"]["AccessKeyId"], 
+                "SecretAccessKey" : response["Credentials"]["SecretAccessKey"]
+            }
+
+            status_code = 200
+            return_body = return_dict
    
    # catch any application errors
     except errors.ApplicationError as error:
@@ -197,9 +250,17 @@ if __name__ == '__main__':
             "cognitoPoolClaims": {
                 "sub": "778bd486-4684-482b-9565-1c2a51367b8c"
             }
+        },
+        "get-sts-profile-avatar": {
+            "requestPath": "/user/get-sts/profile-avatar",
+            "method": "GET", 
+            "path": {},
+            "cognitoPoolClaims": {
+                "sub": "778bd486-4684-482b-9565-1c2a51367b8c"
+            }
         }
     }
 
-    print(lambda_handler(event["get-file-url"], {}))
+    print(lambda_handler(event["get-sts-profile-avatar"], {}))
         
 

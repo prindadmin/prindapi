@@ -34,6 +34,7 @@ custom:
       staging: 'testnet.factoid.org'
       production: 'explorer.factoid.org'
   s3BucketName: prind-portal-user-files-${self:provider.stage}
+  s3UserProfilesBucketName: prind-portal-user-profiles-${self:provider.stage}
  
   documentation:
     api:
@@ -67,6 +68,8 @@ provider:
     FACTOM_EXPLORER_DOMAIN: ${self:custom.myEnvironment.FACTOM_EXPLORER_DOMAIN.${self:provider.stage}}
     S3_BUCKET_NAME: ${self:custom.s3BucketName} 
     S3_BUCKET_ARN: "arn:aws:s3:::${self:custom.s3BucketName}"
+    S3_USER_PROFILES_BUCKET_NAME: ${self:custom.s3UserProfilesBucketName} 
+    S3_USER_PROFILES_BUCKET_ARN: "arn:aws:s3:::${self:custom.s3UserProfilesBucketName}"
     PRIND_LOG_LEVEL: 'ERROR'    
 
   iamRoleStatements:
@@ -161,6 +164,24 @@ functions:
           response:
             headers:
               Content-Disposition: "'attachment'"
+            statusCodes:
+              200:
+                pattern: '' # Default response method
+              400:
+                pattern: '.*"statusCode":400,.*'
+              500:
+                pattern: '.*"statusCode":500,.*'
+          integration: lambda
+          authorizer: 
+            type: COGNITO_USER_POOLS
+            authorizerId: 
+              Ref: ApiGatewayAuthorizer
+
+      - http:
+          path: /user/get-sts/profile-avatar
+          method: get
+          cors: true
+          response:
             statusCodes:
               200:
                 pattern: '' # Default response method
@@ -810,3 +831,6 @@ resources:
 
     # S3 Bucket
   - ${file(resources/s3-bucket.yml)}
+
+    # S3 Profile Bucket
+  - ${file(resources/s3-profile-bucket.yml)}

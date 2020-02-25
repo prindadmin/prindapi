@@ -1,0 +1,19 @@
+Resources:
+  S3UserProfilesBucket:
+    Type: AWS::S3::Bucket
+    Properties: 
+      AccessControl: PublicRead
+      BucketName: ${self:custom.s3UserProfilesBucketName}
+      VersioningConfiguration: 
+        Status: "Enabled"
+      CorsConfiguration:
+        CorsRules:
+            - AllowedHeaders: 
+                - "*"
+              AllowedMethods: 
+                - GET
+                - PUT
+              AllowedOrigins: 
+                - "*"
+
+
