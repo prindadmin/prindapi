@@ -36,6 +36,10 @@ class Page(project.Project):
         if items == []:
             raise errors.PageNotFound(f"A page with name {page} was not found.")
 
+        for item in items:
+            item.pop("sk", None)
+            item.pop("pk", None)
+
 
         self.page_name = page
         self.default_fields = items
@@ -90,26 +94,19 @@ class Page(project.Project):
 
     def get_field(self, field_index):
 
-        response = table.get_item(
-            Key={
-                "pk": f"project_{self.project_id}",
-                "sk": f"field_{self.page_name}_{field_index}" 
-            }
-        )
+        return_field = None
 
-        try:
-            item = response['Item']
-        except KeyError:
+        for field in self.get_resultant_fields():
+
+            if int(field['id']) == field_index:
+
+                return_field = field
+                break
+
+        if not return_field:
             raise errors.FieldNotFound(f'The field at index {field_index} was not found')
 
-        item.pop('pk')
-        item.pop('sk')
-
-        logger.debug(log.function_end_output(locals()))  
-
-        return item
-
-
+        return return_field 
 
     def write_field(self, field_index, field_type, field_data=None, title=None, description=None, editable=None):
 
