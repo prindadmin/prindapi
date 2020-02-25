@@ -4,8 +4,6 @@ Resources:
     Properties: 
       AccessControl: PublicRead
       BucketName: ${self:custom.s3UserProfilesBucketName}
-      VersioningConfiguration: 
-        Status: "Enabled"
       CorsConfiguration:
         CorsRules:
             - AllowedHeaders: 
@@ -15,5 +13,27 @@ Resources:
                 - PUT
               AllowedOrigins: 
                 - "*"
+
+  #Create policy to allow public access to avatar objects
+  S3UserProfilesBucketPolicy: 
+    Type: AWS::S3::BucketPolicy
+    Properties: 
+      Bucket: 
+        Ref: "S3UserProfilesBucket"
+      PolicyDocument: 
+        Statement: 
+          - 
+            Action: 
+              - "s3:GetObject"
+            Effect: "Allow"
+            Resource: 
+              Fn::Join: 
+                - ""
+                - 
+                  - "arn:aws:s3:::"
+                  - 
+                    Ref: "S3UserProfilesBucket"
+                  - "/profile-avatar/*"
+            Principal: "*"
 
 
