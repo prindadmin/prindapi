@@ -29,6 +29,8 @@ def lambda_handler(event, context):
     for record in event["Records"]:
 
         message = json.loads(record["Sns"]["Message"])
+
+        print(message)
         
         # a user has signed up with a previously queried email address
         if message["notificationType"] == "signUp":
@@ -43,6 +45,8 @@ def lambda_handler(event, context):
 
             did = message["foundationsId"]
 
+            print(f"Adding FoundationsId {foundationsId} for username {username}")
+
             this_user = user.User(username)
             this_user.write_did(did)
 
@@ -50,15 +54,15 @@ def lambda_handler(event, context):
 
         elif message["notificationType"] == "fieldRequestApproved":
             
-            print(message)
+            pass
 
         elif message["notificationType"] == "fieldRequestDenied":
 
-            print(message)
+            pass
 
         elif message["notificationType"] == "documentSigned":
 
-            print(message)
+            pass
 
        
 if __name__ == '__main__':

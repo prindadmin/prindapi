@@ -113,6 +113,11 @@ from modules import page
 this_page = page.Page('inception', 'ProjectNumberFour')
 print(this_page.default_fields)
 
+# get field
+from modules import page
+this_page = page.Page('inception', 'ProjectNumberFour')
+print(this_page.get_field(2))
+
 # write field
 from modules import page
 this_page = page.Page('construction', 'ProjectNumberFour')
