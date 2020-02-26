@@ -93,7 +93,7 @@ def lambda_handler(event, context):
 
             action = "update" if document_did else "create"
 
-            document_name = filename
+            document_name = f"{project_id}/{page_name}/{field_index}"
 
             print("action is", action)
 
@@ -133,8 +133,7 @@ def lambda_handler(event, context):
                         "sk": "document",
                         "data": document_name,
                         "s3BucketName": s3_bucket_name ,
-                        "s3Key": s3_key,
-                        "filename": filename
+                        "s3Key": s3_key
                     }
                 )
 
@@ -152,7 +151,8 @@ def lambda_handler(event, context):
                         "sk": "documentVersion",
                         "s3VersionId": s3_version_id,
                         "versionNumber": 1,
-                        "uploadedBy": cognito_username
+                        "uploadedBy": cognito_username,
+                        "filename": filename
                     }
                 )
 
@@ -162,7 +162,8 @@ def lambda_handler(event, context):
                         "sk": "documentVersion",
                         "s3VersionId": s3_version_id,
                         "versionNumber": 1,
-                        "uploadedBy": cognito_username
+                        "uploadedBy": cognito_username,
+                        "filename": filename
                     }
                 )
 
@@ -228,7 +229,8 @@ def lambda_handler(event, context):
                         "sk": "documentVersion",
                         "s3VersionId": s3_version_id,
                         "versionNumber": document_version_number,
-                        "uploadedBy": cognito_username
+                        "uploadedBy": cognito_username,
+                        "filename": filename
                     }
                 )
 
@@ -238,7 +240,8 @@ def lambda_handler(event, context):
                         "sk": "documentVersion",
                         "s3VersionId": s3_version_id,
                         "versionNumber": document_version_number,
-                        "uploadedBy": cognito_username
+                        "uploadedBy": cognito_username,
+                        "filename": filename
                     }
                 )
 
@@ -247,7 +250,6 @@ def lambda_handler(event, context):
             this_page.write_document_field(
                 field_index=field_index,
                 document_did=document_did,
-                title=document_name,
                 description=description
             )
 

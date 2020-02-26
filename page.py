@@ -66,7 +66,7 @@ if __name__ == '__main__':
     event = {
         "path": {
             "project_id": "ProjectNumberFour",
-            "page": "refurbishment"
+            "page": "inception"
         }
     }
 

@@ -54,7 +54,7 @@ class Document():
         self.document_did = document_did
         self.s3_bucket_name = item['s3BucketName']
         self.s3_key = item['s3Key']
-        self.filename = item['filename']
+        self.filename = None
 
         logger.debug(log.function_end_output(locals()))  
 
@@ -199,6 +199,7 @@ class Document():
                 version['signatures'] = []
 
             version["s3VersionId"] = s3_version_id
+            version["uploadName"] = prind_version_info.get('filename')
 
         logger.debug(log.function_end_output(locals()))  
 
