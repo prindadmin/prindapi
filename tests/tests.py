@@ -70,6 +70,16 @@ this_project.invite_user(
         role_id="projectConsultant"
     )
 
+# remove user from project
+myusername="778bd486-4684-482b-9565-1c2a51367b8c"
+this_username="aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaa"
+from modules import project
+this_project = project.Project('ProjectNumberFour')
+this_project.remove_user(
+        requesting_user_name=myusername,
+        user_to_add=this_username
+    )
+
 #respond to invitation
 username="f9c255cb-a42b-4359-a8bd-2ebec5dfa2fa"
 from modules import project
@@ -117,6 +127,11 @@ print(this_page.default_fields)
 from modules import page
 this_page = page.Page('inception', 'ProjectNumberFour')
 print(this_page.get_field(2))
+
+# get page fields
+from modules import page
+this_page = page.Page('inception', 'ProjectNumberFour')
+print(this_page.get_resultant_fields())
 
 # write field
 from modules import page

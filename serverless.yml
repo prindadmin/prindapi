@@ -70,7 +70,7 @@ provider:
     S3_BUCKET_ARN: "arn:aws:s3:::${self:custom.s3BucketName}"
     S3_USER_PROFILES_BUCKET_NAME: ${self:custom.s3UserProfilesBucketName} 
     S3_USER_PROFILES_BUCKET_ARN: "arn:aws:s3:::${self:custom.s3UserProfilesBucketName}"
-    PRIND_LOG_LEVEL: 'ERROR'    
+    PRIND_LOG_LEVEL: 'INFO'    
 
   iamRoleStatements:
     - Effect: "Allow"
@@ -751,6 +751,39 @@ functions:
 
       - http:
           path: /project/{project_id}/invite-member
+          method: post
+          cors: true
+          response:
+            statusCodes:
+              200:
+                pattern: '' # Default response method
+              400:
+                pattern: '.*"statusCode":400,.*'
+              500:
+                pattern: '.*"statusCode":500,.*'
+          integration: lambda
+          documentation:
+            methodResponses:
+              - statusCode: "200"
+                responseBody:
+                  description: "Successful Response"
+              - statusCode: "400"
+                responseBody:
+                  description: "A client error occurred"
+                responseModels:
+                  application/json: "errorResponse"
+              - statusCode: "500"
+                responseBody:
+                  description: "A server error occurred"
+                responseModels:
+                  application/json: "errorResponse"
+          authorizer: 
+            type: COGNITO_USER_POOLS
+            authorizerId: 
+              Ref: ApiGatewayAuthorizer
+
+      - http:
+          path: /project/{project_id}/remove-member
           method: post
           cors: true
           response:

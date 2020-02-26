@@ -157,6 +157,23 @@ def lambda_handler(event, context):
             return_body = "completed"
             status_code = 201
 
+        # remove member
+        elif http_method == "POST" and resource_path.endswith("remove-member"):
+
+            print("running remove-member")
+
+            body = event['body']
+            this_project = project.Project(unquote(event['path']['project_id']))
+            authorizing_username = event['cognitoPoolClaims']['sub']
+
+            this_project.remove_user(
+                requesting_user_name=authorizing_username,
+                user_to_remove=event['body']['username']
+            )
+
+            return_body = "completed"
+            status_code = 201
+
         # respond to invitation
         elif http_method == "POST" and resource_path.endswith("respond-to-invitation"):
 
@@ -282,6 +299,19 @@ if __name__ == '__main__':
                 "roleId": "projectConsultant"
             }
         },
+        "remove-project-member": {
+            "requestPath": "/project/ProjectNumberFour/remove-member",
+            "method": "POST",
+            "path": {
+                "project_id": "ProjectNumberFour"
+            },
+            "cognitoPoolClaims": {
+                "sub": "778bd486-4684-482b-9565-1c2a51367b8c"
+            },
+            "body": {
+                "username": "f9c255cb-a42b-4359-a8bd-2ebec5dfa2fa"
+            }
+        },
         "respond-to-invitation": {
             "requestPath": "/project/TestProject2020-02-18/respond-to-invitation",
             "method": "POST",
@@ -297,4 +327,4 @@ if __name__ == '__main__':
         }
     }
 
-    print(lambda_handler(event["get-project"], {}))
+    print(lambda_handler(event["remove-project-member"], {}))

@@ -160,7 +160,35 @@ class Project():
 
         mail.send_email(user_to_add_obj.email_address, "project-invitation", template_data)
 
-        logger.debug(log.function_end_output(locals()))  
+        logger.debug(log.function_end_output(locals()))
+
+    def remove_user(
+            self,
+            requesting_user_name,
+            user_to_remove
+        ):
+
+        # check if requesting user is the owner of the project, or has a role on the project
+        if not self.user_has_permission(requesting_user_name):
+           raise errors.InsufficientPermission("Requesting user does not have permission to remove a member from this project")
+
+        # remove any invitations
+        table.delete_item(
+            Key={    
+                "pk": f"user_{user_to_remove}",
+                "sk": f"roleInvitation_{self.project_id}",
+            }
+        )
+
+        # remove any memberships
+        table.delete_item(
+            Key={    
+                "pk": f"user_{user_to_remove}",
+                "sk": f"role_{self.project_id}",
+            }
+        )
+
+
 
     def respond_to_invitation(
             self,
