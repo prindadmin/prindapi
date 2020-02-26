@@ -150,7 +150,7 @@ def lambda_handler(event, context):
 
             this_project.invite_user(
                 requesting_user_name=authorizing_username,
-                user_to_add=event['body']['username'],
+                invitee_email=event['body']['emailAddress'],
                 role_id=event['body']['roleId']
             )
 

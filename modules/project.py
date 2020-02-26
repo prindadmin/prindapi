@@ -129,13 +129,26 @@ class Project():
     def invite_user(
             self,
             requesting_user_name,
-            user_to_add,
+            invitee_email,
             role_id
         ):
 
         # check if requesting user is the owner of the project, or has a role on the project
         if not self.user_has_permission(requesting_user_name):
            raise errors.InsufficientPermission("Requesting user does not have permission to add a role to this project")
+
+        response = table.query(
+            IndexName="GSI1",
+            KeyConditionExpression=(Key("sk").eq("userDetails_emailAddress") & Key("data").eq(invitee_email))
+        )
+
+        if len(response["Items"]) > 0:
+            item = response["Items"][0]
+            user_to_add = item["pk"].split("user_")[1]
+        else:
+            raise errors.UserNotFound(f"user with email address {invitee_email} not found")
+
+        print("user_to_add", user_to_add)
 
         # check that role is assignable
         assigned_role = role.Role(role_id)
