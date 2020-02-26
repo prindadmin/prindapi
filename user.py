@@ -87,11 +87,11 @@ def lambda_handler(event, context):
             user_details["lastName"] = authenticating_user.last_name
             user_details["emailAddress"] = authenticating_user.email_address
 
-            if not user_details["firstName"]:
+            if not user_details.get("firstName"):
                 user_details["firstName"] = authenticating_user.first_name
-            if not user_details["lastName"]:
+            if not user_details.get("lastName"):
                 user_details["lastName"] = authenticating_user.last_name
-            if not user_details["emailAddress"]:
+            if not user_details.get("emailAddress"):
                 user_details["emailAddress"] = authenticating_user.email_address
 
 
@@ -150,7 +150,8 @@ if __name__ == '__main__':
             "method": "GET", 
             "cognitoPoolClaims": {
                 #"sub": "aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaa"
-                "sub": "778bd486-4684-482b-9565-1c2a51367b8c"
+                #"sub": "778bd486-4684-482b-9565-1c2a51367b8c"
+                "sub": "a0c1bf48-52d0-4eb8-97ba-ed6cbaaff9ea"
             }
         }
     }
