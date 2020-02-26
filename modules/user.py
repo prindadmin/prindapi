@@ -135,8 +135,13 @@ class User():
         for item in items:
 
             item.pop("pk")
-            item["projectId"] = item.pop("sk").split("roleInvitation_")[1]
+            project_id = item.pop("sk").split("roleInvitation_")[1]
+            item["projectId"] = project_id
             item["roleId"] = item.pop('data')
+
+            item["projectName"] = project.Project(project_id).project_name
+            requesting_user_obj = User(item["requestedBy"])
+            item["requestedByUser"] = f"{requesting_user_obj.first_name} {requesting_user_obj.last_name}"
 
             invitations.append(item)
 
