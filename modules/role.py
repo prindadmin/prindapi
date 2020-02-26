@@ -57,9 +57,10 @@ def list_all_roles():
 
     for item in items:
 
-        item['roleId'] = item.pop('pk')
+        item['roleId'] = item.pop('pk').split('role_')[1]
         item['roleName'] = item.pop('data')
         item.pop('sk')
+
         roles.append(item)
 
     logger.debug(log.function_end_output(locals()))  
