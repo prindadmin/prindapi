@@ -95,6 +95,8 @@ class Document():
 
     def get_foundations_info(self):
 
+        foundations_jwt = auth.get_foundations_jwt(sp_did)
+
         api_url=f"https://{api_id}.execute-api.eu-west-1.amazonaws.com/{api_stage}/sp/document-did/{self.document_did}/versions"
 
         params = {}
@@ -105,7 +107,9 @@ class Document():
             headers={'Authorization': foundations_jwt}
         )
 
-        versions = json.loads(response.content.decode('utf-8'))['body']
+        print(f"response from /sp/document-did/document_did/versions is", response.content.decode('utf-8'))
+
+        versions = json.loads(response.content.decode('utf-8')).get('body', {})
 
         logger.debug(log.function_end_output(locals()))  
 
@@ -153,7 +157,9 @@ class Document():
             signed_at_unixtime = signing.pop('signedAt')
             signing['signatureDateTime'] = datetime.utcfromtimestamp(signed_at_unixtime).isoformat()
             entry_hash = signing.pop('entryHash')
-            signing['proofLink'] = f"https://{factom_explorer_domain}/entry?hash={entry_hash}"
+
+            if entry_hash != "unconfirmed":
+                signing['proofLink'] = f"https://{factom_explorer_domain}/entry?hash={entry_hash}"
 
         for version in versions:
 
@@ -163,8 +169,10 @@ class Document():
             version['uploadedDateTime'] = datetime.utcfromtimestamp(created_at_unixtime).isoformat()
             version['hash'] = version.pop('documentHash')
             entry_hash = version.pop('entryHash')
-            version['proofLink'] = f"https://{factom_explorer_domain}/entry?hash={entry_hash}"
-            
+
+            if entry_hash != "unconfirmed":
+                version['proofLink'] = f"https://{factom_explorer_domain}/entry?hash={entry_hash}"
+
             try:
                 uploaded_by_username = prind_version_info['uploadedBy']
                 s3_version_id  = prind_version_info['s3VersionId']
