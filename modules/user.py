@@ -164,7 +164,7 @@ class User():
         for item in items:
             item.pop('pk')
             item['documentDid'] = item.pop('sk').split('documentSignRequest_')[1]
-            requesting_user = user.User(item.pop('requestedBy'))
+            requesting_user = User(item.pop('requestedBy'))
             item['requestedBy'] = {}
             item['requestedBy']['username'] = requesting_user.username
             item['requestedBy']['firstName'] = requesting_user.first_name
