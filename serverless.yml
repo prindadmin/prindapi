@@ -371,7 +371,7 @@ functions:
     handler: request-signature.lambda_handler
     events:
       - http:
-          path: /document/{document_did}/request-signature
+          path: /project/{project_id}/{page}/{field_index}/request-signature
           method: post
           cors: true
           response:

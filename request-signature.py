@@ -6,6 +6,7 @@ from modules import errors
 from modules import document
 from modules import user
 from modules import mail
+from modules import field
 
 from botocore.exceptions import ClientError
 from boto3.dynamodb.conditions import Key, Attr
@@ -34,11 +35,14 @@ def lambda_handler(event, context):
         requesting_user = user.User(event['cognitoPoolClaims']['sub'])
         signing_user = user.User(event['body']['signingUsername'])
 
-        document_did = unquote(event['path']['document_did'])
+        this_field = field.Field(
+            field_index=int(event['path']['field_index']),
+            page_name=event['path']['page'],
+            project_id=event['path']['project_id']
+        )
 
-        # validate page
-        this_document = document.Document(document_did)
-  
+        document_did = this_field.get_document_did()
+ 
         table.put_item(
             Item={    
                 "pk": f"user_{signing_user.username}",
@@ -86,7 +90,9 @@ if __name__ == '__main__':
             "sub": "a9fa394f-ed94-444c-84fe-6821f538ddd9"
         },
         "path": {
-            "document_did": "did:fnds:c25eb417ffa90f8fedf29b385fc91f58831a470805f38474bd71f327b860f946"
+            "project_id": "ProjectNumberSix",
+            "page": "inception",
+            "field_index": "1"
         },
         "body": {
             #"signingUsername": "aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaa"
