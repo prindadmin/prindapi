@@ -117,7 +117,7 @@ def lambda_handler(event, context):
 
             this_page = page.Page(page_name, project_id)
 
-            field = this_page.get_field(field_index)
+            field = this_page.get_field(int(field_index))
 
             field_type = field['type']
             print('field type', field_type)
@@ -242,10 +242,10 @@ if __name__ == '__main__':
             "requestPath": "/project/ProjectNumberFour/inception/1/1/get-file-url",
             "method": "GET", 
             "path": {
-                "project_id": "ProjectNumberFour",
+                "project_id": "BenTest12020-02-26",
                 "page": "inception",
                 "field_index": 1,
-                "version": 1
+                "version": 2
             },
             "cognitoPoolClaims": {
                 "sub": "778bd486-4684-482b-9565-1c2a51367b8c"
@@ -261,6 +261,6 @@ if __name__ == '__main__':
         }
     }
 
-    print(lambda_handler(event["get-sts-profile-avatar"], {}))
+    print(lambda_handler(event["get-file-url"], {}))
         
 

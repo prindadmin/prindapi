@@ -99,6 +99,8 @@ class Page(project.Project):
 
         for field in self.get_resultant_fields():
 
+            print(field)
+
             if int(field['id']) == field_index:
 
                 return_field = field
