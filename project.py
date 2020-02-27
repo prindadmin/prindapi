@@ -84,6 +84,7 @@ def lambda_handler(event, context):
                 "projectId": this_project.project_id,
                 "projectName": this_project.project_name,
                 "projectDescription": this_project.project_description,
+                "projectReference": this_project.project_reference,
                 "projectAddressLine1": this_project.site_address.get("projectAddressLine1"),
                 "projectAddressLine2": this_project.site_address.get("projectAddressLine2"),
                 "projectAddressLine3": this_project.site_address.get("projectAddressLine3"),
@@ -115,6 +116,7 @@ def lambda_handler(event, context):
                 project_name=event["body"].get('projectName'),
                 project_creator=authorizing_username,
                 project_description=event["body"].get('projectDescription'),
+                project_reference=event["body"].get('projectReference'),
                 site_address=site_address,
             )
 
@@ -141,6 +143,7 @@ def lambda_handler(event, context):
             this_project.update(
                 project_name=event["body"].get('projectName'),
                 project_description=event["body"].get('projectDescription'),
+                project_reference=event["body"].get('projectReference'),
                 site_address=site_address
             )
 
@@ -234,13 +237,13 @@ if __name__ == '__main__':
             "path": {}
         },        
         "get-project": {
-            "requestPath": "/project/ProjectNumberFour",
+            "requestPath": "/project/TestProject2020-02-27",
             "method": "GET", 
             "cognitoPoolClaims": {
                 "sub": "6a628546-9b4e-4c43-96a4-4e30c3c37511"
             },
             "path": {
-                "project_id": "TestProject2020-02-18"
+                "project_id": "TestProject2020-02-27"
             }
         },
         "create-project": { 
@@ -258,28 +261,30 @@ if __name__ == '__main__':
                "projectAddressRegion": "Test",
                "projectAddressPostalCode": "AB12 3CD",
                "projectAddressCountry": "Test",
-               "projectDescription": "This is a non-descript description"
+               "projectDescription": "This is a non-descript description",
+               "projectReference": "123456"
             }
         },
         "update-project": { 
-            "requestPath": "/project/TestProject2020-02-18/update",
+            "requestPath": "/project/TestProject2020-02-27/update",
             "method": "POST",
             "cognitoPoolClaims": {
                 "sub": "6a628546-9b4e-4c43-96a4-4e30c3c37511"
             },
             "path": {
-                "project_id": "TestProject2020-02-18"
+                "project_id": "TestProject2020-02-27"
             },
             "body": {
-               "projectName": "Test Project 2",
-               "projectAddressLine1": "Test",
-               "projectAddressLine2": "Test",
-               "projectAddressLine3": "Test",
-               "projectAddressTown": "TestTown",
-               "projectAddressRegion": "Test",
-               "projectAddressPostalCode": "AB12 3CD",
-               "projectAddressCountry": "Test",
-               "projectDescription": "This is a non-descript description (updated)"
+               # "projectName": "Test Project 2",
+               # "projectAddressLine1": "Test",
+               # "projectAddressLine2": "Test",
+               # "projectAddressLine3": "Test",
+               # "projectAddressTown": "TestTown",
+               # "projectAddressRegion": "Test",
+               # "projectAddressPostalCode": "AB12 3CD",
+               # "projectAddressCountry": "Test",
+               "projectReference": "12345555",
+               # "projectDescription": "This is a non-descript description (updated)"
             }
         },
         "get-project-members": {

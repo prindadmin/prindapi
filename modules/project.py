@@ -45,6 +45,7 @@ class Project():
         self.project_id = project_id
         self.project_name = item['displayName']
         self.project_description = item['description']
+        self.project_reference = item.get('reference')
         self.site_address = item['siteAddress']
 
         logger.debug(log.function_end_output(locals()))  
@@ -281,13 +282,16 @@ class Project():
             self,
             project_name=None,
             project_description=None,
+            project_reference=None,
             site_address=None
         ):
 
         if project_name == None:
             project_name = self.project_name
         if project_description == None:
-            project_description = self.description
+            project_description = self.project_description
+        if project_reference == None:
+            project_reference = self.project_reference
         if site_address == None:
             site_address = self.site_address
 
@@ -298,6 +302,7 @@ class Project():
                 "data": self.project_id, 
                 "displayName": project_name,
                 "description": project_description,
+                "reference": project_reference,
                 "siteAddress": site_address,
             }
         )
@@ -361,6 +366,7 @@ def create_project(
         project_name,
         project_creator,
         project_description,
+        project_reference,
         site_address
     ):
 
@@ -381,6 +387,7 @@ def create_project(
                 "data": project_id, 
                 "displayName": project_name,
                 "description": project_description,
+                "reference": project_reference,
                 "siteAddress": site_address,
             }
         )
