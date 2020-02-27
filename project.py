@@ -83,8 +83,14 @@ def lambda_handler(event, context):
             return_body = {
                 "projectId": this_project.project_id,
                 "projectName": this_project.project_name,
-                "description": this_project.project_description,
-                "siteAddress": this_project.site_address,
+                "projectDescription": this_project.project_description,
+                "projectAddressLine1": this_project.site_address.get("projectAddressLine1"),
+                "projectAddressLine2": this_project.site_address.get("projectAddressLine2"),
+                "projectAddressLine3": this_project.site_address.get("projectAddressLine3"),
+                "projectAddressTown": this_project.site_address.get("projectAddressTown"),
+                "projectAddressRegion": this_project.site_address.get("projectAddressRegion"),
+                "projectAddressPostalCode": this_project.site_address.get("projectAddressPostalCode"),
+                "projectAddressCountry": this_project.site_address.get("projectAddressCountry")
             }
 
             status_code = 200
@@ -327,4 +333,4 @@ if __name__ == '__main__':
         }
     }
 
-    print(lambda_handler(event["remove-project-member"], {}))
+    print(lambda_handler(event["get-project"], {}))
