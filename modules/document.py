@@ -204,6 +204,31 @@ class Document():
 
         return versions
 
+def get_user_uploaded_document_versions(username):
+
+        response = table.query(
+            IndexName="GSI1",
+            KeyConditionExpression=Key("sk").eq("documentVersion") 
+                                 & Key("data").begins_with(f"uploader_{username}_")
+        )
+
+        items = response.get('Items',[])
+
+        document_versions = []
+        
+        for item in items:
+            # filter out v0
+            if item['pk'].split('_')[1] == 'v0':
+                continue
+
+            item['documentDid'] = item.pop('pk').split('_')[2]
+            item.pop('sk')
+            item.pop('data')
+
+            document_versions.append(item)
+
+        return document_versions
+
 if __name__ == "__main__":
 
     pass

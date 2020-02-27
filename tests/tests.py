@@ -152,7 +152,7 @@ this_document.get_version_signatures(1)
 
 # get document version
 from modules import document
-this_document = document.Document('did:fnds:45eb214b62cd771af0062dc4326c9647039b89781ae5dd23eff6689dfd3e5e0e')
+this_document = document.Document('did:fnds:fcf6abfbf894acd64a00a78bd8c35610699c91615ac288442bfe170768f1ad52')
 this_document.get_version(0)
 
 # get document current version number
@@ -235,3 +235,14 @@ username = "b966f0b7-4310-4608-b08d-418210e7ff20"
 from modules import user
 this_user = user.User(username)
 this_user.get_foundations_subscription()
+
+# get uploaded documents
+username = "778bd486-4684-482b-9565-1c2a51367b8c"
+from modules import user
+this_user = user.User(username)
+this_user.get_uploaded_document_versions()
+
+# get field document DID
+from modules import field
+this_field = field.Field(2, 'inception', 'ProjectNumberSix')
+print(this_field.get_document_did())

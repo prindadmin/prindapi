@@ -11,6 +11,7 @@ from modules import errors
 from modules import project
 from modules import auth
 from modules import log
+from modules import document
 
 # If logger hasn"t been set up by a calling function, set it here
 try:
@@ -174,6 +175,13 @@ class User():
         logger.debug(log.function_end_output(locals()))  
 
         return signing_requests
+
+    def get_uploaded_document_versions(self):
+
+        documents = document.get_user_uploaded_document_versions(self.username)
+
+        return documents
+
 
     def update(self, first_name=None, last_name=None, email_address=None):
 
