@@ -67,6 +67,7 @@ class Page(project.Project):
                     document_did = item['fieldDetails'].get('documentDid')
 
                     if document_did:
+                        # TODO: Make this into a render_document_field() method
                         this_document = document.Document(document_did)
                         item['fileDetails'] = this_document.get_all_info()
             

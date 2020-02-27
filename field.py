@@ -11,6 +11,7 @@ from modules import auth
 from botocore.exceptions import ClientError
 from boto3.dynamodb.conditions import Key, Attr
 from urllib.parse import unquote
+from datetime import datetime
 
 dynamodb = boto3.resource("dynamodb")
 table = dynamodb.Table(os.environ["TABLE_NAME"])
@@ -81,7 +82,18 @@ def lambda_handler(event, context):
    
             print("document_did", document_did)
 
-            response = s3.get_object(Bucket=s3_bucket_name, Key=s3_key)
+            try:
+
+                response = s3.get_object(Bucket=s3_bucket_name, Key=s3_key)
+            
+            except ClientError as e:
+                if e.response['Error']['Code'] == 'NoSuchKey':
+                    logger.error(f"The s3 key {s3_key} was not found")
+                    raise errors.FileNotFound(f"The s3 key {s3_key} was not found")
+                else:
+                    logger.error(f"error {e.response['Error']['Code']} in call to s3.get_object()")
+                    raise
+
             
             uploaded_file = response['Body']
             s3_version_id = response['VersionId']
@@ -94,6 +106,8 @@ def lambda_handler(event, context):
             action = "update" if document_did else "create"
 
             document_name = f"{project_id}/{page_name}/{field_index}"
+
+            datetime_suffix = datetime.utcnow().isoformat()
 
             print("action is", action)
 
@@ -126,7 +140,6 @@ def lambda_handler(event, context):
 
                 document_did = response_dict['body']['documentDid']
 
-                
                 table.put_item(
                     Item={    
                         "pk": f"document_{document_did}",
@@ -149,9 +162,9 @@ def lambda_handler(event, context):
                     Item={    
                         "pk": f"document_v0_{document_did}",
                         "sk": "documentVersion",
+                        "data": f"uploader_{cognito_username}_{datetime_suffix}",
                         "s3VersionId": s3_version_id,
                         "versionNumber": 1,
-                        "uploadedBy": cognito_username,
                         "filename": filename
                     }
                 )
@@ -160,9 +173,9 @@ def lambda_handler(event, context):
                     Item={    
                         "pk": f"document_v1_{document_did}",
                         "sk": "documentVersion",
+                        "data": f"uploader_{cognito_username}_{datetime_suffix}",
                         "s3VersionId": s3_version_id,
                         "versionNumber": 1,
-                        "uploadedBy": cognito_username,
                         "filename": filename
                     }
                 )
@@ -227,9 +240,9 @@ def lambda_handler(event, context):
                     Item={    
                         "pk": f"document_v0_{document_did}",
                         "sk": "documentVersion",
+                        "data": f"uploader_{cognito_username}_{datetime_suffix}",
                         "s3VersionId": s3_version_id,
                         "versionNumber": document_version_number,
-                        "uploadedBy": cognito_username,
                         "filename": filename
                     }
                 )
@@ -238,9 +251,9 @@ def lambda_handler(event, context):
                     Item={    
                         "pk": f"document_v{document_version_number}_{document_did}",
                         "sk": "documentVersion",
+                        "data": f"uploader_{cognito_username}_{datetime_suffix}",
                         "s3VersionId": s3_version_id,
                         "versionNumber": document_version_number,
-                        "uploadedBy": cognito_username,
                         "filename": filename
                     }
                 )
@@ -266,10 +279,11 @@ def lambda_handler(event, context):
 
     # catch any application errors
     except errors.ApplicationError as error:
-        return {
-            'statusCode': 400,
-            "Error": error.get_error_dict()
-        }
+        raise
+        # return {
+        #     'statusCode': 400,
+        #     "Error": error.get_error_dict()
+        # }
     # catch unhandled exceptions
     # except Exception as e:
         
@@ -326,7 +340,7 @@ if __name__ == '__main__':
                 "sub": "778bd486-4684-482b-9565-1c2a51367b8c"
             },
             "path": {
-                "project_id": "ProjectNumberFour",
+                "project_id": "ProjectNumberSix",
                 "page": "inception",
                 "field_index": 1
             },

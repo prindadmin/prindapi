@@ -61,12 +61,13 @@ this_project.add_user_role(
 
 # invite user to project
 myusername="778bd486-4684-482b-9565-1c2a51367b8c"
-this_username="f9c255cb-a42b-4359-a8bd-2ebec5dfa2fa"
+#this_username="f9c255cb-a42b-4359-a8bd-2ebec5dfa2fa"
+invitee_email="mr.simon.hunt+test16@gmail.com"
 from modules import project
 this_project = project.Project('ProjectNumberFour')
 this_project.invite_user(
         requesting_user_name=myusername,
-        user_to_add=this_username,
+        invitee_email=invitee_email,
         role_id="projectConsultant"
     )
 
@@ -77,7 +78,7 @@ from modules import project
 this_project = project.Project('ProjectNumberFour')
 this_project.remove_user(
         requesting_user_name=myusername,
-        user_to_add=this_username
+        user_to_remove=this_username
     )
 
 #respond to invitation
@@ -149,10 +150,15 @@ from modules import document
 this_document = document.Document('did:fnds:fb926075aec4f9108cf79689680dd085257daaf50d7eb635252c03fcf9666af6')
 this_document.get_version_signatures(1)
 
-# get document versions
+# get document version
 from modules import document
-this_document = document.Document('did:fnds:fb926075aec4f9108cf79689680dd085257daaf50d7eb635252c03fcf9666af6')
-this_document.get_versions()
+this_document = document.Document('did:fnds:45eb214b62cd771af0062dc4326c9647039b89781ae5dd23eff6689dfd3e5e0e')
+this_document.get_version(0)
+
+# get document current version number
+from modules import document
+this_document = document.Document('did:fnds:45eb214b62cd771af0062dc4326c9647039b89781ae5dd23eff6689dfd3e5e0e')
+this_document.get_current_version_number()
 
 # get all document info
 from modules import document

@@ -67,7 +67,7 @@ class PageNotFound(ApplicationError):
 
 class DocumentVersionNotFound(ApplicationError):
     def __init__(self, message):
-        ApplicationError.__init__(self, message, "DOCUMENT_VERSION_FOUND", "0010")
+        ApplicationError.__init__(self, message, "DOCUMENT_VERSION_NOT_FOUND", "0010")
 
 # Role does not exist in the database
 class NotifiatinoNotFound(ApplicationError):
@@ -93,4 +93,9 @@ class InvalidFieldType(ApplicationError):
 class InvitationNotFound(ApplicationError):
     def __init__(self, message):
         ApplicationError.__init__(self, message, "INVITATION_NOT_FOUND", "0015")
+
+# File not found
+class FileNotFound(ApplicationError):
+    def __init__(self, message):
+        ApplicationError.__init__(self, message, "FILE_NOT_FOUND", "0016")
 

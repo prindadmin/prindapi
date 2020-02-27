@@ -75,23 +75,22 @@ class Document():
         item.pop('pk')
         item.pop('sk')
 
+        # use the value in 'data' for uploadedBy 
+        # if it exists
+        try:
+            item['uploadedBy'] = item.pop('data').split('_')[1]
+        except KeyError:
+            pass
+
         logger.debug(log.function_end_output(locals()))  
 
         return item
 
-
     def get_current_version_number(self):
 
-        response = table.get_item(
-            Key={
-                "pk": f"document_v0__{document_did}",
-                "sk": "documentVersion"
-            }
-        )
+        version = self.get_version(0)  
 
-        logger.debug(log.function_end_output(locals()))  
-
-        return response['Item']['versionNumber']
+        return int(version['versionNumber'])
 
     def get_foundations_info(self):
 
