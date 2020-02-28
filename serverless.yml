@@ -367,6 +367,39 @@ functions:
             authorizerId: 
               Ref: ApiGatewayAuthorizer
 
+      - http:
+          path: /user/history
+          method: get
+          cors: true
+          response:
+            statusCodes:
+              200:
+                pattern: '' # Default response method
+              400:
+                pattern: '.*"statusCode":400,.*'
+              500:
+                pattern: '.*"statusCode":500,.*'
+          integration: lambda
+          documentation:
+            methodResponses:
+              - statusCode: "200"
+                responseBody:
+                  description: "Successful Response"
+              - statusCode: "400"
+                responseBody:
+                  description: "A client error occurred"
+                responseModels:
+                  application/json: "errorResponse"
+              - statusCode: "500"
+                responseBody:
+                  description: "A server error occurred"
+                responseModels:
+                  application/json: "errorResponse"
+          authorizer: 
+            type: COGNITO_USER_POOLS
+            authorizerId: 
+              Ref: ApiGatewayAuthorizer
+
   request-signature:
     handler: request-signature.lambda_handler
     events:
@@ -479,7 +512,7 @@ functions:
     handler: field.lambda_handler
     events:
       - http:
-          path: /project/{project_id}/page/{page}/field/{field_index}
+          path: /project/{project_id}/{page}/{field_index}
           method: post  
           cors: true
           response:

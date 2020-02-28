@@ -98,6 +98,22 @@ def lambda_handler(event, context):
             status_code = 200
             return_body = user_details
 
+        elif http_method == "GET" and resource_path.endswith("history"):
+
+            authenticating_user = user.User(event['cognitoPoolClaims']['sub'])
+
+            document_versions = authenticating_user.get_uploaded_document_versions()
+
+            projects = authenticating_user.get_projects()
+
+            status_code = 200
+            return_body = dict(
+                documentVersions=document_versions,
+                projects=projects
+            )
+
+            print(return_body)
+
     # catch any application errors
     except errors.ApplicationError as error:
         return {
@@ -153,11 +169,21 @@ if __name__ == '__main__':
                 #"sub": "778bd486-4684-482b-9565-1c2a51367b8c"
                 "sub": "a0c1bf48-52d0-4eb8-97ba-ed6cbaaff9ea"
             }
+        },
+        "get-history": {
+            "requestPath": "/user/get-history",
+            "method": "GET", 
+            "cognitoPoolClaims": {
+                #"sub": "aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaa"
+                #"sub": "778bd486-4684-482b-9565-1c2a51367b8c"
+                "sub": "a0c1bf48-52d0-4eb8-97ba-ed6cbaaff9ea"
+            }
         }
+
     }
 
 
 
-    print(lambda_handler(event["get-profile"], {}))
+    print(lambda_handler(event["get-history"], {}))
 
         

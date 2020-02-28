@@ -39,7 +39,7 @@ def lambda_handler(event, context):
         page_name = unquote(event['path']['page'])
         field_index = int(event['path']['field_index'])
 
-        field_data = event['body']['fieldData']
+        field_data = event['body']['fieldDetails']
         title = event['body'].get('title')
         description = event['body'].get('description') 
         field_type = event['body']['type']
@@ -77,8 +77,8 @@ def lambda_handler(event, context):
             if this_field.get("fileDetails") == []:
                 document_did = None
             else:
-                field_details = this_field.get("fieldDetails", {})
-                document_did = field_details.get("documentDid")
+                existing_field_details = this_field.get("fieldDetails", {})
+                document_did = existing_field_details.get("documentDid")
    
             print("document_did", document_did)
 
@@ -314,7 +314,7 @@ if __name__ == '__main__':
                 "field_index": 2
             },
             "body": {
-                "fieldData": {
+                "fieldDetails": {
                   "dropdownValue": "No",
                   "textboxValue": ".",
                   "dropdownOptions": [
@@ -345,7 +345,7 @@ if __name__ == '__main__':
                 "field_index": 1
             },
             "body": {
-                "fieldData": {
+                "fieldDetails": {
                     "filename": "test.pdf",
                     "tags": []
                 },
