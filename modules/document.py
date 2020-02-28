@@ -116,6 +116,8 @@ class Document():
 
     def get_version_signatures(self, version):
 
+        foundations_jwt = auth.get_foundations_jwt(sp_did)
+
         api_url=f"https://{api_id}.execute-api.eu-west-1.amazonaws.com/{api_stage}/sp/document-did/{self.document_did}/version-signatures/{version}"
 
         params = {}
@@ -204,6 +206,148 @@ class Document():
 
         return versions
 
+    def update(self, file_hash, uploading_username, s3_version_id, filename):
+
+        foundations_jwt = auth.get_foundations_jwt(sp_did)
+
+        api_url=f"https://{api_id}.execute-api.eu-west-1.amazonaws.com/{api_stage}/sp/document-did/{self.document_did}/update"
+
+        params = {
+            "documentHash": file_hash,
+            "requesterReference": "File Uploader"
+        }
+
+        print(params)
+
+        response = requests.post(
+            api_url,
+            data=params,
+            headers={'Authorization': foundations_jwt}
+        )
+
+
+        response_dict = json.loads(response.content.decode('utf-8'))
+
+        if not response.status_code == 202:
+            
+            print("status code was", response.status_code)
+            print("response content was", response_dict)
+            
+            raise Exception('API call failed')
+        
+
+        print(response_dict)
+
+        document_version_number = response_dict['body']['documentVersionNumber']
+
+        datetime_suffix = datetime.utcnow().isoformat()
+        
+        # Prin-D database entries
+        table.put_item(
+            Item={    
+                "pk": f"document_v0_{self.document_did}",
+                "sk": "documentVersion",
+                "data": f"uploader_{uploading_username}_{datetime_suffix}",
+                "s3VersionId": s3_version_id,
+                "versionNumber": document_version_number,
+                "filename": filename
+            }
+        )
+
+        table.put_item(
+            Item={    
+                "pk": f"document_v{document_version_number}_{self.document_did}",
+                "sk": "documentVersion",
+                "data": f"uploader_{uploading_username}_{datetime_suffix}",
+                "s3VersionId": s3_version_id,
+                "versionNumber": document_version_number,
+                "filename": filename
+            }
+        )
+
+def create(
+    file_hash,
+    uploading_username,
+    s3_version_id,
+    s3_bucket_name,
+    s3_key,
+    filename,
+    document_name,
+    document_tags=[]
+):
+
+    foundations_jwt = auth.get_foundations_jwt(sp_did)
+
+    # Foundations API call
+    api_url=f"https://{api_id}.execute-api.eu-west-1.amazonaws.com/{api_stage}/sp/document/create"
+
+    params = {
+        "documentName": document_name,
+        "documentHash": file_hash,
+        "requesterReference": "File Uploader"
+    }
+
+    response = requests.post(
+        api_url,
+        data=params,
+        headers={'Authorization': foundations_jwt}
+    )
+
+    response_dict = json.loads(response.content.decode('utf-8'))
+
+    if not response.status_code == 202:
+        
+        print("status code was", response.status_code)
+        print("response content was", response_dict)
+        
+        raise Exception('API call failed')
+    
+    print(response_dict)
+
+    document_did = response_dict['body']['documentDid']
+
+    datetime_suffix = datetime.utcnow().isoformat()
+
+    table.put_item(
+        Item={    
+            "pk": f"document_{document_did}",
+            "sk": "document",
+            "data": document_name,
+            "s3BucketName": s3_bucket_name ,
+            "s3Key": s3_key
+        }
+    )
+
+    table.put_item(
+        Item={    
+            "pk": f"document_v0_{document_did}",
+            "sk": "documentVersion",
+            "data": f"uploader_{uploading_username}_{datetime_suffix}",
+            "s3VersionId": s3_version_id,
+            "versionNumber": 1,
+            "filename": filename
+        }
+    )
+
+    table.put_item(
+        Item={    
+            "pk": f"document_v1_{document_did}",
+            "sk": "documentVersion",
+            "data": f"uploader_{uploading_username}_{datetime_suffix}",
+            "s3VersionId": s3_version_id,
+            "versionNumber": 1,
+            "filename": filename
+        }
+    )
+
+    for tag in document_tags:
+        table.put_item(
+            Item={    
+                "pk": f"document_{document_did}",
+                "sk": f"documentTag_{tag}",
+                "data": document_did 
+            }
+        )
 def get_user_uploaded_document_versions(username):
 
         response = table.query(

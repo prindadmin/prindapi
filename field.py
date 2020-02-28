@@ -7,6 +7,8 @@ import requests
 from modules import errors
 from modules import page
 from modules import auth
+from modules import document
+from modules import field
 
 from botocore.exceptions import ClientError
 from boto3.dynamodb.conditions import Key, Attr
@@ -46,18 +48,19 @@ def lambda_handler(event, context):
         editable = event['body'].get('editable')
 
         this_page = page.Page(page=page_name, project_id=project_id)
-        this_field = this_page.get_field(field_index)
+        this_field = field.Field(field_index=field_index, page_name=page_name, project_id=project_id)
+        this_field_value = this_field.get_field() 
 
-        print(this_field)
+        print(this_field_value)
 
-        if this_field["type"] != event['body']['type']:
+        if this_field_value["type"] != event['body']['type']:
 
             raise errors.InvalidFieldType("The field type is incorrect for this field")
 
         # # is this a document create/update?
-        if this_field["type"] == "file":
+        if this_field_value["type"] == "file":
 
-            cognito_username = event['cognitoPoolClaims']['sub']
+            authenticating_username = event['cognitoPoolClaims']['sub']
 
             s3_bucket_name = os.environ.get("S3_BUCKET_NAME", "prind-portal-user-files-dev")
             s3_bucket_arn = os.environ.get("S3_BUCKET_ARN", "arn:aws:s3:::prind-portal-user-files-dev")
@@ -74,12 +77,11 @@ def lambda_handler(event, context):
             document_tags = field_data.get('tags', [])
             filename = field_data['filename']
 
-            if this_field.get("fileDetails") == []:
+            try:
+                document_did = this_field.get_document_did()
+            except errors.DocumentNotFound:
                 document_did = None
-            else:
-                existing_field_details = this_field.get("fieldDetails", {})
-                document_did = existing_field_details.get("documentDid")
-   
+
             print("document_did", document_did)
 
             try:
@@ -113,149 +115,25 @@ def lambda_handler(event, context):
 
             if action == "create":
 
-                api_url=f"https://{api_id}.execute-api.eu-west-1.amazonaws.com/{api_stage}/sp/document/create"
-
-                params = {
-                    "documentName": document_name,
-                    "documentHash": file_hash,
-                    "requesterReference": "File Uploader"
-                }
-
-                response = requests.post(
-                    api_url,
-                    data=params,
-                    headers={'Authorization': foundations_jwt}
+                document.create(
+                    file_hash, 
+                    authenticating_username, 
+                    s3_version_id, 
+                    s3_bucket_name, 
+                    s3_key, 
+                    filename, 
+                    document_name,
+                    document_tags
                 )
-
-                response_dict = json.loads(response.content.decode('utf-8'))
-
-                if not response.status_code == 202:
-                    
-                    print("status code was", response.status_code)
-                    print("response content was", response_dict)
-                    
-                    raise Exception('API call failed')
-                
-                print(response_dict)
-
-                document_did = response_dict['body']['documentDid']
-
-                table.put_item(
-                    Item={    
-                        "pk": f"document_{document_did}",
-                        "sk": "document",
-                        "data": document_name,
-                        "s3BucketName": s3_bucket_name ,
-                        "s3Key": s3_key
-                    }
-                )
-
-                table.put_item(
-                    Item={    
-                        "pk": f"document_{document_did}",
-                        "sk": "documentProject",
-                        "data": project_id 
-                    }
-                )
-
-                table.put_item(
-                    Item={    
-                        "pk": f"document_v0_{document_did}",
-                        "sk": "documentVersion",
-                        "data": f"uploader_{cognito_username}_{datetime_suffix}",
-                        "s3VersionId": s3_version_id,
-                        "versionNumber": 1,
-                        "filename": filename
-                    }
-                )
-
-                table.put_item(
-                    Item={    
-                        "pk": f"document_v1_{document_did}",
-                        "sk": "documentVersion",
-                        "data": f"uploader_{cognito_username}_{datetime_suffix}",
-                        "s3VersionId": s3_version_id,
-                        "versionNumber": 1,
-                        "filename": filename
-                    }
-                )
-
-                for tag in document_tags:
-                    table.put_item(
-                        Item={    
-                            "pk": f"document_{document_did}",
-                            "sk": f"documentTag_{tag}",
-                            "data": document_did 
-                        }
-                    )
-
            
             elif action == "update":
 
-                api_url=f"https://{api_id}.execute-api.eu-west-1.amazonaws.com/{api_stage}/sp/document-did/{document_did}/update"
-
-                # document_version = document.Document(document_did)
-                # s3_key = document_version.s3_key
-
-                response = s3.get_object(Bucket=s3_bucket_name, Key=s3_key)
-                uploaded_file = response['Body']
-                s3_version_id = response['VersionId']
-
-                print("s3_version_id is:", s3_version_id)
-                
-                file_bytes = uploaded_file.read()    
-                file_hash = hashlib.sha256(file_bytes).hexdigest();
-
-                print(file_hash)
-
-                params = {
-                    "documentHash": file_hash,
-                    "requesterReference": "File Uploader"
-                }
-
-                print(params)
-
-                response = requests.post(
-                    api_url,
-                    data=params,
-                    headers={'Authorization': foundations_jwt}
-                )
-
-
-                response_dict = json.loads(response.content.decode('utf-8'))
-
-                if not response.status_code == 202:
-                    
-                    print("status code was", response.status_code)
-                    print("response content was", response_dict)
-                    
-                    raise Exception('API call failed')
-                
-
-                print(response_dict)
-
-                document_version_number = response_dict['body']['documentVersionNumber']
-
-                table.put_item(
-                    Item={    
-                        "pk": f"document_v0_{document_did}",
-                        "sk": "documentVersion",
-                        "data": f"uploader_{cognito_username}_{datetime_suffix}",
-                        "s3VersionId": s3_version_id,
-                        "versionNumber": document_version_number,
-                        "filename": filename
-                    }
-                )
-
-                table.put_item(
-                    Item={    
-                        "pk": f"document_v{document_version_number}_{document_did}",
-                        "sk": "documentVersion",
-                        "data": f"uploader_{cognito_username}_{datetime_suffix}",
-                        "s3VersionId": s3_version_id,
-                        "versionNumber": document_version_number,
-                        "filename": filename
-                    }
+                this_document = document.Document(document_did)
+                this_document.update(
+                    file_hash, 
+                    authenticating_username, 
+                    s3_version_id, 
+                    filename
                 )
 
             

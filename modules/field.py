@@ -32,7 +32,7 @@ class Field(page.Page):
 
         logger.debug(log.function_end_output(locals()))
 
-    def get_document_did(self):
+    def get_field(self):
 
         response = table.get_item(
             Key={
@@ -41,8 +41,42 @@ class Field(page.Page):
             }
         )
 
+        populated_field = response.get('Item')
 
-        item = response.get('Item')
+        if not populated_field:
+            response = table.get_item(
+                Key={
+                    "pk": f"defaultField_{self.page_name}",
+                    "sk": f"fieldIndex_{self.field_index}"
+                }
+            )
+
+            try:
+                default_field = response['Item']
+                return_field = default_field
+            except KeyError:
+                raise FieldNotFound(f"No field was found for {self.project_id}/{self.page_name}/{self.field_index}")
+
+        else:
+            return_field = populated_field
+
+        return_field.pop('pk')
+        return_field.pop('sk')
+
+        return return_field
+
+    def get_document_did(self):
+
+        # response = table.get_item(
+        #     Key={
+        #         "pk": f"project_{self.project_id}",
+        #         "sk": f"field_{self.page_name}_{self.field_index}"
+        #     }
+        # )
+
+
+        item = self.get_field()
+        
         document_did = None
 
         if item:
@@ -56,6 +90,12 @@ class Field(page.Page):
         logger.debug(log.function_end_output(locals()))  
 
         return document_did
+
+
+
+
+
+
 
 
 

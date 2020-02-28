@@ -127,7 +127,12 @@ print(this_page.default_fields)
 # get field
 from modules import page
 this_page = page.Page('inception', 'ProjectNumberFour')
-print(this_page.get_field(2))
+print(this_page.get_field(1))
+
+# get field (field module)
+from modules import field
+myfield = field.Field(project_id="ProjectNumberFour", page_name="inception", field_index=1)
+myfield.get_field()
 
 # get page fields
 from modules import page
@@ -240,9 +245,10 @@ this_user.get_foundations_subscription()
 username = "778bd486-4684-482b-9565-1c2a51367b8c"
 from modules import user
 this_user = user.User(username)
-this_user.get_uploaded_document_versions()
+document_versions = this_user.get_uploaded_document_versions()
+print(document_versions)
 
 # get field document DID
 from modules import field
-this_field = field.Field(2, 'inception', 'ProjectNumberSix')
+this_field = field.Field(1, 'inception', 'ProjectNumberSix')
 print(this_field.get_document_did())
