@@ -8,7 +8,7 @@ from modules import errors
 from modules import page
 from modules import auth
 from modules import document
-from modules import field
+from modules import field as field
 
 from botocore.exceptions import ClientError
 from boto3.dynamodb.conditions import Key, Attr
@@ -49,7 +49,7 @@ def lambda_handler(event, context):
 
         this_page = page.Page(page=page_name, project_id=project_id)
         this_field = field.Field(field_index=field_index, page_name=page_name, project_id=project_id)
-        this_field_value = this_field.get_field() 
+        this_field_value = this_field.get() 
 
         print(this_field_value)
 
@@ -115,7 +115,7 @@ def lambda_handler(event, context):
 
             if action == "create":
 
-                document.create(
+                document_did = document.create(
                     file_hash, 
                     authenticating_username, 
                     s3_version_id, 
@@ -125,6 +125,7 @@ def lambda_handler(event, context):
                     document_name,
                     document_tags
                 )
+
            
             elif action == "update":
 

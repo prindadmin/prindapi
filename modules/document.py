@@ -348,6 +348,9 @@ def create(
                 "data": document_did 
             }
         )
+
+    return document_did
+    
 def get_user_uploaded_document_versions(username):
 
         response = table.query(

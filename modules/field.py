@@ -7,7 +7,7 @@ from botocore.exceptions import ClientError
 from boto3.dynamodb.conditions import Key, Attr
 
 from modules import errors
-from modules import page
+# from modules import page
 from modules import log
 
 # If logger hasn"t been set up by a calling function, set it here
@@ -20,11 +20,11 @@ except:
 dynamodb = boto3.resource("dynamodb")
 table = dynamodb.Table(os.environ["TABLE_NAME"])
 
-class Field(page.Page):
+class Field():
 
     def __init__(self, field_index, page_name, project_id):
 
-        page.Page.__init__(self, page=page_name, project_id=project_id)
+        #page.Page.__init__(self, page=page_name, project_id=project_id)
 
         self.page_name = page_name
         self.project_id = project_id
@@ -32,7 +32,7 @@ class Field(page.Page):
 
         logger.debug(log.function_end_output(locals()))
 
-    def get_field(self):
+    def get(self):
 
         response = table.get_item(
             Key={
@@ -42,6 +42,8 @@ class Field(page.Page):
         )
 
         populated_field = response.get('Item')
+
+        print("populated field", populated_field)
 
         if not populated_field:
             response = table.get_item(
@@ -75,7 +77,7 @@ class Field(page.Page):
         # )
 
 
-        item = self.get_field()
+        item = self.get()
         
         document_did = None
 

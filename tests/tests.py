@@ -131,8 +131,8 @@ print(this_page.get_field(1))
 
 # get field (field module)
 from modules import field
-myfield = field.Field(project_id="ProjectNumberFour", page_name="inception", field_index=1)
-myfield.get_field()
+myfield = field.Field(project_id="ProjectNumberSix", page_name="inception", field_index=1)
+myfield.get()
 
 # get page fields
 from modules import page
@@ -250,5 +250,5 @@ print(document_versions)
 
 # get field document DID
 from modules import field
-this_field = field.Field(1, 'inception', 'ProjectNumberSix')
+this_field = field.Field("1", 'inception', 'ProjectNumberSix')
 print(this_field.get_document_did())

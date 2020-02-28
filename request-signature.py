@@ -35,18 +35,26 @@ def lambda_handler(event, context):
         requesting_user = user.User(event['cognitoPoolClaims']['sub'])
         signing_user = user.User(event['body']['signingUsername'])
 
-        this_field = field.Field(
-            field_index=int(event['path']['field_index']),
-            page_name=event['path']['page'],
-            project_id=event['path']['project_id']
-        )
+        field_index=int(event['path']['field_index'])
+        page_name=event['path']['page']
+        project_id=event['path']['project_id']
 
-        document_did = this_field.get_document_did()
+        # this_field = field.Field(
+        #     field_index=int(event['path']['field_index']),
+        #     page_name=event['path']['page'],
+        #     project_id=event['path']['project_id']
+        # )
+
+        # document_did = this_field.get_document_did()
+
+        print("project_id", project_id)
+        print("page_name", page_name)
+        print("field_index", field_index)
  
         table.put_item(
             Item={    
                 "pk": f"user_{signing_user.username}",
-                "sk": f"documentSignRequest_{document_did}",
+                "sk": f"documentSignRequest_{project_id}/{page_name}/{field_index}",
                 "requestedBy": requesting_user.username,
                 "requestedAt": str(int(time.time()))
             }
@@ -96,7 +104,7 @@ if __name__ == '__main__':
         },
         "body": {
             #"signingUsername": "aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaa"
-            "signingUsername": "f9c255cb-a42b-4359-a8bd-2ebec5dfa2fa"
+            "signingUsername": "b966f0b7-4310-4608-b08d-418210e7ff20"
         }
     }
 

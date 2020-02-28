@@ -158,7 +158,8 @@ if __name__ == '__main__':
             "method": "GET", 
             "cognitoPoolClaims": {
                 #"sub": "aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaa"
-                "sub": "778bd486-4684-482b-9565-1c2a51367b8c"
+                #"sub": "b966f0b7-4310-4608-b08d-418210e7ff20"
+                "sub": "b966f0b7-4310-4608-b08d-418210e7ff20"
             }
         },
         "get-profile": {
@@ -167,7 +168,7 @@ if __name__ == '__main__':
             "cognitoPoolClaims": {
                 #"sub": "aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaa"
                 #"sub": "778bd486-4684-482b-9565-1c2a51367b8c"
-                "sub": "a0c1bf48-52d0-4eb8-97ba-ed6cbaaff9ea"
+                "sub": "b966f0b7-4310-4608-b08d-418210e7ff20"
             }
         },
         "get-history": {
@@ -184,6 +185,6 @@ if __name__ == '__main__':
 
 
 
-    print(lambda_handler(event["get-history"], {}))
+    print(lambda_handler(event["get-signature-requests"], {}))
 
         

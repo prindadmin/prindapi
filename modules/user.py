@@ -12,6 +12,7 @@ from modules import project
 from modules import auth
 from modules import log
 from modules import document
+from modules import field
 
 # If logger hasn"t been set up by a calling function, set it here
 try:
@@ -159,11 +160,33 @@ class User():
 
         items = response.get('Items',[])
 
+        print(items)
+
         signing_requests = []
 
         for item in items:
             item.pop('pk')
-            item['documentDid'] = item.pop('sk').split('documentSignRequest_')[1]
+            s3_key = item.pop('sk').split('documentSignRequest_')[1]
+            
+            try:
+                item['projectID'] = s3_key.split('/')[0]
+                item['pageName'] = s3_key.split('/')[1]
+                item['fieldID'] = s3_key.split('/')[2]
+            except IndexError:
+                continue
+
+            this_field = field.Field(
+                project_id=item['projectID'],
+                page_name=item['pageName'],
+                field_index=item['fieldID']
+            )
+
+            document_did = this_field.get_document_did()
+            this_document = document.Document(document_did)
+            document_version = this_document.get_version(0)
+
+            item['filename'] = document_version.get('filename')
+
             requesting_user = User(item.pop('requestedBy'))
             item['requestedBy'] = {}
             item['requestedBy']['username'] = requesting_user.username
