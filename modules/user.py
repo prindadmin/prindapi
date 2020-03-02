@@ -105,8 +105,14 @@ class User():
       
         logger.debug(response_dict)
 
-        if response_dict["statusCode"] != 200:
+        try: 
+            status_code = response_dict["statusCode"]
+        except KeyError:
+            status_code = 500
+
+        if status_code != 200:
             raise errors.DIDNotFound(f"A DID was not found for the email address {self.email_address}")
+            print(response_dict)
 
         did = response_dict["body"]["did"]
 
