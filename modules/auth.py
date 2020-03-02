@@ -36,6 +36,7 @@ def get_foundations_jwt(did):
 
     except (TypeError, KeyError):
         api_key = update_foundations_jwt(did)
+        return api_key
 
     # create a new JWT if this JWT expires in less than 5 mins
     seconds_remaining = int(expiry_time) - time.time()
