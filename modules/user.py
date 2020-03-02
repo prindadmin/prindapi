@@ -111,9 +111,9 @@ class User():
             status_code = 500
 
         if status_code != 200:
-            raise errors.DIDNotFound(f"A DID was not found for the email address {self.email_address}")
             print(response_dict)
-
+            raise errors.DIDNotFound(f"A DID was not found for the email address {self.email_address}")
+            
         did = response_dict["body"]["did"]
 
         self.write_did(did)
