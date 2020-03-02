@@ -23,11 +23,11 @@ custom:
     # map Factom network based on stage
     FOUNDATIONS_API_ID:
       dev: 'w9t59cws74'
-      staging: ''
+      staging: 'mfybcpdr4b'
       production: ''
     SP_DID:
       dev: 'did:fctr:d85be1f5baa83fa83850d8b58731a7f7c8ba65c33dec107c2e16e0dd65c7bcc7'
-      staging: ''
+      staging: 'did:fctr:d85be1f5baa83fa83850d8b58731a7f7c8ba65c33dec107c2e16e0dd65c7bcc7'
       production: ''
     FACTOM_EXPLORER_DOMAIN:
       dev: 'testnet.factoid.org'
