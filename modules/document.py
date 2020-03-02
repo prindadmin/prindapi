@@ -281,6 +281,8 @@ def create(
     # Foundations API call
     api_url=f"https://{api_id}.execute-api.eu-west-1.amazonaws.com/{api_stage}/sp/document/create"
 
+    print('api url:', api_url)
+
     params = {
         "documentName": document_name,
         "documentHash": file_hash,
@@ -295,6 +297,8 @@ def create(
 
     response_dict = json.loads(response.content.decode('utf-8'))
 
+    print('response_dict:', response_dict)
+
     if not response.status_code == 202:
         
         print("status code was", response.status_code)
@@ -302,8 +306,6 @@ def create(
         
         raise Exception('API call failed')
     
-    print(response_dict)
-
     document_did = response_dict['body']['documentDid']
 
     datetime_suffix = datetime.utcnow().isoformat()
