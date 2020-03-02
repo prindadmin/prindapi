@@ -35,7 +35,7 @@ def get_foundations_jwt(did):
         expiry_time = response.get("Item")["expiryTimestamp"]
 
     except (TypeError, KeyError):
-        raise errors.DIDNotFound("There is no JWT for this DID")
+        api_key = update_foundations_jwt(did)
 
     # create a new JWT if this JWT expires in less than 5 mins
     seconds_remaining = int(expiry_time) - time.time()
