@@ -152,22 +152,38 @@ this_page.write_document_field(field_index=1, document_did=document_did)
 
 # get document version signatures
 from modules import document
-this_document = document.Document('did:fnds:fb926075aec4f9108cf79689680dd085257daaf50d7eb635252c03fcf9666af6')
+this_document = document.Document(
+    project_id='ProjectNumberFour',
+    page='inception',
+    field_index=1
+)
 this_document.get_version_signatures(1)
 
 # get document version
 from modules import document
-this_document = document.Document('did:fnds:fcf6abfbf894acd64a00a78bd8c35610699c91615ac288442bfe170768f1ad52')
+this_document = document.Document(
+    project_id='ProjectNumberFour',
+    page='inception',
+    field_index=1
+)
 this_document.get_version(0)
 
 # get document current version number
 from modules import document
-this_document = document.Document('did:fnds:45eb214b62cd771af0062dc4326c9647039b89781ae5dd23eff6689dfd3e5e0e')
+this_document = document.Document(
+    project_id='ProjectNumberFour',
+    page='inception',
+    field_index=1
+)
 this_document.get_current_version_number()
 
 # get all document info
 from modules import document
-this_document = document.Document('did:fnds:fb926075aec4f9108cf79689680dd085257daaf50d7eb635252c03fcf9666af6')
+this_document = document.Document(
+    project_id='ProjectNumberFour',
+    page='inception',
+    field_index=1
+)
 this_document.get_all_info()
 
 # create a notification
@@ -252,3 +268,7 @@ print(document_versions)
 from modules import field
 this_field = field.Field("1", 'inception', 'ProjectNumberSix')
 print(this_field.get_document_did())
+
+# get document field
+from modules import document
+document.get_document_field("did:fnds:7ce027a56933c1cee47c6d6199063047721db8b6088c6837571c0f7de00a7501")

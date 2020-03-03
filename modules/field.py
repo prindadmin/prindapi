@@ -24,8 +24,6 @@ class Field():
 
     def __init__(self, field_index, page_name, project_id):
 
-        #page.Page.__init__(self, page=page_name, project_id=project_id)
-
         self.page_name = page_name
         self.project_id = project_id
         self.field_index = field_index
@@ -68,14 +66,6 @@ class Field():
         return return_field
 
     def get_document_did(self):
-
-        # response = table.get_item(
-        #     Key={
-        #         "pk": f"project_{self.project_id}",
-        #         "sk": f"field_{self.page_name}_{self.field_index}"
-        #     }
-        # )
-
 
         item = self.get()
         

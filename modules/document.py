@@ -35,13 +35,13 @@ foundations_jwt = auth.get_foundations_jwt(sp_did)
 
 class Document():
 
-    def __init__(self, document_did):
+    def __init__(self, project_id, page, field_index):
 
         # logger.info(log.function_start_output())
 
         response = table.get_item(
             Key={
-                "pk": f"document_{document_did}",
+                "pk": f"document_{project_id}/{page}/{field_index}",
                 "sk": "document"
             }
         )
@@ -49,9 +49,12 @@ class Document():
         try:
             item = response['Item']
         except KeyError:
-            raise errors.DocumentNotFound(f"A document with DID {self.document_did} was not found.")
+            raise errors.DocumentNotFound(f"A document was not found for field {project_id}/{page}/{field_index}.")
 
-        self.document_did = document_did
+        self.project_id = project_id
+        self.page = page
+        self.field_index = field_index
+        self.document_did = item['data']
         self.s3_bucket_name = item['s3BucketName']
         self.s3_key = item['s3Key']
         self.filename = None
@@ -62,7 +65,7 @@ class Document():
 
         response = table.get_item(
             Key={
-                "pk": f"document_v{version}_{self.document_did}",
+                "pk": f"document_v{version}_{self.project_id}/{self.page}/{self.field_index}",
                 "sk": "documentVersion"
             }
         )
@@ -70,10 +73,11 @@ class Document():
         try:
             item = response['Item']
         except KeyError:
-            raise errors.DocumentVersionNotFound(f"Version {version} of document DID {self.document_did} does not exist")
+            raise errors.DocumentVersionNotFound(f"Version {version} of document {self.project_id}/{self.page}/{self.field_index} does not exist")
 
         item.pop('pk')
         item.pop('sk')
+        item.pop('data', None)
 
         # use the value in 'data' for uploadedBy 
         # if it exists
@@ -88,7 +92,7 @@ class Document():
 
     def get_current_version_number(self):
 
-        version = self.get_version(0)  
+        version = get_version(0)  
 
         return int(version['versionNumber'])
 
@@ -176,8 +180,7 @@ class Document():
 
             try:
                 uploaded_by_username = prind_version_info['uploadedBy']
-                s3_version_id  = prind_version_info['s3VersionId']
-                
+               
                 try:
                     uploaded_by_user = user.User(uploaded_by_username)
                     uploaded_by_fullname = f"{uploaded_by_user.first_name} {uploaded_by_user.last_name}"
@@ -199,7 +202,7 @@ class Document():
             else:
                 version['signatures'] = []
 
-            version["s3VersionId"] = s3_version_id
+            version["s3VersionId"] = prind_version_info['s3VersionId']
             version["uploadName"] = prind_version_info.get('filename')
 
         logger.debug(log.function_end_output(locals()))  
@@ -245,7 +248,7 @@ class Document():
         # Prin-D database entries
         table.put_item(
             Item={    
-                "pk": f"document_v0_{self.document_did}",
+                "pk": f"document_v0_{self.project_id}/{self.page}/{self.field_index}",
                 "sk": "documentVersion",
                 "data": f"uploader_{uploading_username}_{datetime_suffix}",
                 "s3VersionId": s3_version_id,
@@ -256,7 +259,7 @@ class Document():
 
         table.put_item(
             Item={    
-                "pk": f"document_v{document_version_number}_{self.document_did}",
+                "pk": f"document_v{document_version_number}_{self.project_id}/{self.page}/{self.field_index}",
                 "sk": "documentVersion",
                 "data": f"uploader_{uploading_username}_{datetime_suffix}",
                 "s3VersionId": s3_version_id,
@@ -266,6 +269,9 @@ class Document():
         )
 
 def create(
+    project_id,
+    page,
+    field_index,
     file_hash,
     uploading_username,
     s3_version_id,
@@ -312,9 +318,9 @@ def create(
 
     table.put_item(
         Item={    
-            "pk": f"document_{document_did}",
+            "pk": f"document_{project_id}/{page}/{field_index}",
             "sk": "document",
-            "data": document_name,
+            "data": document_did,  
             "s3BucketName": s3_bucket_name ,
             "s3Key": s3_key
         }
@@ -322,7 +328,7 @@ def create(
 
     table.put_item(
         Item={    
-            "pk": f"document_v0_{document_did}",
+            "pk": f"document_v0_{project_id}/{page}/{field_index}",
             "sk": "documentVersion",
             "data": f"uploader_{uploading_username}_{datetime_suffix}",
             "s3VersionId": s3_version_id,
@@ -333,7 +339,7 @@ def create(
 
     table.put_item(
         Item={    
-            "pk": f"document_v1_{document_did}",
+            "pk": f"document_v1_{project_id}/{page}/{field_index}",
             "sk": "documentVersion",
             "data": f"uploader_{uploading_username}_{datetime_suffix}",
             "s3VersionId": s3_version_id,
@@ -345,7 +351,7 @@ def create(
     for tag in document_tags:
         table.put_item(
             Item={    
-                "pk": f"document_{document_did}",
+                "pk": f"document_{project_id}/{page}/{field_index}",
                 "sk": f"documentTag_{tag}",
                 "data": document_did 
             }
@@ -370,13 +376,42 @@ def get_user_uploaded_document_versions(username):
             if item['pk'].split('_')[1] == 'v0':
                 continue
 
-            item['documentDid'] = item.pop('pk').split('_')[2]
+            try:    
+                item['projectId'] = item['pk'].split('_')[1].split('/')[0]
+                item['page'] = item['pk'].split('_')[1].split('/')[1]
+                item['field'] = item['pk'].split('_')[1].split('/')[2]
+            except IndexError:
+                # document might be stored in the old format, so skip it
+                continue
+
+            item.pop('pk')
             item.pop('sk')
-            item.pop('data')
+            item.pop('data', None)
 
             document_versions.append(item)
 
         return document_versions
+
+
+def get_document_field(document_did):
+
+    response = table.query(
+        IndexName='GSI1',
+        KeyConditionExpression=Key('sk').eq("document") & Key('data').eq(document_did)
+    )
+
+    try:
+        item = response['Items'][0]
+    except KeyError:
+        raise errors.DocumentNotFound(f"A document was not found with the DID {document_did}")
+
+    field_details = dict()
+
+    field_details['projectId'] = item['pk'].split('_')[1].split('/')[0]
+    field_details['page'] = item['pk'].split('_')[1].split('/')[1]
+    field_details['field'] = item['pk'].split('_')[1].split('/')[2]
+
+    return field_details
 
 if __name__ == "__main__":
 

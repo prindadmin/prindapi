@@ -58,20 +58,23 @@ class Page(project.Project):
         
         for item in items:
             item.pop('pk')
-            item.pop('sk')
+            item.pop('sk')           
+            field_index = item["id"]
 
             # Add any file details
             if item['type'] == 'file':
-
-                if item.get('fieldDetails'):
-                    document_did = item['fieldDetails'].get('documentDid')
-
-                    if document_did:
-                        # TODO: Make this into a render_document_field() method
-                        this_document = document.Document(document_did)
-                        item['fileDetails'] = this_document.get_all_info()
+                try:
+                    this_document = document.Document(
+                        project_id=self.project_id, 
+                        page=self.page_name, 
+                        field_index=field_index
+                    )
+                except errors.DocumentNotFound:
+                    pass
+                else:
+                    item['fileDetails'] = this_document.get_all_info()
             
-            populated_fields[str(item["id"])] = item
+            populated_fields[str(field_index)] = item
 
         logger.debug(log.function_end_output(locals()))  
 

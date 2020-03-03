@@ -39,14 +39,6 @@ def lambda_handler(event, context):
         page_name=event['path']['page']
         project_id=event['path']['project_id']
 
-        # this_field = field.Field(
-        #     field_index=int(event['path']['field_index']),
-        #     page_name=event['path']['page'],
-        #     project_id=event['path']['project_id']
-        # )
-
-        # document_did = this_field.get_document_did()
-
         print("project_id", project_id)
         print("page_name", page_name)
         print("field_index", field_index)

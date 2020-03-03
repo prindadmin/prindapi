@@ -44,21 +44,16 @@ def lambda_handler(event, context):
         field_data = event['body']['fieldDetails']
         title = event['body'].get('title')
         description = event['body'].get('description') 
-        field_type = event['body']['type']
         editable = event['body'].get('editable')
 
-        this_page = page.Page(page=page_name, project_id=project_id)
         this_field = field.Field(field_index=field_index, page_name=page_name, project_id=project_id)
         this_field_value = this_field.get() 
 
+        field_type = this_field_value["type"]
+
         print(this_field_value)
 
-        if this_field_value["type"] != event['body']['type']:
-
-            raise errors.InvalidFieldType("The field type is incorrect for this field")
-
-        # # is this a document create/update?
-        if this_field_value["type"] == "file":
+        if field_type == "file":
 
             authenticating_username = event['cognitoPoolClaims']['sub']
 
@@ -78,16 +73,23 @@ def lambda_handler(event, context):
             filename = field_data['filename']
 
             try:
-                document_did = this_field.get_document_did()
+                this_document = document.Document(
+                    project_id=project_id,
+                    page=page_name,
+                    field_index=field_index
+                )
             except errors.DocumentNotFound:
                 document_did = None
+                action = "create"
+            else:
+                document_did = this_document.document_did
+                action = "update"
 
-            print("document_did", document_did)
+            logger.info(f"document_did {document_did}")
+            logger.info(f"action is: {action}")
 
             try:
-
                 response = s3.get_object(Bucket=s3_bucket_name, Key=s3_key)
-            
             except ClientError as e:
                 if e.response['Error']['Code'] == 'NoSuchKey':
                     logger.error(f"The s3 key {s3_key} was not found")
@@ -96,7 +98,6 @@ def lambda_handler(event, context):
                     logger.error(f"error {e.response['Error']['Code']} in call to s3.get_object()")
                     raise
 
-            
             uploaded_file = response['Body']
             s3_version_id = response['VersionId']
 
@@ -105,31 +106,35 @@ def lambda_handler(event, context):
             file_bytes = uploaded_file.read()    
             file_hash = hashlib.sha256(file_bytes).hexdigest();
 
-            action = "update" if document_did else "create"
-
             document_name = f"{project_id}/{page_name}/{field_index}"
 
             datetime_suffix = datetime.utcnow().isoformat()
 
-            print("action is", action)
-
             if action == "create":
 
                 document_did = document.create(
-                    file_hash, 
-                    authenticating_username, 
-                    s3_version_id, 
-                    s3_bucket_name, 
-                    s3_key, 
-                    filename, 
-                    document_name,
-                    document_tags
+                    project_id=project_id,
+                    page=page_name,
+                    field_index=field_index,
+                    file_hash=file_hash, 
+                    uploading_username=authenticating_username, 
+                    s3_version_id=s3_version_id, 
+                    s3_bucket_name=s3_bucket_name, 
+                    s3_key=s3_key, 
+                    filename=filename, 
+                    document_name=document_name,
+                    document_tags=document_tags
                 )
 
            
             elif action == "update":
 
-                this_document = document.Document(document_did)
+                this_document = document.Document(
+                    project_id=project_id, 
+                    page=page_name, 
+                    field_index=field_index
+                )
+
                 this_document.update(
                     file_hash, 
                     authenticating_username, 
@@ -138,15 +143,10 @@ def lambda_handler(event, context):
                 )
 
             
-            # finally write the document field
-            this_page.write_document_field(
-                field_index=field_index,
-                document_did=document_did,
-                description=description
-            )
-
         else: # this is not a file field
             
+            this_page = page.Page(page=page_name, project_id=project_id)
+
             this_page.write_field(
                 field_index=field_index, 
                 field_data=field_data, 
@@ -228,8 +228,6 @@ if __name__ == '__main__':
                     "filename": "test.pdf",
                     "tags": []
                 },
-                "type": "file",
-                "editable": True
             }
         }
     }

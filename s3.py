@@ -9,6 +9,7 @@ import os
 from modules import page
 from modules import errors
 from modules import document
+from modules import project
 from urllib.parse import unquote
 
 from modules import log
@@ -115,37 +116,25 @@ def lambda_handler(event, context):
             field_index = event['path']['field_index']
             version = event['path']['version']
 
-            this_page = page.Page(page_name, project_id)
+            this_document = document.Document(
+                project_id=project_id, 
+                page=page_name, 
+                field_index=field_index
+            )
 
-            field = this_page.get_field(int(field_index))
-
-            field_type = field['type']
-            print('field type', field_type)
-            
-            if field_type != 'file':
-                raise errors.InvalidFieldType('The field given is not a document field')
-
-            try:
-                document_did = field['fieldDetails']['documentDid']
-            except KeyError:
-                raise Exception('file field does not contain a document_did')
-
-            print(document_did)
-
-            this_document = document.Document(document_did)
+            this_project = project.Project(project_id)
 
             s3_version = this_document.get_version(version)['s3VersionId']
 
-            print(s3_version)
+            logger.info(f"s3_version is : {s3_version}")
 
-            if not this_page.user_has_permission(cognito_username):
+            if not this_project.user_has_permission(cognito_username):
                 raise errors.InsufficientPermission('User does not have permission to this project')
 
             # Create the policy to allow users to add files to their s3 bucket
-
             object_name = f"{project_id}/{page_name}/{field_index}"
 
-            print('object_name', object_name)
+            logger.info(f"object_name: {object_name}")
 
             response = s3_client.generate_presigned_url('get_object',
                                                             Params={'Bucket': s3_bucket_name,
@@ -261,6 +250,6 @@ if __name__ == '__main__':
         }
     }
 
-    print(lambda_handler(event["get-file-url"], {}))
+    print(lambda_handler(event["get-sts-profile-avatar"], {}))
         
 

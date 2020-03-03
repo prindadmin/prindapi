@@ -40,7 +40,12 @@ def lambda_handler(event, context):
 
         foundations_jwt = auth.get_foundations_jwt(sp_did)
 
-        document_obj = document.Document(unquote(event['path']['document_did']))
+        project_id = event["path"]["project_id"]
+        page = event["path"]["page"]
+        field_index = event["path"]["field_index"]
+
+        document_obj = document.Document(project_id, page, field_index)
+        
         document_version = 0 # latest
 
         api_url=f"https://{api_id}.execute-api.eu-west-1.amazonaws.com/{api_stage}/sp/document-did/{document_obj.document_did}/signing-request/{document_version}"
@@ -102,7 +107,10 @@ if __name__ == '__main__':
             #"sub": "aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaa"
         },
         "path": {
-            "document_did": "did:fnds:c25eb417ffa90f8fedf29b385fc91f58831a470805f38474bd71f327b860f946"
+            #"document_did": "did:fnds:c25eb417ffa90f8fedf29b385fc91f58831a470805f38474bd71f327b860f946"
+            "project_id": "ProjectNumberSix",
+            "page": "inception",
+            "field_index": 1
         }
     }
 

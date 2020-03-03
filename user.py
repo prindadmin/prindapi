@@ -185,6 +185,6 @@ if __name__ == '__main__':
 
 
 
-    print(lambda_handler(event["get-signature-requests"], {}))
+    print(lambda_handler(event["get-history"], {}))
 
         

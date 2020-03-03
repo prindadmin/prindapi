@@ -181,14 +181,11 @@ class User():
             except IndexError:
                 continue
 
-            this_field = field.Field(
-                project_id=item['projectID'],
-                page_name=item['pageName'],
+            this_document = document.Document(
+                project_id=item['projectID'], 
+                page=item['pageName'], 
                 field_index=item['fieldID']
             )
-
-            document_did = this_field.get_document_did()
-            this_document = document.Document(document_did)
             document_version = this_document.get_version(0)
 
             item['filename'] = document_version.get('filename')

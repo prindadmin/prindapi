@@ -440,7 +440,7 @@ functions:
     handler: sign-on-foundations.lambda_handler
     events:
       - http:
-          path: /document/{document_did}/sign-on-foundations
+          path: /document/{project_id}/{page}/{field_index}/sign-on-foundations
           method: post
           cors: true
           response:

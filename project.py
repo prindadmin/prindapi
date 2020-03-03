@@ -306,7 +306,7 @@ if __name__ == '__main__':
                 "sub": "778bd486-4684-482b-9565-1c2a51367b8c"
             },
             "body": {
-                "username": "f9c255cb-a42b-4359-a8bd-2ebec5dfa2fa",
+                "emailAddress": "mr.simon.hunt+test17@gmail.com",
                 "roleId": "projectConsultant"
             }
         },
@@ -338,4 +338,4 @@ if __name__ == '__main__':
         }
     }
 
-    print(lambda_handler(event["get-project"], {}))
+    print(lambda_handler(event["respond-to-invitation"], {}))

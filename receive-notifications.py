@@ -92,7 +92,7 @@ if __name__ == '__main__':
     document_signed_notification = {
         "notificationType" : "documentSigned",
         "signingDid" : "did:fnds:161263516316213616236",
-        "documentDid" : "dateOfBirth",
+        "documentDid" : "did:fnds:872346234623662142423",
         "requesterReference" : "Prin-D",
     }
 
