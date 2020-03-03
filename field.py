@@ -46,6 +46,7 @@ def lambda_handler(event, context):
         description = event['body'].get('description') 
         editable = event['body'].get('editable')
 
+        this_page = page.Page(page=page_name, project_id=project_id)
         this_field = field.Field(field_index=field_index, page_name=page_name, project_id=project_id)
         this_field_value = this_field.get() 
 
@@ -96,7 +97,7 @@ def lambda_handler(event, context):
                     raise errors.FileNotFound(f"The s3 key {s3_key} was not found")
                 else:
                     logger.error(f"error {e.response['Error']['Code']} in call to s3.get_object()")
-                    raise
+                    raise errors.DocumentNotFound(f"A document with the key {s3_key} did not exist in {s3_bucket_name}")
 
             uploaded_file = response['Body']
             s3_version_id = response['VersionId']
@@ -143,26 +144,23 @@ def lambda_handler(event, context):
                 )
 
             
-        else: # this is not a file field
-            
-            this_page = page.Page(page=page_name, project_id=project_id)
+        # else: # this is not a file field
 
-            this_page.write_field(
-                field_index=field_index, 
-                field_data=field_data, 
-                title=title, 
-                description=description, 
-                field_type=field_type, 
-                editable=editable
-            )
+        this_page.write_field(
+            field_index=field_index, 
+            field_data=field_data, 
+            title=title, 
+            description=description, 
+            field_type=field_type, 
+            editable=editable
+        )
 
     # catch any application errors
     except errors.ApplicationError as error:
-        raise
-        # return {
-        #     'statusCode': 400,
-        #     "Error": error.get_error_dict()
-        # }
+        return {
+            'statusCode': 400,
+            "Error": error.get_error_dict()
+        }
     # catch unhandled exceptions
     # except Exception as e:
         
@@ -219,7 +217,7 @@ if __name__ == '__main__':
                 "sub": "778bd486-4684-482b-9565-1c2a51367b8c"
             },
             "path": {
-                "project_id": "ProjectNumberSix",
+                "project_id": "TestProjectInTheNewFormat2020-03-03",
                 "page": "inception",
                 "field_index": 1
             },

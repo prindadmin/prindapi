@@ -61,6 +61,8 @@ class Page(project.Project):
             item.pop('sk')           
             field_index = item["id"]
 
+            print(item['type'])
+
             # Add any file details
             if item['type'] == 'file':
                 try:
@@ -70,7 +72,7 @@ class Page(project.Project):
                         field_index=field_index
                     )
                 except errors.DocumentNotFound:
-                    pass
+                    logger.info(f"The field {project_id}/{page}/{field_index} didn't contain a file")
                 else:
                     item['fileDetails'] = this_document.get_all_info()
             
@@ -185,22 +187,22 @@ class Page(project.Project):
         logger.debug(log.function_end_output(locals()))  
 
 
-    def write_document_field(self, field_index, document_did, title=None, description=None, editable=None):
+    # def write_document_field(self, field_index, document_did, title=None, description=None, editable=None):
 
-        field_data = {
-            "documentDid": document_did 
-        }
+    #     field_data = {
+    #         "documentDid": document_did 
+    #     }
 
-        self.write_field(
-            field_index=field_index, 
-            field_type='file', 
-            field_data=field_data, 
-            title=title, 
-            description=description, 
-            editable=editable
-        )
+    #     self.write_field(
+    #         field_index=field_index, 
+    #         field_type='file', 
+    #         field_data=field_data, 
+    #         title=title, 
+    #         description=description, 
+    #         editable=editable
+    #     )
 
-        logger.debug(log.function_end_output(locals()))  
+    #     logger.debug(log.function_end_output(locals()))  
 
             
 
