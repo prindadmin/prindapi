@@ -99,3 +99,10 @@ class FileNotFound(ApplicationError):
     def __init__(self, message):
         ApplicationError.__init__(self, message, "FILE_NOT_FOUND", "0016")
 
+# Document Version Exists - when updating a document
+class DocumentVersionExists(ApplicationError):
+    def __init__(self, message):
+        ApplicationError.__init__(self, message, "DOCUMENT_VERSION_EXISTS", "0017")
+
+
+

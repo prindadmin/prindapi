@@ -211,6 +211,11 @@ class Document():
 
     def update(self, file_hash, uploading_username, s3_version_id, filename):
 
+        previous_version = self.get_version(0)
+        
+        if previous_version['s3VersionId'] == s3_version_id:
+            raise errors.DocumentVersionExists('This version of the document already exists')
+        
         foundations_jwt = auth.get_foundations_jwt(sp_did)
 
         api_url=f"https://{api_id}.execute-api.eu-west-1.amazonaws.com/{api_stage}/sp/document-did/{self.document_did}/update"
