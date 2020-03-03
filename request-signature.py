@@ -33,7 +33,11 @@ def lambda_handler(event, context):
     try:
 
         requesting_user = user.User(event['cognitoPoolClaims']['sub'])
-        signing_user = user.User(event['body']['signingUsername'])
+        signing_users = event['body']['signingUsernames']
+
+        if not isinstance(signing_users, list):
+            signing_users = [signing_users]
+
 
         field_index=int(event['path']['field_index'])
         page_name=event['path']['page']
@@ -43,21 +47,23 @@ def lambda_handler(event, context):
         print("page_name", page_name)
         print("field_index", field_index)
  
-        table.put_item(
-            Item={    
-                "pk": f"user_{signing_user.username}",
-                "sk": f"documentSignRequest_{project_id}/{page_name}/{field_index}",
-                "requestedBy": requesting_user.username,
-                "requestedAt": str(int(time.time()))
+        for this_user in signing_users:
+            signing_user = user.User(this_user)
+            table.put_item(
+                Item={    
+                    "pk": f"user_{signing_user.username}",
+                    "sk": f"documentSignRequest_{project_id}/{page_name}/{field_index}",
+                    "requestedBy": requesting_user.username,
+                    "requestedAt": str(int(time.time()))
+                }
+            )
+
+            template_data = {
+                "firstName": requesting_user.first_name,
+                "lastName": requesting_user.last_name
             }
-        )
 
-        template_data = {
-            "firstName": requesting_user.first_name,
-            "lastName": requesting_user.last_name
-        }
-
-        mail.send_email(signing_user.email_address, "document-signature-request", template_data)
+            mail.send_email(signing_user.email_address, "document-signature-request", template_data)
 
    # catch any application errors
     except errors.ApplicationError as error:

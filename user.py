@@ -159,7 +159,7 @@ if __name__ == '__main__':
             "cognitoPoolClaims": {
                 #"sub": "aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaa"
                 #"sub": "b966f0b7-4310-4608-b08d-418210e7ff20"
-                "sub": "b966f0b7-4310-4608-b08d-418210e7ff20"
+                "sub": "ca543d7c-7970-48ce-b100-9cf3f7c62aef"
             }
         },
         "get-profile": {
@@ -185,6 +185,6 @@ if __name__ == '__main__':
 
 
 
-    print(lambda_handler(event["get-history"], {}))
+    print(lambda_handler(event["get-signature-requests"], {}))
 
         
