@@ -400,6 +400,14 @@ def create_project(
                 "data": str(int(time.time()))
             }
         )
+
+        table.put_item(
+            Item={    
+                "pk": f"user_{project_owner.username}",
+                "sk": f"role_{project_id}",
+                "data": "client" 
+            }
+        )
     else:
         raise errors.ProjectAlreadyExists(f"A project with the ID {project_id} already exists")
 
