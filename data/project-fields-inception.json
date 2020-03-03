@@ -9,84 +9,84 @@
     "editable": true,
     "default": true,
     "fileDetails": []
-  },
-  {
-    "pk": "defaultField_inception",
-    "sk": "fieldIndex_2",
-    "id": "2",
-    "title": "Will any parts of the building / site be occupied during the works?",
-    "description": "This is asked to ensure that any plans will take into account any members of the public who might be moving around the building / site.",
-    "type": "dropdown",
-    "editable": true,
-    "default": true,
-    "fieldDetails": {
-      "dropdownOptions": [
-        {
-          "id": "1",
-          "name": "Yes"
-        },
-        {
-          "id": "2",
-          "name": "No"
-        }
-      ],
-      "optionOpensTextBox": "Yes"
-    }
-  },
-  {
-    "pk": "defaultField_inception",
-    "sk": "fieldIndex_3",
-    "id": "3",
-    "title": "Planned Start Date",
-    "description": "This is asked to ensure that the project starts on schedule.",
-    "type": "calendar",
-    "editable": true,
-    "default": true,
-    "fieldDetails": {}
-  },
-  {
-    "pk": "defaultField_inception",
-    "sk": "fieldIndex_4",
-    "id": "4",
-    "title": "Planned End Date",
-    "description": "This is asked to ensure that the project ends on schedule.",
-    "type": "calendar",
-    "editable": true,
-    "default": true,
-    "fieldDetails": {}
-  },
-  {
-    "pk": "defaultField_inception",
-    "sk": "fieldIndex_5",
-    "id": "5",
-    "title": "Will the project have any phasing requirements?",
-    "description": "This is asked to ensure that any plans will take into account any phasing requirements.",
-    "type": "dropdown",
-    "editable": true,
-    "default": true,
-    "fieldDetails": {
-      "dropdownOptions": [
-        {
-          "id": "1",
-          "name": "Yes"
-        },
-        {
-          "id": "2",
-          "name": "No"
-        }
-      ],
-      "optionOpensTextBox": "Yes"
-    }
-  },
-  {
-    "pk": "defaultField_inception",
-    "sk": "fieldIndex_6",
-    "id": "6",
-    "title": "Other Key Information",
-    "description": "This can be key dates, key stakeholders, or any additional information about the project that the project team could find helpful.",
-    "type": "longText",
-    "editable": true,
-    "default": true,
-    "fieldDetails": {}
   }
+  // {
+  //   "pk": "defaultField_inception",
+  //   "sk": "fieldIndex_2",
+  //   "id": "2",
+  //   "title": "Will any parts of the building / site be occupied during the works?",
+  //   "description": "This is asked to ensure that any plans will take into account any members of the public who might be moving around the building / site.",
+  //   "type": "dropdown",
+  //   "editable": true,
+  //   "default": true,
+  //   "fieldDetails": {
+  //     "dropdownOptions": [
+  //       {
+  //         "id": "1",
+  //         "name": "Yes"
+  //       },
+  //       {
+  //         "id": "2",
+  //         "name": "No"
+  //       }
+  //     ],
+  //     "optionOpensTextBox": "Yes"
+  //   }
+  // },
+  // {
+  //   "pk": "defaultField_inception",
+  //   "sk": "fieldIndex_3",
+  //   "id": "3",
+  //   "title": "Planned Start Date",
+  //   "description": "This is asked to ensure that the project starts on schedule.",
+  //   "type": "calendar",
+  //   "editable": true,
+  //   "default": true,
+  //   "fieldDetails": {}
+  // },
+  // {
+  //   "pk": "defaultField_inception",
+  //   "sk": "fieldIndex_4",
+  //   "id": "4",
+  //   "title": "Planned End Date",
+  //   "description": "This is asked to ensure that the project ends on schedule.",
+  //   "type": "calendar",
+  //   "editable": true,
+  //   "default": true,
+  //   "fieldDetails": {}
+  // },
+  // {
+  //   "pk": "defaultField_inception",
+  //   "sk": "fieldIndex_5",
+  //   "id": "5",
+  //   "title": "Will the project have any phasing requirements?",
+  //   "description": "This is asked to ensure that any plans will take into account any phasing requirements.",
+  //   "type": "dropdown",
+  //   "editable": true,
+  //   "default": true,
+  //   "fieldDetails": {
+  //     "dropdownOptions": [
+  //       {
+  //         "id": "1",
+  //         "name": "Yes"
+  //       },
+  //       {
+  //         "id": "2",
+  //         "name": "No"
+  //       }
+  //     ],
+  //     "optionOpensTextBox": "Yes"
+  //   }
+  // },
+  // {
+  //   "pk": "defaultField_inception",
+  //   "sk": "fieldIndex_6",
+  //   "id": "6",
+  //   "title": "Other Key Information",
+  //   "description": "This can be key dates, key stakeholders, or any additional information about the project that the project team could find helpful.",
+  //   "type": "longText",
+  //   "editable": true,
+  //   "default": true,
+  //   "fieldDetails": {}
+  // }
 ]
