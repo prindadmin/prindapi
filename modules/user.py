@@ -157,7 +157,7 @@ class User():
 
         return invitations
 
-    def get_signature_requests(self):     
+    def get_signature_requests(self):
 
         response = table.query(
             KeyConditionExpression=Key("pk").eq(f"user_{self.username}") 
@@ -186,6 +186,15 @@ class User():
                 page=item['pageName'], 
                 field_index=item['fieldID']
             )
+
+            this_field = field.Field(
+                project_id=item['projectID'], 
+                page_name=item['pageName'], 
+                field_index=item['fieldID']
+            )
+
+            item['fieldTitle'] = this_field.get()['title']
+
             document_version = this_document.get_version(0)
 
             item['filename'] = document_version.get('filename')
