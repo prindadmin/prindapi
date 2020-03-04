@@ -55,7 +55,7 @@ class Field():
                 default_field = response['Item']
                 return_field = default_field
             except KeyError:
-                raise FieldNotFound(f"No field was found for {self.project_id}/{self.page_name}/{self.field_index}")
+                raise errors.FieldNotFound(f"No field was found for {self.project_id}/{self.page_name}/{self.field_index}")
 
         else:
             return_field = populated_field

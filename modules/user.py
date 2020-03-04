@@ -361,6 +361,39 @@ class User():
             }
         )
 
+    def get_signed_documents(self):
+
+        response = table.query(
+            KeyConditionExpression=Key("pk").eq(f"user_{self.username}") & Key("sk").begins_with("signedDocument_")
+        )
+
+        items = response['Items']
+
+        for item in items:
+            field_string = item['sk'].split("_")[1]
+            item['projectID'] = field_string.split('/')[0]
+            item['pageName'] = field_string.split('/')[1]
+            item['fieldID'] = field_string.split('/')[2]
+
+            this_field = field.Field(
+                field_index=item['fieldID'],
+                page_name=item['pageName'], 
+                project_id=item['projectID'] 
+            )
+
+            item['fieldTitle'] = this_field.get()['title']
+
+            item['signedAt'] = datetime.utcfromtimestamp(item['signedAt']).isoformat()
+
+            item.pop('pk')
+            item.pop('sk')
+            item.pop('data')
+
+        return items
+
+
+
+
 def create_user(username, first_name=None, last_name=None, email_address=None):
 
     if first_name:

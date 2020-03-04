@@ -272,3 +272,9 @@ print(this_field.get_document_did())
 # get document field
 from modules import document
 document.get_document_field("did:fnds:7ce027a56933c1cee47c6d6199063047721db8b6088c6837571c0f7de00a7501")
+
+# get signed documents
+from modules import user
+username="ab0ae262-eedf-41c0-ac6e-e5109217b6c1"
+this_user = user.User(username)
+this_user.get_signed_documents()

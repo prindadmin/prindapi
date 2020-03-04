@@ -106,10 +106,13 @@ def lambda_handler(event, context):
 
             projects = authenticating_user.get_projects()
 
+            signed_documents = authenticating_user.get_signed_documents()
+
             status_code = 200
             return_body = dict(
                 documentVersions=document_versions,
-                projects=projects
+                projects=projects,
+                signedDocuments=signed_documents
             )
 
             print(return_body)
@@ -177,7 +180,7 @@ if __name__ == '__main__':
             "cognitoPoolClaims": {
                 #"sub": "aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaa"
                 #"sub": "778bd486-4684-482b-9565-1c2a51367b8c"
-                "sub": "a0c1bf48-52d0-4eb8-97ba-ed6cbaaff9ea"
+                "sub": "ab0ae262-eedf-41c0-ac6e-e5109217b6c1"
             }
         }
 
@@ -185,6 +188,6 @@ if __name__ == '__main__':
 
 
 
-    print(lambda_handler(event["get-signature-requests"], {}))
+    print(lambda_handler(event["get-history"], {}))
 
         
