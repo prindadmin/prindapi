@@ -3,6 +3,7 @@ import time
 import json
 import os
 import requests
+from datetime import datetime
 
 from botocore.exceptions import ClientError
 from boto3.dynamodb.conditions import Key, Attr
@@ -342,10 +343,23 @@ class User():
 
         return subscription_details
 
+    def add_signed_document(self, document_did, document_version, signed_at, entry_hash):
 
-
-
-
+        document_details = document.get_document_field(document_did)
+        
+        project_id = document_details['projectId']
+        page = document_details['page']
+        field = document_details['field']
+        
+        table.put_item(
+            Item={
+                "pk": f"user_{self.username}",
+                "sk": f"signedDocument_{project_id}/{page}/{field}_v{document_version}",
+                "data": datetime.utcnow().isoformat(),
+                "signedAt": signed_at,
+                "entryHash": entry_hash
+            }
+        )
 
 def create_user(username, first_name=None, last_name=None, email_address=None):
 

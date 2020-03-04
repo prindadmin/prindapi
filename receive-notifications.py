@@ -23,15 +23,14 @@ print('stage_log_level:', stage_log_level)
 log.set_logging_level(stage_log_level)
 
 from modules import user
+from modules import did as didmod
 
 def lambda_handler(event, context):
 
     for record in event["Records"]:
 
         message = json.loads(record["Sns"]["Message"])
-
-        print(message)
-        
+       
         # a user has signed up with a previously queried email address
         if message["notificationType"] == "signUp":
 
@@ -54,17 +53,28 @@ def lambda_handler(event, context):
 
         elif message["notificationType"] == "fieldRequestApproved":
             
-            pass
+            print("fieldRequestApproved notification received")
+            print(message)
 
         elif message["notificationType"] == "fieldRequestDenied":
 
-            pass
+            print("fieldRequestDenied notification received")
+            print(message)
 
         elif message["notificationType"] == "documentSigned":
 
-            pass
+            print(message['signingDid'])
+            did_obj = didmod.Did(message['signingDid'])
+            username = did_obj.get_cognito_username()
 
-       
+            this_user = user.User(username)
+            this_user.add_signed_document(
+                document_did=message['documentDid'], 
+                document_version=message['documentVersion'], 
+                signed_at=message['signedAt'], 
+                entry_hash=message['entryHash']
+            )
+
 if __name__ == '__main__':
 
     user_signup_notification = {
@@ -90,10 +100,12 @@ if __name__ == '__main__':
     }
 
     document_signed_notification = {
-        "notificationType" : "documentSigned",
-        "signingDid" : "did:fnds:161263516316213616236",
-        "documentDid" : "did:fnds:872346234623662142423",
-        "requesterReference" : "Prin-D",
+        'notificationType': 'documentSigned', 
+        'documentDid': 'did:fnds:b8349b4faeaa271333989c6c0e40f945d1d573d742eb0b5b909d0e330bc85bd7',
+        'documentVersion': 2,
+        'signingDid': 'did:fnds:31a24b270fe86d9c595e715854028c319cc75957718861eb66996929eb5c8025',
+        'signedAt': 1583326444,
+        'entryHash': '2129561f791410dca34c6ec2f4b89c8b55e4c9ff31176d0f267b277d7d1b8a63'
     }
 
     event = {

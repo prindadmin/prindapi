@@ -407,7 +407,7 @@ def get_document_field(document_did):
 
     try:
         item = response['Items'][0]
-    except KeyError:
+    except IndexError:
         raise errors.DocumentNotFound(f"A document was not found with the DID {document_did}")
 
     field_details = dict()
@@ -417,6 +417,7 @@ def get_document_field(document_did):
     field_details['field'] = item['pk'].split('_')[1].split('/')[2]
 
     return field_details
+
 
 if __name__ == "__main__":
 
