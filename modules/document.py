@@ -102,6 +102,8 @@ class Document():
 
         api_url=f"https://{api_id}.execute-api.eu-west-1.amazonaws.com/{api_stage}/sp/document-did/{self.document_did}/versions"
 
+        logger.info(f"api_url is {api_url}")
+
         params = {}
 
         response = requests.get(
@@ -110,9 +112,14 @@ class Document():
             headers={'Authorization': foundations_jwt}
         )
 
-        print(f"response from /sp/document-did/document_did/versions is", response.content.decode('utf-8'))
+        response_dict = json.loads(response.content.decode('utf-8'))
 
-        versions = json.loads(response.content.decode('utf-8')).get('body', {})
+        if response_dict.get("statusCode") != 200:
+            logger.error(f"error calling /sp/document-did/{self.document_did}/versions: {response_dict}")
+            raise errors.FoundationsApiError(f"error calling /sp/document-did/{self.document_did}/versions")
+        else:
+            logger.info(f"response from /sp/document-did/{self.document_did}/versions is {response_dict}")
+            versions = response_dict['body']
 
         logger.debug(log.function_end_output(locals()))  
 
@@ -124,6 +131,8 @@ class Document():
 
         api_url=f"https://{api_id}.execute-api.eu-west-1.amazonaws.com/{api_stage}/sp/document-did/{self.document_did}/version-signatures/{version}"
 
+        logger.info(f"api_url is {api_url}")
+
         params = {}
 
         response = requests.get(
@@ -131,8 +140,14 @@ class Document():
             params=params,
             headers={'Authorization': foundations_jwt}
         )
+        response_dict = json.loads(response.content.decode('utf-8'))    
 
-        signatures = json.loads(response.content.decode('utf-8'))['body']
+        if response_dict.get("statusCode") != 200:
+            logger.error(f"error calling /sp/document-did/{self.document_did}/version-signatures/{version}: {response_dict}")
+            raise errors.FoundationsApiError(f"error calling /sp/document-did/{self.document_did}/version-signatures/{version}")
+        else:
+            logger.info(f"response from /sp/document-did/{self.document_did}/version-signatures/{version} is {response_dict}")
+            signatures = response_dict['body']
 
         logger.debug(log.function_end_output(locals()))  
 
@@ -220,12 +235,14 @@ class Document():
 
         api_url=f"https://{api_id}.execute-api.eu-west-1.amazonaws.com/{api_stage}/sp/document-did/{self.document_did}/update"
 
+        logger.info(f"api_url is: {api_url}")
+
         params = {
             "documentHash": file_hash,
             "requesterReference": "File Uploader"
         }
-
-        print(params)
+        
+        logger.info(f"params are: {params}")
 
         response = requests.post(
             api_url,
@@ -233,21 +250,15 @@ class Document():
             headers={'Authorization': foundations_jwt}
         )
 
-
         response_dict = json.loads(response.content.decode('utf-8'))
 
-        if not response.status_code == 202:
-            
-            print("status code was", response.status_code)
-            print("response content was", response_dict)
-            
-            raise Exception('API call failed')
-        
-
-        print(response_dict)
+        if response_dict.get("statusCode") != 202:
+            logger.error(f"error calling /sp/document-did/{self.document_did}/update: {response_dict}")
+            raise errors.FoundationsApiError(f"error calling /sp/document-did/{self.document_did}/update")
+        else:
+            logger.info(f"response from /sp/document-did/{self.document_did}/update is {response_dict}")
 
         document_version_number = response_dict['body']['documentVersionNumber']
-
         datetime_suffix = datetime.utcnow().isoformat()
         
         # Prin-D database entries
@@ -292,13 +303,15 @@ def create(
     # Foundations API call
     api_url=f"https://{api_id}.execute-api.eu-west-1.amazonaws.com/{api_stage}/sp/document/create"
 
-    print('api url:', api_url)
+    logger.info(f"api_url is: {api_url}")
 
     params = {
         "documentName": document_name,
         "documentHash": file_hash,
         "requesterReference": "File Uploader"
     }
+
+    logger.info(f"params are: {params}")
 
     response = requests.post(
         api_url,
@@ -308,15 +321,12 @@ def create(
 
     response_dict = json.loads(response.content.decode('utf-8'))
 
-    print('response_dict:', response_dict)
-
-    if not response.status_code == 202:
-        
-        print("status code was", response.status_code)
-        print("response content was", response_dict)
-        
-        raise Exception('API call failed')
-    
+    if response_dict.get("statusCode") != 202:
+        logger.error(f"error calling /sp/document/create: {response_dict}")
+        raise errors.FoundationsApiError(f"error calling /sp/document/create")
+    else:
+        logger.info(f"response from /sp/document/create is {response_dict}")
+      
     document_did = response_dict['body']['documentDid']
 
     datetime_suffix = datetime.utcnow().isoformat()

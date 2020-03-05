@@ -104,17 +104,12 @@ class User():
 
         response_dict = json.loads(response.content.decode('utf-8'))
       
-        logger.debug(response_dict)
-
-        try: 
-            status_code = response_dict["statusCode"]
-        except KeyError:
-            status_code = 500
-
-        if status_code != 200:
-            print(response_dict)
+        if response_dict.get("statusCode") != 200:
+            logger.error(f"error calling /sp/email-address/{self.email_address}/get-did: {response_dict}")
             raise errors.DIDNotFound(f"A DID was not found for the email address {self.email_address}")
             
+        logger.info(f"response from /sp/email-address/{self.email_address}/get-did is {response_dict}")
+
         did = response_dict["body"]["did"]
 
         self.write_did(did)
@@ -296,12 +291,10 @@ class User():
 
         response_dict = json.loads(response.content.decode('utf-8'))
 
-        logger.debug("response_dict was:", response_dict)
-
-        if response_dict["statusCode"] != 201:
-            logger.debug("There was an error requesting the subscription")
+        if response_dict.get("statusCode") != 201:
+            logger.error(f"error calling /sp/subscription/{user_did}: {response_dict}")
         else:
-            logger.debug("subscription was requested")
+            logger.info(f"response from /sp/subscription/{user_did} is {response_dict}")
 
         logger.debug(log.function_end_output(locals()))  
 
@@ -328,18 +321,15 @@ class User():
 
         response_dict = json.loads(response.content.decode('utf-8'))
 
-        logger.debug("response_dict was:", response_dict)
-
-        if response_dict["statusCode"] != 200:
-            logger.debug("There was an error getting the subscription")
+        if response_dict.get("statusCode") != 200:
+            logger.error(f"error calling /sp/subscription/{user_did} is {response_dict}")
+            subscription_details = None
         else:
-            logger.debug("subscription API returned normally")
+            logger.info(f"response from /sp/subscription/{user_did} is {response_dict}")
+            subscription_details = response_dict['body']
+            subscription_details['foundationsId'] = user_did
 
         logger.debug(log.function_end_output(locals()))
-
-        subscription_details = response_dict['body']
-
-        subscription_details['foundationsId'] = user_did  
 
         return subscription_details
 

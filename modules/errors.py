@@ -104,5 +104,10 @@ class DocumentVersionExists(ApplicationError):
     def __init__(self, message):
         ApplicationError.__init__(self, message, "DOCUMENT_VERSION_EXISTS", "0017")
 
+# Foundations API Call Error
+class FoundationsApiError(ApplicationError):
+    def __init__(self, message):
+        ApplicationError.__init__(self, message, "FOUNDATIONS_API_ERROR", "0018")
+
 
 

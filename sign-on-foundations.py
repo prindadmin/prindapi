@@ -2,6 +2,7 @@ import boto3
 import os
 import time
 import requests
+import json
 
 from modules import errors
 from modules import document
@@ -50,11 +51,13 @@ def lambda_handler(event, context):
 
         api_url=f"https://{api_id}.execute-api.eu-west-1.amazonaws.com/{api_stage}/sp/document-did/{document_obj.document_did}/signing-request/{document_version}"
 
+        logger.info(f"api_url is: {api_url}")
+
         params = {
             "signingDid": this_user.get_did()
         }
 
-        print(params)
+        logger.info(f"params: {params}")
 
         response = requests.post(
             api_url,
@@ -62,12 +65,13 @@ def lambda_handler(event, context):
             headers={'Authorization': foundations_jwt}
         )
 
-        if not response.status_code == 201:
-            
-            print("status code was", response.status_code)
-            print("response content was", response_dict)
-            
-            raise Exception('API call failed')
+        response_dict = json.loads(response.content.decode('utf-8'))
+
+        if response_dict.get("statusCode") != 201:
+            logger.error(f"error calling /sp/document-did/{document_obj.document_did}/signing-request/{document_version}: ")
+            raise errors.FoundationsApiError(f"error calling /sp/document-did/{document_obj.document_did}/signing-request/{document_version}")
+        else:
+            logger.info(f"response from /sp/document-did/{document_obj.document_did}/signing-request/{document_version} is {response_dict}")
   
         table.delete_item(
             Key={    
