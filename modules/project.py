@@ -121,7 +121,8 @@ class Project():
             Item={    
                 "pk": f"user_{user_to_add}",
                 "sk": f"role_{self.project_id}",
-                "data": assigned_role.role_id 
+                "data": assigned_role.role_id,
+                "dateJoined": str(int(time.time()))
             }
         )
 
@@ -326,6 +327,7 @@ def get_user_projects(username):
         item['projectId'] = project_id
         item['projectName'] = Project(project_id).project_name
         item['roleName'] = role.Role(role_id).role_name
+        item['dateTime'] = item.pop('dateJoined', '0000000000')
 
         project_roles.append(item)
 
