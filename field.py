@@ -9,6 +9,7 @@ from modules import page
 from modules import auth
 from modules import document
 from modules import field as field
+from modules import project
 
 from botocore.exceptions import ClientError
 from boto3.dynamodb.conditions import Key, Attr
@@ -45,6 +46,11 @@ def lambda_handler(event, context):
         title = event['body'].get('title')
         description = event['body'].get('description') 
         editable = event['body'].get('editable')
+        authenticating_username = event['cognitoPoolClaims']['sub']
+        this_project = project.Project(project_id)
+
+        if not this_project.user_in_roles(authenticating_username, ["*"]):
+            raise errors.InsufficientPermission("You do not have permission to update a field on this project")
 
         this_page = page.Page(page=page_name, project_id=project_id)
         this_field = field.Field(field_index=field_index, page_name=page_name, project_id=project_id)
@@ -55,8 +61,6 @@ def lambda_handler(event, context):
         print(this_field_value)
 
         if field_type == "file":
-
-            authenticating_username = event['cognitoPoolClaims']['sub']
 
             s3_bucket_name = os.environ.get("S3_BUCKET_NAME", "prind-portal-user-files-dev")
             s3_bucket_arn = os.environ.get("S3_BUCKET_ARN", "arn:aws:s3:::prind-portal-user-files-dev")

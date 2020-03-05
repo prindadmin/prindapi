@@ -1,5 +1,11 @@
 [
   {
+    "pk": "role_creator",
+    "sk": "role-name",
+    "data": "Creator"
+
+  },
+  {
     "pk": "role_client",
     "sk": "role-name",
     "data": "Client"

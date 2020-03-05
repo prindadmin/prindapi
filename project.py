@@ -28,9 +28,7 @@ def lambda_handler(event, context):
         resource_path = event['requestPath']
         http_method = event['method']
 
-        print(event)
-
-        print(http_method == "GET" and resource_path.endswith("list"))
+        authenticating_username = event['cognitoPoolClaims']['sub']
 
         # list projects
         if http_method == "GET" and resource_path.endswith("list"):
@@ -45,6 +43,9 @@ def lambda_handler(event, context):
         elif http_method == "GET" and resource_path.endswith("members"):
 
             this_project = project.Project(event['path']['project_id'])
+
+            if not this_project.user_in_roles(authenticating_username, ["*"]):
+                raise errors.InsufficientPermission("You do not have permission to view the members of this project")
 
             project_roles = this_project.get_roles()
 
@@ -80,6 +81,9 @@ def lambda_handler(event, context):
             
             this_project = project.Project(unquote(event['path']['project_id']))
 
+            if not this_project.user_in_roles(authenticating_username, ["*"]):
+                raise errors.InsufficientPermission("You do not have permission to view the details of this project")
+
             return_body = {
                 "projectId": this_project.project_id,
                 "projectName": this_project.project_name,
@@ -99,8 +103,6 @@ def lambda_handler(event, context):
         # create project
         elif http_method == "POST" and resource_path.endswith("create"):
 
-            authorizing_username = event['cognitoPoolClaims']['sub']
-
             site_address = {
                "projectAddressLine1": event["body"].get("projectAddressLine1"),
                "projectAddressLine2": event["body"].get("projectAddressLine2"),
@@ -114,7 +116,7 @@ def lambda_handler(event, context):
             
             project_dict = project.create_project(
                 project_name=event["body"].get('projectName'),
-                project_creator=authorizing_username,
+                project_creator=authenticating_username,
                 project_description=event["body"].get('projectDescription'),
                 project_reference=event["body"].get('projectReference'),
                 site_address=site_address,
@@ -127,6 +129,9 @@ def lambda_handler(event, context):
         elif http_method == "POST" and resource_path.endswith("update"):
             
             this_project = project.Project(unquote(event['path']['project_id']))
+
+            if not this_project.user_in_roles(authenticating_username, ["*"]):
+                raise errors.InsufficientPermission("You do not have permission to update this project")
 
             site_address = {
                "projectAddressLine1": event["body"].get("projectAddressLine1"),
@@ -155,10 +160,12 @@ def lambda_handler(event, context):
 
             body = event['body']
             this_project = project.Project(unquote(event['path']['project_id']))
-            authorizing_username = event['cognitoPoolClaims']['sub']
 
+            if not this_project.user_in_roles(authenticating_username, ["*"]):
+                raise errors.InsufficientPermission("You do not have permission to invite members to this project")
+   
             this_project.invite_user(
-                requesting_user_name=authorizing_username,
+                requesting_user_name=authenticating_username,
                 invitee_email=event['body']['emailAddress'],
                 role_id=event['body']['roleId']
             )
@@ -173,10 +180,12 @@ def lambda_handler(event, context):
 
             body = event['body']
             this_project = project.Project(unquote(event['path']['project_id']))
-            authorizing_username = event['cognitoPoolClaims']['sub']
+
+            if not this_project.user_in_roles(authenticating_username, ["*"]):
+                raise errors.InsufficientPermission("You do not have permission to remove members from this project")
 
             this_project.remove_user(
-                requesting_user_name=authorizing_username,
+                requesting_user_name=authenticating_username,
                 user_to_remove=event['body']['username']
             )
 
@@ -187,10 +196,9 @@ def lambda_handler(event, context):
         elif http_method == "POST" and resource_path.endswith("respond-to-invitation"):
 
             this_project = project.Project(unquote(event['path']['project_id']))
-            authorizing_username = event['cognitoPoolClaims']['sub']
 
             this_project.respond_to_invitation(
-                username=authorizing_username,
+                username=authenticating_username,
                 accepted=event['body']['accepted']
             )
 

@@ -50,12 +50,12 @@ class Project():
 
         logger.debug(log.function_end_output(locals()))  
 
-    def get_user_role(self, user_name):
+    def get_user_role(self, username):
 
 
         response = table.get_item(
             Key={
-                "pk": f"user_{user_name}",
+                "pk": f"user_{username}",
                 "sk": f"role_{self.project_id}"
             }
         )
@@ -67,7 +67,7 @@ class Project():
         except:
             return None
 
-    def user_has_permission(self, user_name):
+    def user_has_permission(self, username):
 
         project_owner = self.get_owner()
 
@@ -75,13 +75,32 @@ class Project():
 
         logger.debug(log.function_end_output(locals()))  
 
-        if project_owner == user_name:
+        if project_owner == username:
             return True
-        elif self.get_user_role(user_name):
+        elif self.get_user_role(username):
             return True
         else:
            return False
 
+    def user_in_roles(self, username, allowed_roles=["*"]):
+
+        if not isinstance(allowed_roles, list):
+            raise Exception('allowed_roles should be a list')
+
+        users_role = self.get_user_role(username)
+
+        # if ["*"] is specified, return true if a role is returned
+        if allowed_roles == ["*"]:
+            if users_role:
+                return True
+            else:
+                return False
+
+        # otherwise return true only if the role is in the list
+        if users_role in allowed_roles:
+            return True
+        else:
+            return False
 
     def get_roles(self):
         
@@ -135,10 +154,6 @@ class Project():
             role_id
         ):
 
-        # check if requesting user is the owner of the project, or has a role on the project
-        if not self.user_has_permission(requesting_user_name):
-           raise errors.InsufficientPermission("Requesting user does not have permission to add a role to this project")
-
         response = table.query(
             IndexName="GSI1",
             KeyConditionExpression=(Key("sk").eq("userDetails_emailAddress") & Key("data").eq(invitee_email))
@@ -182,10 +197,6 @@ class Project():
             requesting_user_name,
             user_to_remove
         ):
-
-        # check if requesting user is the owner of the project, or has a role on the project
-        if not self.user_has_permission(requesting_user_name):
-           raise errors.InsufficientPermission("Requesting user does not have permission to remove a member from this project")
 
         # remove any invitations
         table.delete_item(
@@ -407,7 +418,7 @@ def create_project(
             Item={    
                 "pk": f"user_{project_owner.username}",
                 "sk": f"role_{project_id}",
-                "data": "client" 
+                "data": "creator" 
             }
         )
     else:

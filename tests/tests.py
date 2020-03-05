@@ -278,3 +278,8 @@ from modules import user
 username="ab0ae262-eedf-41c0-ac6e-e5109217b6c1"
 this_user = user.User(username)
 this_user.get_signed_documents()
+
+from modules import project
+username="ab0ae262-eedf-41c0-ac6e-e5109217b6c1"
+this_project = project.Project("TestingProjectCreatorRole2020-03-03")
+this_project.user_in_roles(username, ["creator"])

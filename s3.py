@@ -28,31 +28,27 @@ log.set_logging_level(stage_log_level)
 
 def lambda_handler(event, context):
 
-    #jwt_token = event['headers']['Authorization']
-
     try:
         resource_path = event['requestPath']
         http_method = event['method']
 
-        print(event)
+        authenticating_username = event['cognitoPoolClaims']['sub']
+        logger.info(f"event is {event}")
 
         if http_method == "GET" and resource_path.endswith("get-sts"):
 
-            cognito_username = event['cognitoPoolClaims']['sub']
-            s3_bucket_arn = os.environ['S3_BUCKET_ARN']
+            project_id = event['path']['project_id']
+            this_project=project.Project(project_id)
+            
+            if not this_project.user_in_roles(authenticating_username, ["*"]):
+                raise errors.InsufficientPermission("You do not have permission to upload files on this project")
 
-            print(cognito_username)
+            s3_bucket_arn = os.environ['S3_BUCKET_ARN']
 
             # #Connect to the STS system
             client = boto3.client('sts')
-
-            project_id = event['path']['project_id']
             page_name = event['path']['page']
-
             this_page = page.Page(page_name, project_id)
-
-            if not this_page.user_has_permission(cognito_username):
-                raise errors.InsufficientPermission('User does not have permission to this project')
 
             #Create the policy to allow users to add files to their s3 bucket
             policy = json.dumps({
@@ -70,7 +66,7 @@ def lambda_handler(event, context):
                 ]
             })
 
-            print(policy)
+            logger.info(f"created policy is {policy}")
             
             #Get tokens for user to assume the role
             response = client.assume_role(
@@ -80,16 +76,6 @@ def lambda_handler(event, context):
                 DurationSeconds = 3600
             )
                   
-            # except Exception as e:
-            #     print(e)
-                
-            #     return {"Error" : "Internal server error when getting STS Token"}, 500
-
-            # return {
-            #     "cognitoUsername": cognito_username,
-            #     "s3BucketArn": s3_bucket_arn
-            # }
-
             return_dict = {
                 "SessionToken" : response["Credentials"]["SessionToken"],
                 "Expiration" : response["Credentials"]["Expiration"].timestamp(),
@@ -102,19 +88,20 @@ def lambda_handler(event, context):
 
         elif http_method == "GET" and resource_path.endswith("get-file-url"):
 
-            cognito_username = event['cognitoPoolClaims']['sub']
+            project_id = unquote(event['path']['project_id'])
+            this_project = project.Project(project_id)
+
+            if not this_project.user_in_roles(authenticating_username, ["*"]):
+                raise errors.InsufficientPermission("You do not have permission to download files on this project")
+
             s3_bucket_arn = os.environ['S3_BUCKET_ARN']
             s3_bucket_name = os.environ.get("S3_BUCKET_NAME", "prind-portal-user-files-dev")
-
-            print(cognito_username)
-
-            # #Connect to the STS system
-            s3_client = boto3.client('s3')
-
-            project_id = unquote(event['path']['project_id'])
             page_name = unquote(event['path']['page'])
             field_index = event['path']['field_index']
             version = event['path']['version']
+
+            # #Connect to the STS system
+            s3_client = boto3.client('s3')
 
             this_document = document.Document(
                 project_id=project_id, 
@@ -122,14 +109,9 @@ def lambda_handler(event, context):
                 field_index=field_index
             )
 
-            this_project = project.Project(project_id)
-
             s3_version = this_document.get_version(version)['s3VersionId']
 
             logger.info(f"s3_version is : {s3_version}")
-
-            if not this_project.user_has_permission(cognito_username):
-                raise errors.InsufficientPermission('User does not have permission to this project')
 
             # Create the policy to allow users to add files to their s3 bucket
             object_name = f"{project_id}/{page_name}/{field_index}"
@@ -148,13 +130,9 @@ def lambda_handler(event, context):
             return_body = url
 
         elif http_method == "GET" and resource_path.endswith("/get-sts/profile-avatar"):
-
-            cognito_username = event['cognitoPoolClaims']['sub']
             
             # TODO: New bucket ARN required
             s3_user_profiles_bucket_arn = os.environ['S3_USER_PROFILES_BUCKET_ARN']
-
-            print(cognito_username)
 
             # #Connect to the STS system
             client = boto3.client('sts')
@@ -170,12 +148,12 @@ def lambda_handler(event, context):
                             "s3:PutObject",
                             "s3:GetObject"
                         ],
-                        "Resource": [f"{s3_user_profiles_bucket_arn}/profile-avatar/{cognito_username}"]
+                        "Resource": [f"{s3_user_profiles_bucket_arn}/profile-avatar/{authenticating_username}"]
                     }
                 ]
             })
 
-            print(policy)
+            logger.info(f"created policy is {policy}")
             
             #Get tokens for user to assume the role
             response = client.assume_role(
@@ -185,11 +163,6 @@ def lambda_handler(event, context):
                 DurationSeconds = 3600
             )
                   
-            # except Exception as e:
-            #     print(e)
-                
-            #     return {"Error" : "Internal server error when getting STS Token"}, 500
-
             return_dict = {
                 "SessionToken" : response["Credentials"]["SessionToken"],
                 "Expiration" : response["Credentials"]["Expiration"].timestamp(),

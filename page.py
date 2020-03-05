@@ -4,6 +4,7 @@ import os
 
 from modules import errors
 from modules import page
+from modules import project
 
 from botocore.exceptions import ClientError
 from boto3.dynamodb.conditions import Key, Attr
@@ -31,6 +32,11 @@ def lambda_handler(event, context):
 
         project_id = unquote(event['path']['project_id'])
         page_name = unquote(event['path']['page'])
+        authenticating_username = event['cognitoPoolClaims']['sub']
+        this_project = project.Project(project_id)
+
+        if not this_project.user_in_roles(authenticating_username, ["*"]):
+            raise errors.InsufficientPermission("You do not have permission to load a page from this project")
 
         try:
             this_page = page.Page(page=page_name, project_id=project_id)
