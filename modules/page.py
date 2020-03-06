@@ -88,12 +88,23 @@ class Page():
         populated_fields = self.get_populated_fields()
         resultant_fields = []
 
+        # resultant pre-defined fields
         for default in self.default_fields:
             try:
                 value_for_this_index = populated_fields[default['id']]
                 resultant_fields.append(value_for_this_index)
             except KeyError:
                 resultant_fields.append(default)
+
+        print(f"populated_fields {populated_fields}")
+        print(f"resultant_fields {resultant_fields}")
+
+        # add any additional custom fields
+        custom_fields = [f for f in populated_fields.values() if f not in resultant_fields]
+
+        print(custom_fields)
+
+        resultant_fields = resultant_fields + custom_fields
 
         logger.debug(log.function_end_output(locals()))  
 
@@ -121,7 +132,7 @@ class Page():
 
         existing_field = response.get('Item')
 
-        logger.debug(existing_field)
+        logger.info(f"existing_field is: {existing_field}")
 
         try:
             default_field = self.default_fields[int(field_index)-1]
@@ -135,7 +146,7 @@ class Page():
             default_values = default_field
             # don't try to change the field type if a default exists
             if field_type != default_field['type']:
-                raise Exception('The field type does not match the default')
+                raise errors.InvalidFieldType('The field type does not match the default')
         else:
             default_values = {}
 
@@ -146,12 +157,14 @@ class Page():
             "fieldDetails": field_data
         }
 
-        for key in optional_args.keys():
-            if not optional_args[key]: 
-                optional_args[key] = default_values.get(key)
-
+        for arg in optional_args.keys():
+            if not optional_args[arg]: 
+                try:
+                    optional_args[arg] = default_values[arg]
+                except KeyError:
+                    raise errors.MissingRequiredFields(f"{arg} does not have a value for this field")
      
-        logger.debug(optional_args)
+        logger.info(f"optional_args are: {optional_args}")
 
         table.put_item(
             Item={

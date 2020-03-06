@@ -54,11 +54,24 @@ def lambda_handler(event, context):
 
         this_page = page.Page(page=page_name, project_id=project_id)
         this_field = field.Field(field_index=field_index, page_name=page_name, project_id=project_id)
-        this_field_value = this_field.get() 
 
-        field_type = this_field_value["type"]
+        try:
+            existing_field = this_field.get()
+        except errors.FieldNotFound:
+            # this is a custom field
+            try:
+                field_type = event['body']['type']
+            except KeyError:
+                raise errors.MissingRequiredFields("type needs to be specified for a custom field")
 
-        print(this_field_value)
+            if not field_data: field_data = {}
+            if not description: description = "."
+            if not editable: editable = True
+            if not title: title = "New Custom Field"
+
+        else:
+            field_type = existing_field["type"]
+
 
         if field_type == "file":
 
@@ -223,9 +236,10 @@ if __name__ == '__main__':
             "path": {
                 "project_id": "NewDayNewProject2020-03-05",
                 "page": "inception",
-                "field_index": 1
+                "field_index": 2
             },
             "body": {
+                "type": "file",
                 "fieldDetails": {
                     "filename": "test.pdf",
                     "tags": []

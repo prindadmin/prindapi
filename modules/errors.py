@@ -109,5 +109,9 @@ class FoundationsApiError(ApplicationError):
     def __init__(self, message):
         ApplicationError.__init__(self, message, "FOUNDATIONS_API_ERROR", "0018")
 
+class MissingRequiredFields(ApplicationError):
+    def __init__(self, message):
+        ApplicationError.__init__(self, message, "MISSING_REQUIRED_FIELDS", "0019")
+
 
 

@@ -77,7 +77,6 @@ class Document():
 
         item.pop('pk')
         item.pop('sk')
-        item.pop('data', None)
 
         # use the value in 'data' for uploadedBy 
         # if it exists
@@ -195,7 +194,7 @@ class Document():
 
             try:
                 uploaded_by_username = prind_version_info['uploadedBy']
-               
+
                 try:
                     uploaded_by_user = user.User(uploaded_by_username)
                     uploaded_by_fullname = f"{uploaded_by_user.first_name} {uploaded_by_user.last_name}"
