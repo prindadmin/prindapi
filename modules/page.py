@@ -98,24 +98,6 @@ class Page(project.Project):
 
         return resultant_fields
 
-    def get_field(self, field_index):
-
-        return_field = None
-
-        for field in self.get_resultant_fields():
-
-            print(field)
-
-            if int(field['id']) == field_index:
-
-                return_field = field
-                break
-
-        if not return_field:
-            raise errors.FieldNotFound(f'The field at index {field_index} was not found')
-
-        return return_field 
-
     def write_field(self, field_index, field_type, field_data=None, title=None, description=None, editable=None):
 
         """

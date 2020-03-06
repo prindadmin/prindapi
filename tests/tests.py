@@ -124,11 +124,6 @@ from modules import page
 this_page = page.Page('inception', 'ProjectNumberFour')
 print(this_page.default_fields)
 
-# get field
-from modules import page
-this_page = page.Page('inception', 'ProjectNumberFour')
-print(this_page.get_field(1))
-
 # get field (field module)
 from modules import field
 myfield = field.Field(project_id="ProjectNumberSix", page_name="inception", field_index=1)
