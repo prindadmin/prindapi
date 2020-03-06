@@ -21,7 +21,7 @@ except:
 dynamodb = boto3.resource("dynamodb")
 table = dynamodb.Table(os.environ["TABLE_NAME"])
 
-class Page(project.Project):
+class Page():
 
     def __init__(self, page, project_id):
 
@@ -42,6 +42,7 @@ class Page(project.Project):
 
 
         self.page_name = page
+        self.project_id = project_id
         self.default_fields = items
 
         logger.debug(log.function_end_output(locals()))  
@@ -167,31 +168,3 @@ class Page(project.Project):
         )
 
         logger.debug(log.function_end_output(locals()))  
-
-
-    # def write_document_field(self, field_index, document_did, title=None, description=None, editable=None):
-
-    #     field_data = {
-    #         "documentDid": document_did 
-    #     }
-
-    #     self.write_field(
-    #         field_index=field_index, 
-    #         field_type='file', 
-    #         field_data=field_data, 
-    #         title=title, 
-    #         description=description, 
-    #         editable=editable
-    #     )
-
-    #     logger.debug(log.function_end_output(locals()))  
-
-            
-
-
-
-
-
-
-
-

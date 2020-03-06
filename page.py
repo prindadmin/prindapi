@@ -70,8 +70,11 @@ def lambda_handler(event, context):
 if __name__ == '__main__':
 
     event = {
+        "cognitoPoolClaims": {
+            "sub": "ab0ae262-eedf-41c0-ac6e-e5109217b6c1"
+        },
         "path": {
-            "project_id": "TestProjectInTheNewFormat2020-03-03",
+            "project_id": "NewDayNewProject2020-03-05",
             "page": "inception"
         }
     }

@@ -201,16 +201,16 @@ if __name__ == '__main__':
             }
         },
         "get-file-url": {
-            "requestPath": "/project/ProjectNumberFour/inception/1/1/get-file-url",
+            "requestPath": "/project/NewDayNewProject2020-03-05/inception/1/1/get-file-url",
             "method": "GET", 
             "path": {
-                "project_id": "BenTest12020-02-26",
+                "project_id": "NewDayNewProject2020-03-05",
                 "page": "inception",
                 "field_index": 1,
-                "version": 2
+                "version": 1
             },
             "cognitoPoolClaims": {
-                "sub": "778bd486-4684-482b-9565-1c2a51367b8c"
+                "sub": "ab0ae262-eedf-41c0-ac6e-e5109217b6c1"
             }
         },
         "get-sts-profile-avatar": {
@@ -223,6 +223,6 @@ if __name__ == '__main__':
         }
     }
 
-    print(lambda_handler(event["get-sts-profile-avatar"], {}))
+    print(lambda_handler(event["get-file-url"], {}))
         
 
