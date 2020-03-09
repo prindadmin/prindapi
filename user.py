@@ -30,9 +30,9 @@ def lambda_handler(event, context):
         # get project invitatons
         if http_method == "GET" and resource_path.endswith("get-project-invitations"):
             
-            authorizing_username = event['cognitoPoolClaims']['sub']
+            authenticating_username = event['cognitoPoolClaims']['sub']
 
-            this_user = user.User(authorizing_username)
+            this_user = user.User(authenticating_username)
 
             invitations = this_user.get_project_invitations()
 
@@ -41,10 +41,9 @@ def lambda_handler(event, context):
 
         elif http_method == "GET" and resource_path.endswith("get-accessible-projects"):
 
-            #jwt_token = event['headers']['Authorization']
-            cognito_username = event['cognitoPoolClaims']['sub']
+            authenticating_username = event['cognitoPoolClaims']['sub']
 
-            this_user = user.User(cognito_username)
+            this_user = user.User(authenticating_username)
 
             projects = this_user.get_projects()
                  

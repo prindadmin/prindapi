@@ -437,26 +437,3 @@ def create_user(username, first_name=None, last_name=None, email_address=None):
 
     logger.debug(log.function_end_output(locals()))  
 
-# def list_all_users():
-
-#     response = table.query(
-#         IndexName="GSI1", 
-#         KeyConditionExpression=Key("sk").eq("userDetails")
-#     )
-
-#     items = response['Items']
-
-
-#     users = []
-
-#     for item in items:
-#         print('item')
-#         item['username'] = item.pop('pk').split('user_')[1]
-#         item.pop('sk')
-#         item['name'] = item.pop('data')
-        
-#         users.append(item)
-
-#     return users
-
-

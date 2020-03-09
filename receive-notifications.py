@@ -40,16 +40,19 @@ def lambda_handler(event, context):
                 KeyConditionExpression=Key("sk").eq("userDetails_emailAddress")&Key("data").eq(message["emailAddress"])
             )
 
-            username = response['Items'][0].get('pk').split("user_")[1]
+            try:
+                username = response['Items'][0].get('pk').split("user_")[1]
+            except IndexError:
+                logger.error(f"A user was not found that matched the email address {message['emailAddress']} in the notification")
+            else:
+                did = message["foundationsId"]
 
-            did = message["foundationsId"]
+                logger.info(f"Adding FoundationsId {did} for username {username}")
 
-            print(f"Adding FoundationsId {foundationsId} for username {username}")
+                this_user = user.User(username)
+                this_user.write_did(did)
 
-            this_user = user.User(username)
-            this_user.write_did(did)
-
-            this_user.add_foundations_subscription()
+                this_user.add_foundations_subscription()
 
         elif message["notificationType"] == "fieldRequestApproved":
             
@@ -79,7 +82,7 @@ if __name__ == '__main__':
 
     user_signup_notification = {
         "notificationType": "signUp",
-        "emailAddress": "mr.simon.hunt+test14@gmail.com",
+        "emailAddress": "mr.simon.hunt+test1@gmail.com",
         "foundationsId": "did:fnds:161263516316213616236"
     }
 
@@ -119,7 +122,7 @@ if __name__ == '__main__':
             "MessageId": "ecab1301-9135-5c53-bf7b-45c4540ad715",
             "TopicArn": "arn:aws:sns:eu-west-1:514296467270:d85be1f5baa83fa83850d8b58731a7f7c8ba65c33dec107c2e16e0dd65c7bcc7",
             "Subject": None,
-            "Message": json.dumps(document_signed_notification),
+            "Message": json.dumps(user_signup_notification),
             "Timestamp": "2020-02-18T10:57:03.487Z",
             "SignatureVersion": "1",
             "Signature": "ayqaWSNdyBVO5hl3sQ/PIT3IUSCAPBCrMIdSPoDMxLmF2EVgFGz3xGkHBEKyJbeutr40b5+IXrIJKlq1X0mZ4Nsn9shtcJMNnlVxGV6584n4s6WiJq5kkuDyHcFVpOTuuMfF34W2XGx7dcNcrcMYZb89IrS8VRk00cp4RXfiWTEZyaKn21+Akw7LTUP55JmlJzkVWtugHZmZKt19haEA9CInsWDga8G/hldx2ZkSTJzPjyUUqwxt+2eJHAugZjyP6Lenv2ri638+21mEOVvdiNWUlqes7olPDowRNoFI+e8DULET5L2PUfKxlr91Vr4/ldef46SRUnqBI19XMhCrbw==",

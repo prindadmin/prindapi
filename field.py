@@ -75,15 +75,13 @@ def lambda_handler(event, context):
 
         if field_type == "file":
 
-            s3_bucket_name = os.environ.get("S3_BUCKET_NAME", "prind-portal-user-files-dev")
-            s3_bucket_arn = os.environ.get("S3_BUCKET_ARN", "arn:aws:s3:::prind-portal-user-files-dev")
+            s3_bucket_name = os.environ.get("S3_BUCKET_NAME")
+            s3_bucket_arn = os.environ.get("S3_BUCKET_ARN")
             api_id = os.environ["FOUNDATIONS_API_ID"]
             sp_did = os.environ["SP_DID"]
             api_stage = os.environ["FOUNDATIONS_API_STAGE"]
 
             s3_key = f"{project_id}/{page_name}/{field_index}"
-
-            print(s3_key)
 
             foundations_jwt = auth.get_foundations_jwt(sp_did)
 
@@ -119,7 +117,7 @@ def lambda_handler(event, context):
             uploaded_file = response['Body']
             s3_version_id = response['VersionId']
 
-            print("s3_version_id is:", s3_version_id)
+            logger.info(f"s3_version_id is: {s3_version_id}")
 
             file_bytes = uploaded_file.read()    
             file_hash = hashlib.sha256(file_bytes).hexdigest();
@@ -160,8 +158,6 @@ def lambda_handler(event, context):
                     filename
                 )
 
-            
-        # else: # this is not a file field
 
         this_page.write_field(
             field_index=field_index, 
