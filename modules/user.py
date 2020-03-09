@@ -140,10 +140,15 @@ class User():
 
             item.pop("pk")
             project_id = item.pop("sk").split("roleInvitation_")[1]
+            this_project = project.Project(project_id)
+
+            if not this_project.active:
+                continue
+
             item["projectId"] = project_id
             item["roleId"] = item.pop('data')
 
-            item["projectName"] = project.Project(project_id).project_name
+            item["projectName"] = this_project.project_name
             requesting_user_obj = User(item["requestedBy"])
             item["requestedByUser"] = f"{requesting_user_obj.first_name} {requesting_user_obj.last_name}"
 
@@ -177,6 +182,11 @@ class User():
             except IndexError:
                 continue
 
+            this_project = project.Project(project_id=item['projectID'])
+
+            if not this_project.active:
+                continue
+
             this_document = document.Document(
                 project_id=item['projectID'], 
                 page=item['pageName'], 
@@ -188,6 +198,9 @@ class User():
                 page_name=item['pageName'], 
                 field_index=item['fieldID']
             )
+
+
+            item['projectName'] = this_project.project_name
 
             item['fieldTitle'] = this_field.get()['title']
 
@@ -359,11 +372,18 @@ class User():
 
         items = response['Items']
 
+        signed_documents = []
+
         for item in items:
             field_string = item['sk'].split("_")[1]
             item['projectID'] = field_string.split('/')[0]
             item['pageName'] = field_string.split('/')[1]
             item['fieldID'] = field_string.split('/')[2]
+
+            this_project = project.Project(item['projectID'])
+
+            if not this_project.active:
+                continue
 
             this_field = field.Field(
                 field_index=item['fieldID'],
@@ -379,7 +399,9 @@ class User():
             item.pop('sk')
             item.pop('data')
 
-        return items
+            signed_documents.append(item)
+
+        return signed_documents
 
 
 

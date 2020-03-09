@@ -398,6 +398,11 @@ def get_user_uploaded_document_versions(username):
                 # document might be stored in the old format, so skip it
                 continue
 
+            this_project = project.Project(item['projectId'])
+
+            if not this_project.active:
+                continue
+
             item.pop('pk')
             item.pop('sk')
             item.pop('data', None)

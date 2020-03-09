@@ -28,7 +28,7 @@ class Project():
 
     def __init__(self, project_id):
 
-        # logger.info(log.function_start_output())
+        logger.info(log.function_start_output())
 
         response = table.get_item(
             Key={
@@ -47,6 +47,18 @@ class Project():
         self.project_description = item['description']
         self.project_reference = item.get('reference')
         self.site_address = item['siteAddress']
+
+        # find out if project is deleted
+        # projects are active by default
+        try:
+            active_or_deleted = item['data'].split('_')[0]
+        except IndexError:
+            self.active = True
+        else:
+            if active_or_deleted == 'deleted':
+                self.active = False
+            else:
+                self.active = True
 
         logger.debug(log.function_end_output(locals()))  
 
@@ -67,22 +79,11 @@ class Project():
         except:
             return None
 
-    def user_has_permission(self, username):
-
-        project_owner = self.get_owner()
-
-        logger.debug(project_owner)
-
-        logger.debug(log.function_end_output(locals()))  
-
-        if project_owner == username:
-            return True
-        elif self.get_user_role(username):
-            return True
-        else:
-           return False
 
     def user_in_roles(self, username, allowed_roles=["*"]):
+
+        if not self.active:
+            return False
 
         if not isinstance(allowed_roles, list):
             raise Exception('allowed_roles should be a list')
@@ -115,6 +116,9 @@ class Project():
 
         for item in items:
 
+            if not self.active:
+                continue
+
             item["username"] = item.pop("pk").split("user_")[1]
             item.pop("sk")
             item["roleId"] = item.pop("data")
@@ -128,7 +132,6 @@ class Project():
 
     def add_user_role(
             self,
-            requesting_user_name,
             user_to_add,
             role_id
         ):
@@ -235,7 +238,6 @@ class Project():
             old_item = response["Attributes"]
         except KeyError:
             raise errors.InvitationNotFound(f"A Project Invitation for {username} and {self.project_id} was not found")
-        # old_item = {'sk': 'roleInvitation_ProjectNumberFour', 'requestedBy': '778bd486-4684-482b-9565-1c2a51367b8c', 'pk': 'user_d7b4396c-e7d5-4190-b449-6d4cdf976473', 'data': 'projectConsultant', 'requestedAt': '1582041857'}
         new_item = old_item.copy()
 
         new_item['sk'] = f"roleInvitationResponse_{self.project_id}"
@@ -252,7 +254,6 @@ class Project():
         # add the user role, if it was accepted
         if accepted:
             self.add_user_role(
-                requesting_user_name=from_username,
                 user_to_add=username,
                 role_id=role_id
             )
@@ -319,7 +320,21 @@ class Project():
             }
         )
 
-        logger.debug(log.function_end_output(locals()))  
+        logger.debug(log.function_end_output(locals())) 
+
+    def delete(self):
+
+        response = table.delete_item(
+            Key={
+                "pk": f"project_{self.project_id}",
+                "sk": "project"
+            },
+            ReturnValues="ALL_OLD"
+        )
+
+        response['Attributes']['data'] = f"deleted_{self.project_id}"
+
+        table.put_item(Item=response['Attributes'])
 
 def get_user_projects(username):
 
@@ -333,37 +348,47 @@ def get_user_projects(username):
 
     for item in items:
         project_id = item.pop('sk').split('role_')[1]
+        
+        try:
+            this_project = Project(project_id)
+        except errors.ProjectNotFound:
+            logger.info(f"project {project_id} was not found")
+            continue
+        
+        if not this_project.active:
+            continue
+
         role_id = item.pop('data')
         item.pop('pk')
         item['projectId'] = project_id
-        item['projectName'] = Project(project_id).project_name
+        item['projectName'] = this_project.project_name
         item['roleName'] = role.Role(role_id).role_name
         item['dateTime'] = item.pop('dateJoined', '0000000000')
 
         project_roles.append(item)
 
 
-    response = table.query(
-        KeyConditionExpression=Key("pk").eq(f"user_{username}") & Key("sk").begins_with("projectOwner_")
-    )
+    # response = table.query(
+    #     KeyConditionExpression=Key("pk").eq(f"user_{username}") & Key("sk").begins_with("projectOwner_")
+    # )
 
-    items = response.get('Items', [])
+    # items = response.get('Items', [])
 
-    project_ownerships = []
+    # project_ownerships = []
 
-    for item in items:
-        project_id = item.pop('sk').split('projectOwner_')[1]
-        item.pop('pk')
-        item.pop('data')
-        item['projectId'] = project_id
-        item['projectName'] = Project(project_id).project_name
+    # for item in items:
+    #     project_id = item.pop('sk').split('projectOwner_')[1]
+    #     item.pop('pk')
+    #     item.pop('data')
+    #     item['projectId'] = project_id
+    #     item['projectName'] = Project(project_id).project_name
 
-        project_ownerships.append(item)
+    #     project_ownerships.append(item)
 
     logger.debug(log.function_end_output(locals()))  
 
     return {
-        "projectOwner": project_ownerships,
+        "projectOwner": [],
         "projectRole": project_roles
     }
 
@@ -397,7 +422,7 @@ def create_project(
             Item={    
                 "pk": f"project_{project_id}",
                 "sk": "project",
-                "data": project_id, 
+                "data": f"active_{project_id}", 
                 "displayName": project_name,
                 "description": project_description,
                 "reference": project_reference,
@@ -418,7 +443,8 @@ def create_project(
             Item={    
                 "pk": f"user_{project_owner.username}",
                 "sk": f"role_{project_id}",
-                "data": "creator" 
+                "data": "creator",
+                "dateJoined": str(int(time.time()))
             }
         )
     else:
@@ -436,7 +462,7 @@ def list_all_projects():
 
     response = table.query(
         IndexName="GSI1",
-        KeyConditionExpression=Key("sk").eq("project")
+        KeyConditionExpression=Key("sk").eq("project") & Key("data").begins_with("active_")
     )
 
     items = response['Items']
@@ -447,7 +473,8 @@ def list_all_projects():
         
         item['projectId'] = item.pop('pk').split('project_')[1]
         item.pop('sk')
-        item['projectName'] = item.pop('data')
+        item.pop('data')
+        item['projectName'] = item.pop('displayName', None)
         
         projects.append(item)
 

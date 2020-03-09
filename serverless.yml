@@ -744,6 +744,39 @@ functions:
               Ref: ApiGatewayAuthorizer
 
       - http:
+          path: /project/{project_id}/delete
+          method: post
+          cors: true
+          response:
+            statusCodes:
+              200:
+                pattern: '' # Default response method
+              400:
+                pattern: '.*"statusCode":400,.*'
+              500:
+                pattern: '.*"statusCode":500,.*'
+          integration: lambda
+          documentation:
+            methodResponses:
+              - statusCode: "200"
+                responseBody:
+                  description: "Successful Response"
+              - statusCode: "400"
+                responseBody:
+                  description: "A client error occurred"
+                responseModels:
+                  application/json: "errorResponse"
+              - statusCode: "500"
+                responseBody:
+                  description: "A server error occurred"
+                responseModels:
+                  application/json: "errorResponse"
+          authorizer: 
+            type: COGNITO_USER_POOLS
+            authorizerId: 
+              Ref: ApiGatewayAuthorizer
+
+      - http:
           path: /project/{project_id}/remove-member
           method: post
           cors: true

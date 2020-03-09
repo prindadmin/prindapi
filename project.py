@@ -205,9 +205,22 @@ def lambda_handler(event, context):
             return_body = "completed"
             status_code = 201
 
+        # respond to invitation
+        elif http_method == "POST" and resource_path.endswith("delete"):
+
+            this_project = project.Project(unquote(event['path']['project_id']))
+
+            if not this_project.user_in_roles(authenticating_username, ["client", "creator"]):
+                raise errors.InsufficientPermission("You do not have permission to remove members from this project")
+
+            this_project.delete()
+
+            return_body = "completed"
+            status_code = 200
+
         else:
             return_body = "invalid path"
-            status_code = 201
+            status_code = 400
 
 
     # catch any application errors
@@ -245,13 +258,13 @@ if __name__ == '__main__':
             "path": {}
         },        
         "get-project": {
-            "requestPath": "/project/TestProject2020-02-27",
+            "requestPath": "/project/TestProjectInTheNewFormat2020-03-03",
             "method": "GET", 
             "cognitoPoolClaims": {
                 "sub": "6a628546-9b4e-4c43-96a4-4e30c3c37511"
             },
             "path": {
-                "project_id": "TestProject2020-02-27"
+                "project_id": "TestProjectInTheNewFormat2020-03-03"
             }
         },
         "create-project": { 
@@ -343,7 +356,17 @@ if __name__ == '__main__':
             "body": {
                 "accepted": True
             }
+        },
+        "delete-project": {
+            "requestPath": "/project/TestProject2020-02-18/delete",
+            "method": "POST",
+            "path": {
+                "project_id": "ProjectNumberFour"
+            },
+            "cognitoPoolClaims": {
+                "sub": "f9c255cb-a42b-4359-a8bd-2ebec5dfa2fa"
+            }
         }
     }
 
-    print(lambda_handler(event["respond-to-invitation"], {}))
+    print(lambda_handler(event["delete-project"], {}))

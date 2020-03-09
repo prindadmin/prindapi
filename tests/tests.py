@@ -54,7 +54,6 @@ this_username="aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaa"
 from modules import project
 this_project = project.Project('ProjectNumberFour')
 this_project.add_user_role(
-        requesting_user_name=myusername,
         user_to_add=this_username,
         role_id="projectConsultant"
     )
@@ -272,3 +271,7 @@ from modules import project
 username="ab0ae262-eedf-41c0-ac6e-e5109217b6c1"
 this_project = project.Project("TestingProjectCreatorRole2020-03-03")
 this_project.user_in_roles(username, ["creator"])
+
+from modules import project
+this_project = project.Project("TestProjectInTheNewFormat2020-03-03")
+this_project.delete()

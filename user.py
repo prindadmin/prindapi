@@ -146,14 +146,14 @@ if __name__ == '__main__':
             "requestPath": "/user/get-project-invitations",
             "method": "GET", 
             "cognitoPoolClaims": {
-                "sub": "f9c255cb-a42b-4359-a8bd-2ebec5dfa2fa"
+                "sub": "ab0ae262-eedf-41c0-ac6e-e5109217b6c1"
             }
         },
         "get-accessible-projects": {
             "requestPath": "/user/get-accessible-projects",
             "method": "GET", 
             "cognitoPoolClaims": {
-                "sub": "778bd486-4684-482b-9565-1c2a51367b8c"
+                "sub": "ab0ae262-eedf-41c0-ac6e-e5109217b6c1"
             }
         },
         "get-signature-requests": {
@@ -162,7 +162,7 @@ if __name__ == '__main__':
             "cognitoPoolClaims": {
                 #"sub": "aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaa"
                 #"sub": "b966f0b7-4310-4608-b08d-418210e7ff20"
-                "sub": "ca543d7c-7970-48ce-b100-9cf3f7c62aef"
+                "sub": "ab0ae262-eedf-41c0-ac6e-e5109217b6c1"
             }
         },
         "get-profile": {
@@ -171,7 +171,7 @@ if __name__ == '__main__':
             "cognitoPoolClaims": {
                 #"sub": "aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaa"
                 #"sub": "778bd486-4684-482b-9565-1c2a51367b8c"
-                "sub": "b966f0b7-4310-4608-b08d-418210e7ff20"
+                "sub": "ab0ae262-eedf-41c0-ac6e-e5109217b6c1"
             }
         },
         "get-history": {
@@ -185,8 +185,6 @@ if __name__ == '__main__':
         }
 
     }
-
-
 
     print(lambda_handler(event["get-history"], {}))
 
