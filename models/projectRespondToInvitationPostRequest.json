@@ -1,0 +1,10 @@
+{
+  "$schema": "http://json-schema.org/draft-04/schema#",
+  "title": "Project Respond To Invitation Request Model",
+  "type": "object",
+  "properties": {
+    "accepted": {
+      "type": "string"
+    },
+  }
+}
