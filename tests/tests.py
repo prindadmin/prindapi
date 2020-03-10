@@ -120,8 +120,15 @@ print(this_project.workplace_when_completed)
 
 # get page default fields
 from modules import page
-this_page = page.Page('inception', 'ProjectNumberFour')
+this_page = page.Page('inception', 'MondayProjectTwo2020-03-09')
 print(this_page.default_fields)
+
+# get page highest populated field
+from modules import page
+this_page = page.Page('inception', 'MondayProjectTwo2020-03-09')
+print(this_page.get_highest_field_index())
+
+
 
 # get field (field module)
 from modules import field

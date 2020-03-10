@@ -45,7 +45,22 @@ class Page():
         self.project_id = project_id
         self.default_fields = items
 
-        logger.debug(log.function_end_output(locals()))  
+        logger.debug(log.function_end_output(locals()))
+
+    def get_highest_field_index(self):
+
+        number_of_default_fields = len(self.default_fields)
+
+        response = table.query(
+            KeyConditionExpression=Key("pk").eq(f"project_{self.project_id}") & Key("sk").begins_with(f"field_{self.page_name}")
+        )
+
+        populated_fields = response['Items']
+
+        highest_populated_index = max([field['id'] for field in populated_fields])
+
+        return max([number_of_default_fields, int(highest_populated_index)])
+
 
     def get_populated_fields(self):
 
@@ -62,8 +77,6 @@ class Page():
             item.pop('sk')           
             field_index = item["id"]
 
-            print(item['type'])
-
             # Add any file details
             if item['type'] == 'file':
                 try:
@@ -73,7 +86,8 @@ class Page():
                         field_index=field_index
                     )
                 except errors.DocumentNotFound:
-                    logger.info(f"The field {project_id}/{page}/{field_index} didn't contain a file")
+                    logger.info(f"The field {self.project_id}/{self.page_name}/{field_index} didn't contain a file")
+                    item['fileDetails'] = []
                 else:
                     item['fileDetails'] = this_document.get_all_info()
             
