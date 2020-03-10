@@ -43,10 +43,7 @@ def lambda_handler(event, context):
         page_name=event['path']['page']
         project_id=event['path']['project_id']
 
-        print("project_id", project_id)
-        print("page_name", page_name)
-        print("field_index", field_index)
- 
+
         for this_user in signing_users:
             signing_user = user.User(this_user)
             table.put_item(
