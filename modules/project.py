@@ -157,41 +157,54 @@ class Project():
             role_id
         ):
 
+        # check that role is assignable
+        assigned_role = role.Role(role_id)
+
         response = table.query(
             IndexName="GSI1",
             KeyConditionExpression=(Key("sk").eq("userDetails_emailAddress") & Key("data").eq(invitee_email))
         )
 
-        if len(response["Items"]) > 0:
+        try:
             item = response["Items"][0]
-            user_to_add = item["pk"].split("user_")[1]
+        except IndexError:
+            
+            first_name = None
+
+            table.put_item(
+                Item={    
+                    "pk": f"emailAddress_{invitee_email}",
+                    "sk": f"roleInvitation_{self.project_id}",
+                    "data": assigned_role.role_id ,
+                    "requestedBy": requesting_user_name,
+                    "requestedAt": str(int(time.time()))
+                }
+            )
         else:
-            raise errors.UserNotFound(f"user with email address {invitee_email} not found")
+            user_to_add = item["pk"].split("user_")[1]
 
-        print("user_to_add", user_to_add)
+            print("user_to_add", user_to_add)
 
-        # check that role is assignable
-        assigned_role = role.Role(role_id)
-
-        table.put_item(
-            Item={    
-                "pk": f"user_{user_to_add}",
-                "sk": f"roleInvitation_{self.project_id}",
-                "data": assigned_role.role_id ,
-                "requestedBy": requesting_user_name,
-                "requestedAt": str(int(time.time()))
-            }
-        )
-
-        user_to_add_obj = user.User(user_to_add)
+            table.put_item(
+                Item={    
+                    "pk": f"user_{user_to_add}",
+                    "sk": f"roleInvitation_{self.project_id}",
+                    "data": assigned_role.role_id ,
+                    "requestedBy": requesting_user_name,
+                    "requestedAt": str(int(time.time()))
+                }
+            )
+            
+            user_to_add_obj = user.User(user_to_add)
+            first_name = user_to_add_obj.first_name
 
         template_data = {
-            "firstName": user_to_add_obj.first_name,
+            "firstName": first_name,
             "projectName": self.project_name,
             "roleName": assigned_role.role_name
         }
 
-        mail.send_email(user_to_add_obj.email_address, "project-invitation", template_data)
+        mail.send_email(invitee_email, "project-invitation", template_data)
 
         logger.debug(log.function_end_output(locals()))
 
