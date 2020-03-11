@@ -200,7 +200,7 @@ class User():
                 logger.info(f"project {project_id} is not active; skipping request")
                 continue
 
-            item['projectName'] = project_object[project_id]
+            item['projectName'] = project_object[project_id].project_name
 
             # user information
             requesting_username = item.pop('requestedBy')
