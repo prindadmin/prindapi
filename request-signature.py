@@ -43,15 +43,33 @@ def lambda_handler(event, context):
         page_name=event['path']['page']
         project_id=event['path']['project_id']
 
+       
+        field_object = {}
 
         for this_user in signing_users:
+            
             signing_user = user.User(this_user)
+
+            try: 
+                field_object[f"{project_id}/{page_name}/{field_index}"] 
+            except KeyError: 
+                field_object[f"{project_id}/{page_name}/{field_index}"] = field.Field(
+                    field_index=field_index,
+                    page_name=page_name, 
+                    project_id=project_id 
+                )
+
+            fieldTitle = field_object[f"{project_id}/{page_name}/{field_index}"].get()['title']
+
             table.put_item(
                 Item={    
                     "pk": f"user_{signing_user.username}",
                     "sk": f"documentSignRequest_{project_id}/{page_name}/{field_index}",
                     "requestedBy": requesting_user.username,
-                    "requestedAt": str(int(time.time()))
+                    "requesterFirstName": requesting_user.first_name,
+                    "requesterLastName": requesting_user.last_name,
+                    "requestedAt": str(int(time.time())),
+                    "fieldTitle": fieldTitle
                 }
             )
 
@@ -103,4 +121,4 @@ if __name__ == '__main__':
         }
     }
 
-    lambda_handler(event, {})
+    print(lambda_handler(event, {}))
