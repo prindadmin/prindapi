@@ -167,9 +167,12 @@ class User():
 
         items = response.get('Items',[])
 
-        print(items)
-
         signing_requests = []
+
+        user_object = {}
+        project_object = {}
+        document_version_object = {}
+        field_object = {}
 
         for item in items:
             item.pop('pk')
@@ -180,39 +183,48 @@ class User():
                 item['pageName'] = s3_key.split('/')[1]
                 item['fieldID'] = s3_key.split('/')[2]
             except IndexError:
+                logger.error(f"project/page/field was not properly defined in the s3_key, so skipping s3_key: {s3_key}")
                 continue
 
-            this_project = project.Project(project_id=item['projectID'])
+            project_id = item['projectID']
+            page_name = item['pageName']
+            field_index = item['fieldID']
 
-            if not this_project.active:
+            # project information
+            try:
+                project_object[project_id]
+            except KeyError:
+                project_object[project_id] = project.Project(project_id=item['projectID'])
+
+            if not project_object[project_id].active:
+                logger.info(f"project {project_id} is not active; skipping request")
                 continue
 
-            this_document = document.Document(
-                project_id=item['projectID'], 
-                page=item['pageName'], 
-                field_index=item['fieldID']
-            )
+            item['projectName'] = project_object[project_id]
 
-            this_field = field.Field(
-                project_id=item['projectID'], 
-                page_name=item['pageName'], 
-                field_index=item['fieldID']
-            )
-
-
-            item['projectName'] = this_project.project_name
-
-            item['fieldTitle'] = this_field.get()['title']
-
-            document_version = this_document.get_version(0)
-
-            item['filename'] = document_version.get('filename')
-
-            requesting_user = User(item.pop('requestedBy'))
+            # user information
+            requesting_username = item.pop('requestedBy')
             item['requestedBy'] = {}
-            item['requestedBy']['username'] = requesting_user.username
-            item['requestedBy']['firstName'] = requesting_user.first_name
-            item['requestedBy']['lastName'] = requesting_user.last_name
+            item['requestedBy']['username'] = requesting_username
+            item['requestedBy']['firstName'] = item.get('requesterFirstName')
+            item['requestedBy']['lastName'] = item.get('requesterLastName')
+
+            # document information
+            try:
+                document_version_object[f"{project_id}/{page_name}/{field_index}"]
+            except KeyError:
+                logger.info("document version object was not already defined, so creating it")
+
+                document_version_object[f"{project_id}/{page_name}/{field_index}"] = document.Document(
+                    project_id=item['projectID'], 
+                    page=item['pageName'], 
+                    field_index=item['fieldID']
+                ).get_version(0)
+
+            item['filename'] = document_version_object[f"{project_id}/{page_name}/{field_index}"].get('filename')
+
+            # field information  
+            item['fieldTitle'] = item.get('fieldTitle')
 
             signing_requests.append(item)
 
