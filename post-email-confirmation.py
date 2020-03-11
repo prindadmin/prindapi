@@ -32,7 +32,7 @@ log.set_logging_level(stage_log_level)
 def lambda_handler(event, context):
 
     try:
-
+        
         print(event)
 
         username = event['request']['userAttributes']['sub']
@@ -42,12 +42,26 @@ def lambda_handler(event, context):
 
         user.create_user(username, first_name=first_name, last_name=last_name, email_address=email_address)
 
-        this_user =user.User(username)
+        this_user = user.User(username)
         
         try:
             did = this_user.add_foundations_subscription()
         except errors.DIDNotFound:
             did = None
+
+        # get any project invitations against this email address
+        response = table.query(
+            KeyConditionExpression=Key("pk").eq(f"emailAddress_{email_address}") & Key("sk").begins_with("roleInvitation_")
+        )
+
+        items = response.get("Items")
+
+        # put those invitations under the user account
+        for item in items:
+            item['pk'] = f"user_{username}"
+            table.put_item(
+              Item=item
+            )
 
         template_data = {
             "firstName": first_name,
