@@ -309,23 +309,36 @@ class Project():
             project_name=None,
             project_description=None,
             project_reference=None,
-            site_address=None
+            site_address={}
         ):
 
         if project_name == None:
             project_name = self.project_name
+        elif project_name == "":
+            project_name = " "
+
         if project_description == None:
             project_description = self.project_description
+        elif project_description == "":
+            project_description = " "
+
         if project_reference == None:
             project_reference = self.project_reference
-        if site_address == None:
-            site_address = self.site_address
+        elif project_description == "":
+            project_description == " "
+        
+        for key in self.site_address.keys():
+            updated_value = site_address.get(key)
+            if updated_value == None:
+                site_address[key] = self.site_address[key]
+            elif updated_value == "":
+                site_address[key] = " "
 
         table.put_item(
             Item={    
                 "pk": f"project_{self.project_id}",
                 "sk": "project",
-                "data": self.project_id, 
+                "data": f"active_{self.project_id}", 
                 "displayName": project_name,
                 "description": project_description,
                 "reference": project_reference,
