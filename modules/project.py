@@ -364,6 +364,40 @@ class Project():
 
 def get_user_projects(username):
 
+    project_object = {}
+    role_object = {}
+
+
+    response = table.query(
+        KeyConditionExpression=Key("pk").eq(f"user_{username}") & Key("sk").begins_with("projectOwner_")
+    )
+
+    items = response.get('Items', [])
+
+    owned_projects = []
+
+    for item in items:
+        project_id = item.pop('sk').split('projectOwner_')[1]
+
+        item['projectId'] = project_id
+
+        try:
+            project_object[project_id] = Project(project_id)
+        except errors.ProjectNotFound:
+            logger.info(f"project {project_id} was not found")
+            continue
+
+        if not project_object[project_id].active:
+            continue
+
+        if not item.get('projectName'):
+            item['projectName'] = project_object[project_id].project_name
+
+        item["dateTime"] = item.pop('data', '0000000000')
+        item.pop("pk")
+
+        owned_projects.append(item)
+
     response = table.query(
         KeyConditionExpression=Key("pk").eq(f"user_{username}") & Key("sk").begins_with("role_")
     )
@@ -373,30 +407,41 @@ def get_user_projects(username):
     project_roles = []
 
     for item in items:
-        project_id = item.pop('sk').split('role_')[1]
         
+        project_id = item.pop('sk').split('role_')[1]
+        role_id = item.pop('data')
+
+        if role_id == 'creator':
+            continue
+
         try:
-            this_project = Project(project_id)
+            project_object[project_id] = Project(project_id)
         except errors.ProjectNotFound:
             logger.info(f"project {project_id} was not found")
             continue
         
-        if not this_project.active:
+        if not project_object[project_id].active:
             continue
 
-        role_id = item.pop('data')
         item.pop('pk')
         item['projectId'] = project_id
-        item['projectName'] = this_project.project_name
-        item['roleName'] = role.Role(role_id).role_name
+
+        if not item.get('projectName'):
+            item['projectName'] = project_object[project_id].project_name
+
+        if not item.get('roleName'):
+            role_object[role_id] = role.Role(role_id)
+            item['roleName'] = role_object[role_id].role_name
+
         item['dateTime'] = item.pop('dateJoined', '0000000000')
 
         project_roles.append(item)
 
+
     logger.debug(log.function_end_output(locals()))  
 
     return {
-        "projectOwner": [],
+        "projectCreator": owned_projects,
         "projectRole": project_roles
     }
 
