@@ -45,6 +45,8 @@ def lambda_handler(event, context):
         page = event["path"]["page"]
         field_index = event["path"]["field_index"]
 
+        requester_reference = event["body"].get("requesterReference")
+
         document_obj = document.Document(project_id, page, field_index)
         
         document_version = 0 # latest
@@ -54,8 +56,11 @@ def lambda_handler(event, context):
         logger.info(f"api_url is: {api_url}")
 
         params = {
-            "signingDid": this_user.get_did()
+            "signingDid": this_user.get_did(),
         }
+
+        if requester_reference:
+            params['requesterReference'] = requester_reference
 
         logger.info(f"params: {params}")
 
