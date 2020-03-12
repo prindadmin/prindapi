@@ -59,11 +59,10 @@ this_project.add_user_role(
     )
 
 # invite user to project
-myusername="778bd486-4684-482b-9565-1c2a51367b8c"
-#this_username="f9c255cb-a42b-4359-a8bd-2ebec5dfa2fa"
+myusername="ab0ae262-eedf-41c0-ac6e-e5109217b6c1"
 invitee_email="mr.simon.hunt+test16@gmail.com"
 from modules import project
-this_project = project.Project('ProjectNumberFour')
+this_project = project.Project('NewDayNewProject2020-03-05')
 this_project.invite_user(
         requesting_user_name=myusername,
         invitee_email=invitee_email,
@@ -104,8 +103,8 @@ this_project.get_project_roles()
 
 # update project
 from modules import project
-this_project = project.Project('ProjectNumberFour')
-this_project.update(workplace_when_completed=False)
+this_project = project.Project('TestProjectInTheNewFormat2020-03-03')
+this_project.update(site_address={'projectAddressPostalCode': 'AB13 3BB'})
 
 
 # get project
@@ -125,7 +124,7 @@ print(this_page.default_fields)
 
 # get page highest populated field
 from modules import page
-this_page = page.Page('inception', 'MondayProjectTwo2020-03-09')
+this_page = page.Page('inception', 'NewDayNewProject2020-03-05')
 print(this_page.get_highest_field_index())
 
 

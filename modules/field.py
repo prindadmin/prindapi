@@ -41,7 +41,7 @@ class Field():
 
         populated_field = response.get('Item')
 
-        print("populated field", populated_field)
+        #print("populated field", populated_field)
 
         if not populated_field:
             response = table.get_item(

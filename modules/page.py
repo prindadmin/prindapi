@@ -172,7 +172,7 @@ class Page():
         }
 
         for arg in optional_args.keys():
-            if not optional_args[arg]: 
+            if optional_args[arg] == None:
                 try:
                     optional_args[arg] = default_values[arg]
                 except KeyError:

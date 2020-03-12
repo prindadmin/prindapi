@@ -1,6 +1,7 @@
 import boto3
 import json
 import os
+import time
 from modules import user
 from modules import errors
 from urllib.parse import unquote
@@ -13,7 +14,7 @@ try:
 except (NameError, KeyError):
     stage_log_level = 'CRITICAL'
 
-print('stage_log_level:', stage_log_level)
+#print('stage_log_level:', stage_log_level)
 
 # set the log level
 log.set_logging_level(stage_log_level)
@@ -25,7 +26,7 @@ def lambda_handler(event, context):
         resource_path = event['requestPath']
         http_method = event['method']
 
-        print(event)
+        #print(event)
 
         # get project invitatons
         if http_method == "GET" and resource_path.endswith("get-project-invitations"):
@@ -114,7 +115,7 @@ def lambda_handler(event, context):
                 signedDocuments=signed_documents
             )
 
-            print(return_body)
+            # print(return_body)
 
     # catch any application errors
     except errors.ApplicationError as error:
@@ -185,6 +186,8 @@ if __name__ == '__main__':
 
     }
 
-    print(lambda_handler(event["get-history"], {}))
+    print(time.time())
+    lambda_handler(event["get-signature-requests"], {})
+    print(time.time())
 
         

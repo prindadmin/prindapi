@@ -274,7 +274,7 @@ if __name__ == '__main__':
                 "sub": "6a628546-9b4e-4c43-96a4-4e30c3c37511"
             },
             "body": {
-               "projectName": "Test Project",
+               "projectName": "Test Project 10",
                "projectAddressLine1": "Test",
                "projectAddressLine2": "Test",
                "projectAddressLine3": "Test",
@@ -369,4 +369,4 @@ if __name__ == '__main__':
         }
     }
 
-    print(lambda_handler(event["delete-project"], {}))
+    print(lambda_handler(event["create-project"], {}))
