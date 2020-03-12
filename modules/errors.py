@@ -113,5 +113,10 @@ class MissingRequiredFields(ApplicationError):
     def __init__(self, message):
         ApplicationError.__init__(self, message, "MISSING_REQUIRED_FIELDS", "0019")
 
+# Signing Request Not Found
+class SigningRequestNotFound(ApplicationError):
+    def __init__(self, message):
+        ApplicationError.__init__(self, message, "SIGNING_REQUEST_NOT_FOUND", "0020")
+
 
 

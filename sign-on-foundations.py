@@ -46,44 +46,72 @@ def lambda_handler(event, context):
         field_index = event["path"]["field_index"]
 
         requester_reference = event["body"].get("requesterReference")
+        accepted = event["body"].get("accepted", True)
 
         document_obj = document.Document(project_id, page, field_index)
         
-        document_version = 0 # latest
+        if accepted:
 
-        api_url=f"https://{api_id}.execute-api.eu-west-1.amazonaws.com/{api_stage}/sp/document-did/{document_obj.document_did}/signing-request/{document_version}"
+            logger.info("The signing request was accepted")
+    
+            document_version = 0 # latest
 
-        logger.info(f"api_url is: {api_url}")
+            api_url=f"https://{api_id}.execute-api.eu-west-1.amazonaws.com/{api_stage}/sp/document-did/{document_obj.document_did}/signing-request/{document_version}"
 
-        params = {
-            "signingDid": this_user.get_did(),
+            logger.info(f"api_url is: {api_url}")
+
+            params = {
+                "signingDid": this_user.get_did(),
+            }
+
+            if requester_reference:
+                params['requesterReference'] = requester_reference
+
+            logger.info(f"params: {params}")
+
+            response = requests.post(
+                api_url,
+                data=params,
+                headers={'Authorization': foundations_jwt}
+            )
+
+            response_dict = json.loads(response.content.decode('utf-8'))
+
+            if response_dict.get("statusCode") != 201:
+                logger.error(f"error calling /sp/document-did/{document_obj.document_did}/signing-request/{document_version}: ")
+                raise errors.FoundationsApiError(f"error calling /sp/document-did/{document_obj.document_did}/signing-request/{document_version}")
+            else:
+                logger.info(f"response from /sp/document-did/{document_obj.document_did}/signing-request/{document_version} is {response_dict}")
+  
+        signing_request_key = {    
+            "pk": f"user_{this_user.username}",
+            "sk": f"documentSignRequest_{project_id}/{page}/{field_index}",
         }
 
-        if requester_reference:
-            params['requesterReference'] = requester_reference
+        print(signing_request_key)
 
-        logger.info(f"params: {params}")
-
-        response = requests.post(
-            api_url,
-            data=params,
-            headers={'Authorization': foundations_jwt}
+        response = table.delete_item(
+            Key=signing_request_key,
+            ReturnValues="ALL_OLD"
         )
 
-        response_dict = json.loads(response.content.decode('utf-8'))
+        print(response)
 
-        if response_dict.get("statusCode") != 201:
-            logger.error(f"error calling /sp/document-did/{document_obj.document_did}/signing-request/{document_version}: ")
-            raise errors.FoundationsApiError(f"error calling /sp/document-did/{document_obj.document_did}/signing-request/{document_version}")
+        try:
+            old_item = response["Attributes"]
+        except KeyError:
+            #raise errors.SigningRequestNotFound(f"The signing request was not found")
+            logger.warning("a signing request was not found")
         else:
-            logger.info(f"response from /sp/document-did/{document_obj.document_did}/signing-request/{document_version} is {response_dict}")
-  
-        table.delete_item(
-            Key={    
-                "pk": f"user_{this_user.username}",
-                "sk": f"documentSignRequest_{document_obj.document_did}",
-            }
-        )
+            new_item = old_item.copy()
+
+            new_item["sk"] = f"documentSignRequestResponse_{project_id}/{page}/{field_index}"
+            new_item["respondedAt"] = str(int(time.time()))
+            new_item["accepted"] = accepted
+
+            table.put_item(
+                Item=new_item
+            )    
 
     # catch any application errors
     except errors.ApplicationError as error:
@@ -112,12 +140,15 @@ if __name__ == '__main__':
 
     event = {
         "cognitoPoolClaims": {
-            "sub": "778bd486-4684-482b-9565-1c2a51367b8c"
+            "sub": "ab0ae262-eedf-41c0-ac6e-e5109217b6c1"
             #"sub": "aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaa"
+        },
+        "body": {
+            "accepted": False
         },
         "path": {
             #"document_did": "did:fnds:c25eb417ffa90f8fedf29b385fc91f58831a470805f38474bd71f327b860f946"
-            "project_id": "ProjectNumberSix",
+            "project_id": "NewDayNewProject2020-03-05",
             "page": "inception",
             "field_index": 1
         }
