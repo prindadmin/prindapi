@@ -61,7 +61,7 @@ def lambda_handler(event, context):
             highest_field_index = this_page.get_highest_field_index()
             new_field_index = highest_field_index + 1
 
-            field_data = event['body']['fieldDetails']
+            field_data = event['body'].get('fieldDetails')
             title = event['body'].get('title')
             description = event['body'].get('description') 
             editable = event['body'].get('editable')
@@ -71,7 +71,7 @@ def lambda_handler(event, context):
             except KeyError:
                 raise errors.MissingRequiredFields("type needs to be specified for a custom field")
 
-            if not field_data: field_data = {"filename": "empty"}
+            if not field_data: field_data = {}
             if not description: description = "."
             if not editable: editable = True
             if not title: title = "New Custom Field"
