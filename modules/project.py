@@ -393,6 +393,9 @@ def get_user_projects(username):
         if not item.get('projectName'):
             item['projectName'] = project_object[project_id].project_name
 
+        if not item.get('projectDescription'):
+            item['projectDescription'] = project_object[project_id].project_description
+
         item["dateTime"] = item.pop('data', '0000000000')
         item.pop("pk")
 
@@ -428,6 +431,9 @@ def get_user_projects(username):
 
         if not item.get('projectName'):
             item['projectName'] = project_object[project_id].project_name
+
+        if not item.get('projectDescription'):
+            item['projectDescription'] = project_object[project_id].project_description
 
         if not item.get('roleName'):
             role_object[role_id] = role.Role(role_id)
