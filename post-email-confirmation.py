@@ -99,7 +99,7 @@ if __name__ == '__main__':
       "version": "1",
       "region": "eu-west-1",
       "userPoolId": "eu-west-1_VL7uVkjBo",
-      "userName": "6a628546-9b4e-4c43-96a4-4e30c3c37511",
+      "userName": "4a9d66e8-f725-4c24-be3d-d3bdd417cb08",
       "callerContext": {
         "awsSdkVersion": "aws-sdk-unknown-unknown",
         "clientId": "1heu4dbau7agvc2nee57o65fl0"
@@ -107,7 +107,7 @@ if __name__ == '__main__':
       "triggerSource": "PostConfirmation_ConfirmSignUp",
       "request": {
         "userAttributes": {
-          "sub": "6a628546-9b4e-4c43-96a4-4e30c3c37511",
+          "sub": "4a9d66e8-f725-4c24-be3d-d3bdd417cb08",
           "cognito:email_alias": "mr.simon.hunt+test14@gmail.com",
           "cognito:user_status": "CONFIRMED",
           "email_verified": "true",

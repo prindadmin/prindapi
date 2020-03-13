@@ -302,15 +302,19 @@ class User():
 
         api_url=f"https://{api_id}.execute-api.eu-west-1.amazonaws.com/{api_stage}/sp/subscription/{user_did}"
 
+        logger.info(f"api_url is: {api_url}")
+
         params = {
             "requiredFields": fields,
             "comment": comment,
             "requesterReference": "Prin-D"
         }
 
+        logger.info(f"params are: {params}")
+
         response = requests.post(
             api_url,
-            data=params,
+            data=json.dumps(params),
             headers={'Authorization': foundations_jwt}
         )
 

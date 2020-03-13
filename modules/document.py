@@ -245,7 +245,7 @@ class Document():
 
         response = requests.post(
             api_url,
-            data=params,
+            data=json.dumps(params),
             headers={'Authorization': foundations_jwt}
         )
 
@@ -314,7 +314,7 @@ def create(
 
     response = requests.post(
         api_url,
-        data=params,
+        data=json.dumps(params),
         headers={'Authorization': foundations_jwt}
     )
 

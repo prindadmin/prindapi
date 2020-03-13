@@ -71,7 +71,7 @@ def lambda_handler(event, context):
 
             response = requests.post(
                 api_url,
-                data=params,
+                data=json.dumps(params),
                 headers={'Authorization': foundations_jwt}
             )
 
