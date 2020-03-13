@@ -83,10 +83,10 @@ def lambda_handler(event, context):
                 except errors.DIDNotFound:
                     user_details["foundationsID"] = None
 
-            
-            user_details["lastName"] = authenticating_user.last_name
-            user_details["emailAddress"] = authenticating_user.email_address
-
+            if not user_details.get("lastName"): 
+                user_details["lastName"] = authenticating_user.last_name
+            if not user_details.get("emailAddress"):
+                user_details["emailAddress"] = authenticating_user.email_address
             if not user_details.get("firstName"):
                 user_details["firstName"] = authenticating_user.first_name
             if not user_details.get("lastName"):
