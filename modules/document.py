@@ -13,6 +13,7 @@ from modules import auth
 from modules import user
 from modules import did
 from modules import log
+from modules import project
 
 
 # If logger hasn"t been set up by a calling function, set it here
@@ -375,6 +376,8 @@ def create(
     
 def get_user_uploaded_document_versions(username):
 
+        project_object = {}
+
         response = table.query(
             IndexName="GSI1",
             KeyConditionExpression=Key("sk").eq("documentVersion") 
@@ -391,21 +394,28 @@ def get_user_uploaded_document_versions(username):
                 continue
 
             try:    
-                item['projectId'] = item['pk'].split('_')[1].split('/')[0]
-                item['page'] = item['pk'].split('_')[1].split('/')[1]
-                item['field'] = item['pk'].split('_')[1].split('/')[2]
+                item['projectId'] = item['pk'].split('_')[2].split('/')[0]
+                item['page'] = item['pk'].split('_')[2].split('/')[1]
+                item['field'] = item['pk'].split('_')[2].split('/')[2]
             except IndexError:
                 # document might be stored in the old format, so skip it
                 continue
+            project_id = item['projectId']
+            project_object[project_id] = project.Project(project_id)
 
-            this_project = project.Project(item['projectId'])
-
-            if not this_project.active:
+            if not project_object[project_id].active:
                 continue
+
+            try:
+                item['dateTime'] = item.pop('data').split('_')[2]
+            except (KeyError, IndexError):
+                item['dateTime'] = None
+
+
+            item["projectName"] = project_object[project_id].project_name
 
             item.pop('pk')
             item.pop('sk')
-            item.pop('data', None)
 
             document_versions.append(item)
 

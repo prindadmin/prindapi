@@ -103,7 +103,7 @@ this_project.get_project_roles()
 
 # update project
 from modules import project
-this_project = project.Project('TestProjectInTheNewFormat2020-03-03')
+this_project = project.Project('TestProject102020-03-11')
 this_project.update(site_address={'projectAddressPostalCode': 'AB13 3BB'})
 
 
@@ -203,7 +203,7 @@ from modules import notification
 notification.get_notifications(username, state='archived')
 
 # get users projects
-username = "778bd486-4684-482b-9565-1c2a51367b8c"
+username = "ab0ae262-eedf-41c0-ac6e-e5109217b6c1"
 #username = "aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaa"
 from modules import user
 this_user = user.User(username)
@@ -252,7 +252,7 @@ this_user = user.User(username)
 this_user.get_foundations_subscription()
 
 # get uploaded documents
-username = "778bd486-4684-482b-9565-1c2a51367b8c"
+username = "4a9d66e8-f725-4c24-be3d-d3bdd417cb08"
 from modules import user
 this_user = user.User(username)
 document_versions = this_user.get_uploaded_document_versions()
