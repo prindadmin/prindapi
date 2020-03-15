@@ -401,7 +401,9 @@ def get_user_uploaded_document_versions(username):
                 # document might be stored in the old format, so skip it
                 continue
             project_id = item['projectId']
-            project_object[project_id] = project.Project(project_id)
+
+            if not project_object.get(project_id):
+                project_object[project_id] = project.Project(project_id)
 
             if not project_object[project_id].active:
                 continue
