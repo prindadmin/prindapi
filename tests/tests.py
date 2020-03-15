@@ -267,6 +267,12 @@ print(this_field.get_document_did())
 from modules import document
 document.get_document_field("did:fnds:7ce027a56933c1cee47c6d6199063047721db8b6088c6837571c0f7de00a7501")
 
+# add a signed document
+from modules import user
+username="ab0ae262-eedf-41c0-ac6e-e5109217b6c1"
+this_user = user.User(username)
+add_signed_document("did:fnds:48c0b3941174c3b82b34b9ff4d29b53d502bb18537e9e0f5d5599b642ac0bb09", 1, 1584277737, "this is a test")
+
 # get signed documents
 from modules import user
 username="ab0ae262-eedf-41c0-ac6e-e5109217b6c1"

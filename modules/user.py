@@ -368,19 +368,47 @@ class User():
         
         project_id = document_details['projectId']
         page = document_details['page']
-        field = document_details['field']
-        
+        field_index = document_details['field']
+
+        try:
+            this_document = document.Document(
+                project_id=project_id,
+                page=page,
+                field_index=field_index
+            )
+        except errors.DocumentVersionNotFound:
+            filename = None
+        else:
+            document_version = this_document.get_version(document_version)
+            filename = document_version['filename']
+
+        this_project = project.Project(project_id)
+        project_name = this_project.project_name
+
+        this_field = field.Field(
+            field_index=field_index,
+            page_name=page, 
+            project_id=project_id 
+        )
+
+        field_title = this_field.get()['title']
+       
         table.put_item(
             Item={
                 "pk": f"user_{self.username}",
-                "sk": f"signedDocument_{project_id}/{page}/{field}_v{document_version}",
+                "sk": f"signedDocument_{project_id}/{page}/{field_index}_v{document_version}",
                 "data": datetime.utcnow().isoformat(),
                 "signedAt": signed_at,
-                "entryHash": entry_hash
+                "entryHash": entry_hash,
+                "filename": filename,
+                "fieldTitle": field_title,
+                "projectName": project_name
             }
         )
 
     def get_signed_documents(self):
+
+        project_object = {}
 
         response = table.query(
             KeyConditionExpression=Key("pk").eq(f"user_{self.username}") & Key("sk").begins_with("signedDocument_")
@@ -392,22 +420,24 @@ class User():
 
         for item in items:
             field_string = item['sk'].split("_")[1]
+
+            print(field_string)
+
             item['projectID'] = field_string.split('/')[0]
             item['pageName'] = field_string.split('/')[1]
             item['fieldID'] = field_string.split('/')[2]
 
-            this_project = project.Project(item['projectID'])
+            project_id = item['projectID']
 
-            if not this_project.active:
+            if not project_object.get(project_id):
+                project_object[project_id] = project.Project(project_id)
+
+            if not project_object[project_id].active:
                 continue
 
-            this_field = field.Field(
-                field_index=item['fieldID'],
-                page_name=item['pageName'], 
-                project_id=item['projectID'] 
-            )
-
-            item['fieldTitle'] = this_field.get()['title']
+            item['filename'] = item.get('filename')
+            item['fieldTitle'] = item.get('fieldTitle')
+            item['projectName'] = item.get('projectName')
 
             item['signedAt'] = datetime.utcfromtimestamp(item['signedAt']).isoformat()
 
