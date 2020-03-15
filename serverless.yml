@@ -25,12 +25,14 @@ custom:
       dev: 'w9t59cws74'
       staging: 'wg5sl57evc'
       production: ''
+    FOUNDATIONS_SNS_ARN:
+      dev: arn:aws:sns:eu-west-1:514296467270:SP-ca7722fabb7009aecf997a59973cd4fc810b820b15fd041b7671f146e97dcfc1-dev
+      staging: arn:aws:sns:eu-west-1:514296467270:SP-ca7722fabb7009aecf997a59973cd4fc810b820b15fd041b7671f146e97dcfc1-staging
+      production: arn:aws:sns:eu-west-1:514296467270:SP-ca7722fabb7009aecf997a59973cd4fc810b820b15fd041b7671f146e97dcfc1-production
     SP_DID:
-      #dev: 'did:fctr:d85be1f5baa83fa83850d8b58731a7f7c8ba65c33dec107c2e16e0dd65c7bcc7'
       dev: 'did:fnds:ca7722fabb7009aecf997a59973cd4fc810b820b15fd041b7671f146e97dcfc1'
-      #staging: 'did:fctr:d85be1f5baa83fa83850d8b58731a7f7c8ba65c33dec107c2e16e0dd65c7bcc7'
       staging: 'did:fnds:ca7722fabb7009aecf997a59973cd4fc810b820b15fd041b7671f146e97dcfc1'
-      production: ''
+      production: 'did:fnds:ca7722fabb7009aecf997a59973cd4fc810b820b15fd041b7671f146e97dcfc1'
     FACTOM_EXPLORER_DOMAIN:
       dev: 'testnet.factoid.org'
       staging: 'testnet.factoid.org'
@@ -137,7 +139,7 @@ functions:
     handler: receive-notifications.lambda_handler
     events:
       - sns:
-          arn: arn:aws:sns:eu-west-1:514296467270:d85be1f5baa83fa83850d8b58731a7f7c8ba65c33dec107c2e16e0dd65c7bcc7
+          arn: ${self:custom.myEnvironment.FOUNDATIONS_SNS_ARN.${self:provider.stage}}
 
   s3:
     handler: s3.lambda_handler
