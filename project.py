@@ -49,7 +49,7 @@ def lambda_handler(event, context):
 
             project_roles = this_project.get_roles()
 
-            returned_output = []
+            project_members = []
 
             for project_role in project_roles:
 
@@ -71,9 +71,41 @@ def lambda_handler(event, context):
                   "roleName": this_role.role_name
                 }
 
-                returned_output.append(list_item)
+                project_members.append(list_item)
 
-            return_body = returned_output
+            project_role_invitations = this_project.get_role_invitations()
+            project_invitations = []
+
+            for project_role_invitation in project_role_invitations:
+
+                print(project_role_invitation)
+
+                user_did = None
+                if project_role_invitation.get('username'):
+                    this_user = user.User(project_role_invitation['username'])
+                    try:
+                        user_did  = this_user.get_did()
+                    except errors.DIDNotFound:
+                        pass
+
+                list_item = {
+                    "username": project_role_invitation.get('username'),
+                    "foundationsID": user_did,
+                    "emailAddress": project_role_invitation.get('inviteeEmailAddress'),
+                    "firstName": project_role_invitation.get('inviteeFirstName'),
+                    "lastName": project_role_invitation.get('inviteeLastName'),
+                    "roleID": project_role_invitation.get('roleId'),
+                    "roleName": project_role_invitation.get('roleName')
+                }
+
+                project_invitations.append(list_item)
+
+            return_body = {
+                "members": {
+                    "confirmed": project_members,
+                    "invited": project_invitations
+                }
+            }
             status_code = 200
 
         # get-project
@@ -309,12 +341,12 @@ if __name__ == '__main__':
             }
         },
         "get-project-members": {
-            "requestPath": "/project/TestProject2020-02-18/members",
+            "requestPath": "/project/ThursdayTestProject2020-03-12/members",
             "method": "GET",
             "cognitoPoolClaims": {
-                "sub": "6a628546-9b4e-4c43-96a4-4e30c3c37511"
+                "sub": "ab0ae262-eedf-41c0-ac6e-e5109217b6c1"
             },"path": {
-                "project_id": "ProjectNumberFive"
+                "project_id": "ThursdayTestProject2020-03-12"
             }
         },
         "invite-project-member": {
@@ -369,4 +401,4 @@ if __name__ == '__main__':
         }
     }
 
-    print(lambda_handler(event["create-project"], {}))
+    print(lambda_handler(event["get-project-members"], {}))

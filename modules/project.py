@@ -104,6 +104,9 @@ class Project():
             return False
 
     def get_roles(self):
+
+        if not self.active:
+            return []
         
         response = table.query(
             IndexName="GSI1",
@@ -116,9 +119,6 @@ class Project():
 
         for item in items:
 
-            if not self.active:
-                continue
-
             item["username"] = item.pop("pk").split("user_")[1]
             item.pop("sk")
             item["roleId"] = item.pop("data")
@@ -129,6 +129,35 @@ class Project():
 
         return project_roles
 
+    def get_role_invitations(self):
+
+        if not self.active:
+            return []
+
+        response = table.query(
+            IndexName="GSI1",
+            KeyConditionExpression=Key("sk").eq(f"roleInvitation_{self.project_id}")
+        )
+
+        project_roles_invitations = []
+
+        items = response['Items']
+        
+        for item in items:
+
+            try:
+                item["username"] = item.pop("pk").split("user_")[1]
+            except IndexError:
+                item["username"] = None
+
+            item.pop("sk")
+            item["roleId"] = item.pop("data")
+
+            project_roles_invitations.append(item)
+
+        logger.debug(log.function_end_output(locals()))  
+
+        return project_roles_invitations
 
     def add_user_role(
             self,
@@ -177,13 +206,15 @@ class Project():
                     "sk": f"roleInvitation_{self.project_id}",
                     "data": assigned_role.role_id ,
                     "requestedBy": requesting_user_name,
-                    "requestedAt": str(int(time.time()))
+                    "requestedAt": str(int(time.time())),
+                    "roleName": assigned_role.role_name,
+                    "inviteeEmailAddress": invitee_email 
                 }
             )
         else:
             user_to_add = item["pk"].split("user_")[1]
-
-            print("user_to_add", user_to_add)
+            user_to_add_obj = user.User(user_to_add)
+            logger.info(f"user_to_add {user_to_add}")
 
             table.put_item(
                 Item={    
@@ -191,13 +222,16 @@ class Project():
                     "sk": f"roleInvitation_{self.project_id}",
                     "data": assigned_role.role_id ,
                     "requestedBy": requesting_user_name,
-                    "requestedAt": str(int(time.time()))
+                    "requestedAt": str(int(time.time())),
+                    "roleName": assigned_role.role_name,
+                    "inviteeFirstName": user_to_add_obj.first_name,
+                    "inviteeLastName": user_to_add_obj.last_name,
+                    "inviteeEmailAddress": user_to_add_obj.email_address
                 }
             )
-            
-            user_to_add_obj = user.User(user_to_add)
-            first_name = user_to_add_obj.first_name
 
+            first_name = user_to_add_obj.first_name
+            
         template_data = {
             "firstName": first_name,
             "projectName": self.project_name,
