@@ -17,18 +17,18 @@ Resources:
           RequireSymbols: False
           RequireUppercase: True
           TemporaryPasswordValidityDays: 7
-      SmsVerificationMessage: "Your verification code is {####}. "
-      EmailVerificationMessage: "Your verification code is {####}. "
-      EmailVerificationSubject: "Your verification code"
-      VerificationMessageTemplate:
-        SmsMessage: "Your verification code is {####}. "
-        EmailMessage: "Your verification link is {####}. "
-        EmailSubject: "Your verification link"
-        DefaultEmailOption: "CONFIRM_WITH_LINK"
-      SmsAuthenticationMessage: "Your authentication code is {####}. "
-      #LambdaConfig:
-      #  PostConfirmation: arn:aws:lambda:eu-west-1:434494845257:function:post-email-confirmation
-      # MfaConfiguration: "OPTIONAL"
+      # LambdaConfig:
+      #   CustomMessage: arn:aws:lambda:#{AWS::Region}:#{AWS::AccountId}:function:prind-api-${self:provider.stage}-custom-message
+      #   PostConfirmation: arn:aws:lambda:#{AWS::Region}:#{AWS::AccountId}:function:prind-api-${self:provider.stage}-post-email-confirmation
+      # SmsVerificationMessage: "Your verification code is {####}. "
+      # EmailVerificationMessage: "Your verification code is {####}. "
+      # EmailVerificationSubject: "Your verification code"
+      # VerificationMessageTemplate:
+      #   SmsMessage: "Your verification code is {####}. "
+      #   EmailMessage: "Your verification link is {####}. "
+      #   EmailSubject: "Your verification link"
+      #   DefaultEmailOption: "CONFIRM_WITH_LINK"
+      # SmsAuthenticationMessage: "Your authentication code is {####}. "
       DeviceConfiguration:
         ChallengeRequiredOnNewDevice: false
         DeviceOnlyRememberedOnUserPrompt: false

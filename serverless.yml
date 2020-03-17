@@ -37,6 +37,10 @@ custom:
       dev: 'testnet.factoid.org'
       staging: 'testnet.factoid.org'
       production: 'explorer.factoid.org'
+    PORTAL_HOSTNAME:
+      dev: portal-dev
+      staging: portal-staging
+      production: portal 
   s3BucketName: prind-portal-user-files-${self:provider.stage}
   s3UserProfilesBucketName: prind-portal-user-profiles-${self:provider.stage}
  
@@ -65,6 +69,7 @@ provider:
   region: ${opt:region, 'eu-west-1'}
   stage: ${opt:stage, 'dev'}
   environment:
+    ENVIRONMENT_NAME: ${self:provider.stage}
     TABLE_NAME: ${self:app}-${self:provider.stage}
     FOUNDATIONS_API_STAGE: ${self:provider.stage}
     FOUNDATIONS_API_ID: ${self:custom.myEnvironment.FOUNDATIONS_API_ID.${self:provider.stage}}
@@ -133,6 +138,15 @@ functions:
       - cognitoUserPool:
           pool: ${self:app}-${self:provider.stage}-user-pool
           trigger: PostConfirmation
+          existing: true
+
+  custom-message:
+    handler: custom-message.handler
+    runtime: nodejs12.x
+    events:
+      - cognitoUserPool:
+          pool: ${self:app}-${self:provider.stage}-user-pool
+          trigger: CustomMessage
           existing: true
 
   receive-notifications:
