@@ -5,7 +5,7 @@ from modules import errors
 from modules import user
 from modules import log
 
-SENDER = "mail@prind.tech"
+SENDER = "Prin-D communication <mail@prind.tech>"
 AWS_REGION = "eu-west-1"
 CHARSET = "UTF-8"
 

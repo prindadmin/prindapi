@@ -108,16 +108,16 @@ if __name__ == '__main__':
     event = {
         "cognitoPoolClaims": {
             #"sub": "778bd486-4684-482b-9565-1c2a51367b8c"
-            "sub": "a9fa394f-ed94-444c-84fe-6821f538ddd9"
+            "sub": "ab0ae262-eedf-41c0-ac6e-e5109217b6c1"
         },
         "path": {
-            "project_id": "ProjectNumberSix",
+            "project_id": "ThursdayTestProject2020-03-12",
             "page": "inception",
             "field_index": "1"
         },
         "body": {
             #"signingUsername": "aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaa"
-            "signingUsername": "b966f0b7-4310-4608-b08d-418210e7ff20"
+            "signingUsernames": "ab0ae262-eedf-41c0-ac6e-e5109217b6c1"
         }
     }
 
