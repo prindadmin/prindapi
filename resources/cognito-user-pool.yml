@@ -17,9 +17,9 @@ Resources:
           RequireSymbols: False
           RequireUppercase: True
           TemporaryPasswordValidityDays: 7
-      # LambdaConfig:
-      #   CustomMessage: arn:aws:lambda:#{AWS::Region}:#{AWS::AccountId}:function:prind-api-${self:provider.stage}-custom-message
-      #   PostConfirmation: arn:aws:lambda:#{AWS::Region}:#{AWS::AccountId}:function:prind-api-${self:provider.stage}-post-email-confirmation
+      LambdaConfig:
+        CustomMessage: arn:aws:lambda:#{AWS::Region}:#{AWS::AccountId}:function:prind-api-${self:provider.stage}-custom-message
+        PostConfirmation: arn:aws:lambda:#{AWS::Region}:#{AWS::AccountId}:function:prind-api-${self:provider.stage}-post-email-confirmation
       # SmsVerificationMessage: "Your verification code is {####}. "
       # EmailVerificationMessage: "Your verification code is {####}. "
       # EmailVerificationSubject: "Your verification code"
@@ -34,6 +34,7 @@ Resources:
         DeviceOnlyRememberedOnUserPrompt: false
       EmailConfiguration:
         SourceArn: "arn:aws:ses:eu-west-1:434494845257:identity/mail@prind.tech"
+        From: "Prin-D communication <mail@prind.tech>"
         EmailSendingAccount: "DEVELOPER"
       SmsConfiguration:
         SnsCallerArn: "arn:aws:iam::434494845257:role/service-role/prindportalusersdevelopment-SMS-Role"
