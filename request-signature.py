@@ -28,6 +28,8 @@ print('stage_log_level:', stage_log_level)
 # set the log level
 log.set_logging_level(stage_log_level)
 
+portal_hostname = os.environ.get('PORTAL_HOSTNAME')
+
 def lambda_handler(event, context):
 
     try:
@@ -61,6 +63,11 @@ def lambda_handler(event, context):
 
             fieldTitle = field_object[f"{project_id}/{page_name}/{field_index}"].get()['title']
 
+            try:
+                did = signing_user.get_did()
+            except errors.DIDNotFound:
+                did = None
+
             table.put_item(
                 Item={    
                     "pk": f"user_{signing_user.username}",
@@ -73,9 +80,16 @@ def lambda_handler(event, context):
                 }
             )
 
+            if portal_hostname:
+                portal_url=f"https://{portal_hostname}.prind.tech/#/signin"
+            else:
+                portal_url = None
+
             template_data = {
                 "firstName": requesting_user.first_name,
-                "lastName": requesting_user.last_name
+                "lastName": requesting_user.last_name,
+                "foundationsId": did,
+                "portalUrl": portal_url
             }
 
             mail.send_email(signing_user.email_address, "document-signature-request", template_data)
