@@ -41,6 +41,12 @@ templates = [
         "subject": "Thanks for confirming your email address"
     },
     {
+        "template_name": "post-confirmation-forgot-password",
+        "text_file_name": "email-template-post-confirmation-forgot-password.txt",
+        "html_file_name": "email-template-post-confirmation-forgot-password.html",
+        "subject": "Your password has been changed"
+    },
+    {
         "template_name": "document-signature-request",
         "text_file_name": "email-template-document-signature-request.txt",
         "html_file_name": "email-template-document-signature-request.html",
@@ -115,7 +121,7 @@ def update_templates(template_names):
 
 if __name__ == '__main__':
 
-    #update_templates(['post-confirmation'])
-    create_templates(['document-signature-request'])
+    update_templates(['project-invitation', 'document-signature-request'])
+    #create_templates(['post-confirmation-forgot-password'])
     #create_all_templates()
     #update_templates(['test-template'])
