@@ -1,0 +1,13 @@
+[
+  {
+    "pk": "defaultField_tender",
+    "sk": "fieldIndex_1",
+    "id": "1",
+    "title": "Pre-construction Information Pack",
+    "description": "Please upload you Pre-construction Information Pack.",
+    "type": "file",
+    "editable": true,
+    "default": true,
+    "fileDetails": []
+  }
+]

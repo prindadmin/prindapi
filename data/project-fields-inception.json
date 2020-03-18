@@ -1,0 +1,13 @@
+[
+  {
+    "pk": "defaultField_inception",
+    "sk": "fieldIndex_1",
+    "id": "1",
+    "title": "Please upload your project brief",
+    "description": "The project brief is required for the project to start.  Everyone will use this document.",
+    "type": "file",
+    "editable": true,
+    "default": true,
+    "fileDetails": []
+  }
+]

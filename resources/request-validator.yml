@@ -1,0 +1,9 @@
+Resources:
+  onlyBody:
+    Type: AWS::ApiGateway::RequestValidator
+    Properties:
+      Name: 'only-body'
+      RestApiId:
+        Ref: ApiGatewayRestApi
+      ValidateRequestBody: true # true or false
+      ValidateRequestParameters: false # true or false

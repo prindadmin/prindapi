@@ -1,0 +1,13 @@
+{
+  "$schema": "http://json-schema.org/draft-04/schema#",
+  "title": "Request Signature Request Model",
+  "type": "object",
+  "properties": {
+    "signingUsernames": {
+      "type": "array",     
+      "items": {
+        "type": "string"
+      }
+    }
+  }
+}

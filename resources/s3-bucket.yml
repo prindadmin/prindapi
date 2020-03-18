@@ -1,0 +1,22 @@
+Resources:
+  UserFilesS3Bucket:
+    Type: AWS::S3::Bucket
+    Properties: 
+      AccessControl: Private
+      BucketName: ${self:custom.s3BucketName}
+      PublicAccessBlockConfiguration:
+        BlockPublicAcls: True
+        BlockPublicPolicy: True
+      VersioningConfiguration: 
+        Status: "Enabled"
+      CorsConfiguration:
+        CorsRules:
+            - AllowedHeaders: 
+                - "*"
+              AllowedMethods: 
+                - GET
+                - PUT
+              AllowedOrigins: 
+                - "*"
+
+

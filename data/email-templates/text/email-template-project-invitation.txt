@@ -1,0 +1,5 @@
+Project Invitation
+
+You have been invited to join the project, {{projectName}} with the role of {{roleName}}. 
+
+Please log in to the PrinD platform to accept the invitation.

@@ -1,0 +1,23 @@
+<html>
+    <head></head>
+    <body>
+      <h1>Welcome to Prin-D Portal</h1>
+      <p>
+        {{#if foundationsId}}
+          Hi {{firstName}},
+        {{else}}
+          Hi,
+        {{/if}}
+      </p>
+      <p>
+        Thanks for confirming your email address
+      </p>
+      <p>
+        {{#if foundationsId}}
+          A Foundations ID has been found for your email address: {{foundationsId}}
+        {{else}}
+          A Foundations ID was not found for your email address. Please download the Foundations app and sign up.
+        {{/if}}
+      </p>
+    </body>
+</html>

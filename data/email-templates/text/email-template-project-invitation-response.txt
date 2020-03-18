@@ -1,0 +1,3 @@
+Project Invitation Response
+
+Your invitation to {{inviteeFirstName}} {{inviteeLastName}} to join {{projectName}} has been {{response}}

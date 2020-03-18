@@ -1,0 +1,13 @@
+{
+  "$schema": "http://json-schema.org/draft-04/schema#",
+  "title": "Project Invite Member Request Model",
+  "type": "object",
+  "properties": {
+    "emailAddress": {
+      "type": "string"
+    },
+    "roleId": {
+      "type": "string"
+    },
+  }
+}

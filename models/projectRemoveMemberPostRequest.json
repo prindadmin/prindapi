@@ -1,0 +1,10 @@
+{
+  "$schema": "http://json-schema.org/draft-04/schema#",
+  "title": "Project Remove Member Request Model",
+  "type": "object",
+  "properties": {
+    "username": {
+      "type": "string"
+    },
+  }
+}

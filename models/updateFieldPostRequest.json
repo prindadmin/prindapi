@@ -1,0 +1,22 @@
+{
+  "$schema": "http://json-schema.org/draft-04/schema#",
+  "title": "Field Update Request Model",
+  "type": "object",
+  "properties": {
+    "title": {
+      "type": "string"
+    },
+    "description": {
+      "type": "string"
+    },
+    "editable": {
+      "type": "string"
+    },
+    "type": {
+      "type": "string"
+    },
+    "fieldDetails": {
+      "type": "object"
+    },
+  }
+}

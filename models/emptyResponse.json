@@ -1,0 +1,14 @@
+{
+  "$schema": "http://json-schema.org/draft-04/schema#",
+  "title": "Empty Response",
+  "type": "object",
+  "properties": {
+    "statusCode": {
+      "type": "integer"
+    },
+    "body": {
+      "type": "object"
+    } 
+  }
+}
+
