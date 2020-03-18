@@ -39,6 +39,7 @@ class Page():
         for item in items:
             item.pop("sk", None)
             item.pop("pk", None)
+            item['id'] = int(item['id'])
 
 
         self.page_name = page
@@ -57,7 +58,7 @@ class Page():
 
         populated_fields = response['Items']
 
-        highest_populated_index = max([field['id'] for field in populated_fields])
+        highest_populated_index = max([int(field['id']) for field in populated_fields])
 
         return max([number_of_default_fields, int(highest_populated_index)])
 
@@ -76,6 +77,7 @@ class Page():
             item.pop('pk')
             item.pop('sk')           
             field_index = item["id"]
+            item["id"] = int(item["id"])
 
             # Add any file details
             if item['type'] == 'file':
@@ -110,13 +112,14 @@ class Page():
             except KeyError:
                 resultant_fields.append(default)
 
-        print(f"populated_fields {populated_fields}")
-        print(f"resultant_fields {resultant_fields}")
+
+        populated_fields_list = []
+
+        for id in sorted([int(i) for i in populated_fields]):
+            populated_fields_list.append(populated_fields[str(id)])
 
         # add any additional custom fields
-        custom_fields = [f for f in populated_fields.values() if f not in resultant_fields]
-
-        print(custom_fields)
+        custom_fields = [f for f in populated_fields_list if f not in resultant_fields]
 
         resultant_fields = resultant_fields + custom_fields
 
