@@ -109,7 +109,9 @@ def lambda_handler(event, context):
                 field_index=field_index
             )
 
-            s3_version = this_document.get_version(version)['s3VersionId']
+            document_version = this_document.get_version(version)
+            s3_version = document_version['s3VersionId']
+            filename = document_version.get('filename')
 
             logger.info(f"s3_version is : {s3_version}")
 
@@ -118,10 +120,17 @@ def lambda_handler(event, context):
 
             logger.info(f"object_name: {object_name}")
 
+            params = {
+                'Bucket': s3_bucket_name,
+                'Key': object_name,
+                'VersionId':s3_version
+            }
+
+            if filename:
+                params['ResponseContentDisposition'] = f'attachment; filename={filename}'
+
             response = s3_client.generate_presigned_url('get_object',
-                                                            Params={'Bucket': s3_bucket_name,
-                                                                    'Key': object_name,
-                                                                    'VersionId':s3_version},
+                                                            Params=params,
                                                             ExpiresIn=3600)
 
             url = response
