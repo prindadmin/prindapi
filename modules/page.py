@@ -40,7 +40,6 @@ class Page():
             item.pop("sk", None)
             item.pop("pk", None)
 
-
         self.page_name = page
         self.project_id = project_id
         self.default_fields = items
@@ -57,7 +56,7 @@ class Page():
 
         populated_fields = response['Items']
 
-        highest_populated_index = max([field['id'] for field in populated_fields])
+        highest_populated_index = max([int(field['id']) for field in populated_fields])
 
         return max([number_of_default_fields, int(highest_populated_index)])
 
@@ -106,17 +105,18 @@ class Page():
         for default in self.default_fields:
             try:
                 value_for_this_index = populated_fields[default['id']]
-                resultant_fields.append(value_for_this_index)
             except KeyError:
                 resultant_fields.append(default)
+            else:
+                resultant_fields.append(value_for_this_index)
 
-        print(f"populated_fields {populated_fields}")
-        print(f"resultant_fields {resultant_fields}")
+        populated_fields_list = []
+
+        for id in sorted(populated_fields, key=int):
+            populated_fields_list.append(populated_fields[id])
 
         # add any additional custom fields
-        custom_fields = [f for f in populated_fields.values() if f not in resultant_fields]
-
-        print(custom_fields)
+        custom_fields = [f for f in populated_fields_list if f not in resultant_fields]
 
         resultant_fields = resultant_fields + custom_fields
 
@@ -125,16 +125,6 @@ class Page():
         return resultant_fields
 
     def write_field(self, field_index, field_type, field_data=None, title=None, description=None, editable=None):
-
-        """
-        If a document, field_data is:
-
-        "fieldDetails": {
-          "documentDid": "did:fnds:a1cbe1b4c646e28f430273fe9536bcd15a7d36a04d9ffaf77b7962e63535a2fa"
-        }
-
-        Otherwise fieldDetails is exactly the same as what was downloaded
-        """
 
         response = table.get_item(
             Key={

@@ -7,7 +7,15 @@
         with the role of {{roleName}}. 
       </p>
       <p>
-        Please log in to the PrinD platform to accept the invitation.
+        Please log in to the
+         
+        {{#if portalUrl}}
+        <a href="{{portalUrl}}">Prin-D portal</a> 
+        {{else}}
+        Prin-D portal
+        {{/if}}
+
+        to accept the invitation.
       </p>
     </body>
 </html>

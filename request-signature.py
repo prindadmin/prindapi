@@ -28,6 +28,8 @@ print('stage_log_level:', stage_log_level)
 # set the log level
 log.set_logging_level(stage_log_level)
 
+portal_hostname = os.environ.get('PORTAL_HOSTNAME')
+
 def lambda_handler(event, context):
 
     try:
@@ -61,6 +63,11 @@ def lambda_handler(event, context):
 
             fieldTitle = field_object[f"{project_id}/{page_name}/{field_index}"].get()['title']
 
+            try:
+                did = signing_user.get_did()
+            except errors.DIDNotFound:
+                did = None
+
             table.put_item(
                 Item={    
                     "pk": f"user_{signing_user.username}",
@@ -73,9 +80,16 @@ def lambda_handler(event, context):
                 }
             )
 
+            if portal_hostname:
+                portal_url=f"https://{portal_hostname}.prind.tech/#/signin"
+            else:
+                portal_url = None
+
             template_data = {
                 "firstName": requesting_user.first_name,
-                "lastName": requesting_user.last_name
+                "lastName": requesting_user.last_name,
+                "foundationsId": did,
+                "portalUrl": portal_url
             }
 
             mail.send_email(signing_user.email_address, "document-signature-request", template_data)
@@ -108,16 +122,16 @@ if __name__ == '__main__':
     event = {
         "cognitoPoolClaims": {
             #"sub": "778bd486-4684-482b-9565-1c2a51367b8c"
-            "sub": "a9fa394f-ed94-444c-84fe-6821f538ddd9"
+            "sub": "ab0ae262-eedf-41c0-ac6e-e5109217b6c1"
         },
         "path": {
-            "project_id": "ProjectNumberSix",
+            "project_id": "ThursdayTestProject2020-03-12",
             "page": "inception",
             "field_index": "1"
         },
         "body": {
             #"signingUsername": "aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaa"
-            "signingUsername": "b966f0b7-4310-4608-b08d-418210e7ff20"
+            "signingUsernames": "ab0ae262-eedf-41c0-ac6e-e5109217b6c1"
         }
     }
 

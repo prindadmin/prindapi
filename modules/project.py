@@ -24,6 +24,8 @@ except:
 dynamodb = boto3.resource("dynamodb")
 table = dynamodb.Table(os.environ["TABLE_NAME"])
 
+portal_hostname = os.environ.get('PORTAL_HOSTNAME')
+
 class Project():
 
     def __init__(self, project_id):
@@ -231,11 +233,18 @@ class Project():
             )
 
             first_name = user_to_add_obj.first_name
+
+
+        if portal_hostname:
+            portal_url=f"https://{portal_hostname}.prind.tech/#/signin"
+        else:
+            portal_url = None
             
         template_data = {
             "firstName": first_name,
             "projectName": self.project_name,
-            "roleName": assigned_role.role_name
+            "roleName": assigned_role.role_name,
+            "portalUrl": portal_url
         }
 
         mail.send_email(invitee_email, "project-invitation", template_data)

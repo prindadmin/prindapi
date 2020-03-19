@@ -60,9 +60,9 @@ this_project.add_user_role(
 
 # invite user to project
 myusername="ab0ae262-eedf-41c0-ac6e-e5109217b6c1"
-invitee_email="mr.simon.hunt+test16@gmail.com"
+invitee_email="mr.simon.hunt+test20@gmail.com"
 from modules import project
-this_project = project.Project('NewDayNewProject2020-03-05')
+this_project = project.Project('ThursdayTestProject2020-03-12')
 this_project.invite_user(
         requesting_user_name=myusername,
         invitee_email=invitee_email,
@@ -136,7 +136,7 @@ myfield.get()
 
 # get page fields
 from modules import page
-this_page = page.Page('inception', 'ProjectNumberFour')
+this_page = page.Page('design', 'NewDayNewProject2020-03-05')
 print(this_page.get_resultant_fields())
 
 # write field
@@ -240,16 +240,23 @@ did = this_user.get_did_from_foundations()
 print(did)
 
 # add foundations subscription
-username = "b966f0b7-4310-4608-b08d-418210e7ff20"
+username = "ab0ae262-eedf-41c0-ac6e-e5109217b6c1"
 from modules import user
 this_user = user.User(username)
 this_user.add_foundations_subscription()
 
 # get foundations subscription
-username = "b966f0b7-4310-4608-b08d-418210e7ff20"
+username = "ab0ae262-eedf-41c0-ac6e-e5109217b6c1"
 from modules import user
 this_user = user.User(username)
-this_user.get_foundations_subscription()
+print(this_user.get_foundations_subscription())
+
+
+# populate foundations subscription
+username = "ab0ae262-eedf-41c0-ac6e-e5109217b6c1"
+from modules import user
+this_user = user.User(username)
+print(this_user.populate_subscription_details())
 
 # get uploaded documents
 username = "4a9d66e8-f725-4c24-be3d-d3bdd417cb08"

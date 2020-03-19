@@ -64,6 +64,11 @@ def lambda_handler(event, context):
             print("fieldRequestDenied notification received")
             print(message)
 
+        elif message["notificationType"] == "fieldUpdate":
+
+            print("A subscription field was updated")
+            print(message)
+
         elif message["notificationType"] == "documentSigned":
 
             print(message['signingDid'])

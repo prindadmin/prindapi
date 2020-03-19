@@ -6,7 +6,31 @@
         You have been requested to sign a document by {{firstName}} {{lastName}}.
       </p>
       <p>
-        Please log in to the PrinD platform to sign the document.
+        {{#if foundationsId}}
+          Please log in to the 
+          
+          {{#if portalUrl}}
+          <a href="{{portalUrl}}">Prin-D portal</a> 
+          {{else}}
+          Prin-D portal
+          {{/if}}   
+          
+          to sign the document.
+        {{else}}
+          Before you can sign the document, you will need to download the Foundations app on your phone and create a Foundations ID. Then log in to the 
+
+          {{#if portalUrl}}
+          <a href="{{portalUrl}}">Prin-D portal</a> 
+          {{else}}
+          Prin-D portal
+          {{/if}}        
+
+          to review the document.
+          <p>
+            <a href='https://play.google.com/store/apps/details?id=com.buildingim.foundations&pcampaignid=pcampaignidMKT-Other-global-all-co-prtnr-py-PartBadge-Mar2515-1'><img alt='Get it on Google Play' height="75" src='https://play.google.com/intl/en_gb/badges/static/images/badges/en_badge_web_generic.png'/></a>
+            <img src="https://portal-dev.prind.tech/images/Download_iOS_soon.png" alt="iOS Logo" height="55" style="padding-bottom:10px;">
+          </p>
+        {{/if}}
       </p>
     </body>
 </html>

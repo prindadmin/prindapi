@@ -58,6 +58,11 @@ def list_all_roles():
     for item in items:
 
         item['roleId'] = item.pop('pk').split('role_')[1]
+
+        # creator is not an assignable role
+        if item['roleId'] == "creator":
+            continue
+
         item['roleName'] = item.pop('data')
         item.pop('sk')
 

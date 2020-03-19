@@ -352,7 +352,7 @@ class User():
 
         if response_dict.get("statusCode") != 200:
             logger.error(f"error calling /sp/subscription/{user_did} is {response_dict}")
-            subscription_details = None
+            subscription_details = {}
         else:
             logger.info(f"response from /sp/subscription/{user_did} is {response_dict}")
             subscription_details = response_dict['body']
@@ -361,6 +361,28 @@ class User():
         logger.debug(log.function_end_output(locals()))
 
         return subscription_details
+
+    def populate_subscription_details(self):
+
+        subscription_fields = self.get_foundations_subscription()
+
+        # get field(s) from database
+        response = table.query(
+            KeyConditionExpression=Key("pk").eq(f"user_{self.username}") & Key("sk").begins_with("userDetails_")
+        )
+
+        database_details = response.get("Items")
+
+        for subscription_field in subscription_fields.get('personalDetails',{}).keys():
+
+            print(subscription_field)
+
+            print(subscription_fields['personalDetails'][subscription_field]['field']['value'])
+
+
+        # loop over fields. 
+        # if database field !=subscription field, enter subscription field
+
 
     def add_signed_document(self, document_did, document_version, signed_at, entry_hash):
 
