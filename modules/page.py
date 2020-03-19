@@ -39,8 +39,6 @@ class Page():
         for item in items:
             item.pop("sk", None)
             item.pop("pk", None)
-            item['id'] = int(item['id'])
-
 
         self.page_name = page
         self.project_id = project_id
@@ -77,7 +75,6 @@ class Page():
             item.pop('pk')
             item.pop('sk')           
             field_index = item["id"]
-            item["id"] = int(item["id"])
 
             # Add any file details
             if item['type'] == 'file':
@@ -108,9 +105,10 @@ class Page():
         for default in self.default_fields:
             try:
                 value_for_this_index = populated_fields[default['id']]
-                resultant_fields.append(value_for_this_index)
             except KeyError:
                 resultant_fields.append(default)
+            else:
+                resultant_fields.append(value_for_this_index)
 
         populated_fields_list = []
 
