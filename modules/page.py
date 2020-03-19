@@ -112,11 +112,10 @@ class Page():
             except KeyError:
                 resultant_fields.append(default)
 
-
         populated_fields_list = []
 
-        for id in sorted([int(i) for i in populated_fields]):
-            populated_fields_list.append(populated_fields[str(id)])
+        for id in sorted(populated_fields, key=int):
+            populated_fields_list.append(populated_fields[id])
 
         # add any additional custom fields
         custom_fields = [f for f in populated_fields_list if f not in resultant_fields]
@@ -128,16 +127,6 @@ class Page():
         return resultant_fields
 
     def write_field(self, field_index, field_type, field_data=None, title=None, description=None, editable=None):
-
-        """
-        If a document, field_data is:
-
-        "fieldDetails": {
-          "documentDid": "did:fnds:a1cbe1b4c646e28f430273fe9536bcd15a7d36a04d9ffaf77b7962e63535a2fa"
-        }
-
-        Otherwise fieldDetails is exactly the same as what was downloaded
-        """
 
         response = table.get_item(
             Key={
