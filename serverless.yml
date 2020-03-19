@@ -24,15 +24,15 @@ custom:
     FOUNDATIONS_API_ID:
       dev: 'w9t59cws74'
       staging: 'wg5sl57evc'
-      production: ''
+      production: '5kw6m2arci'
     FOUNDATIONS_SNS_ARN:
       dev: arn:aws:sns:eu-west-1:514296467270:SP-ca7722fabb7009aecf997a59973cd4fc810b820b15fd041b7671f146e97dcfc1-dev
       staging: arn:aws:sns:eu-west-1:514296467270:SP-ca7722fabb7009aecf997a59973cd4fc810b820b15fd041b7671f146e97dcfc1-staging
-      production: arn:aws:sns:eu-west-1:514296467270:SP-ca7722fabb7009aecf997a59973cd4fc810b820b15fd041b7671f146e97dcfc1-production
+      production: arn:aws:sns:eu-west-1:514296467270:SP-6ab0363127d5ee96e534cbace0402bc097d4d4f06ee9500e926d04d48285c248-production
     SP_DID:
       dev: 'did:fnds:ca7722fabb7009aecf997a59973cd4fc810b820b15fd041b7671f146e97dcfc1'
       staging: 'did:fnds:ca7722fabb7009aecf997a59973cd4fc810b820b15fd041b7671f146e97dcfc1'
-      production: 'did:fnds:ca7722fabb7009aecf997a59973cd4fc810b820b15fd041b7671f146e97dcfc1'
+      production: 'did:fnds:6ab0363127d5ee96e534cbace0402bc097d4d4f06ee9500e926d04d48285c248'
     FACTOM_EXPLORER_DOMAIN:
       dev: 'testnet.factoid.org'
       staging: 'testnet.factoid.org'
