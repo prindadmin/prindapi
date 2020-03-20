@@ -89,7 +89,8 @@ def lambda_handler(event, context):
                 "firstName": requesting_user.first_name,
                 "lastName": requesting_user.last_name,
                 "foundationsId": did,
-                "portalUrl": portal_url
+                "portalUrl": portal_url,
+                "portalHostname": portal_hostname
             }
 
             mail.send_email(signing_user.email_address, "document-signature-request", template_data)
