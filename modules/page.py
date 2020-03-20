@@ -56,7 +56,7 @@ class Page():
 
         populated_fields = response['Items']
 
-        highest_populated_index = max([int(field['id']) for field in populated_fields])
+        highest_populated_index = max([int(field['id']) for field in populated_fields], default=0)
 
         return max([number_of_default_fields, int(highest_populated_index)])
 
