@@ -48,27 +48,46 @@ def lambda_handler(event, context):
             this_user = user.User(username)
 
             try:
-              did = this_user.add_foundations_subscription()
+                did = this_user.add_foundations_subscription()
             except errors.DIDNotFound:
-              did = None
+                did = None
 
             # get any project invitations against this email address
             response = table.query(
-              KeyConditionExpression=Key("pk").eq(f"emailAddress_{email_address}") & Key("sk").begins_with("roleInvitation_")
+                KeyConditionExpression=Key("pk").eq(f"emailAddress_{email_address}") & Key("sk").begins_with("roleInvitation_")
             )
 
-            items = response.get("Items")
+            email_invites = response.get("Items")
 
             # put those invitations under the user account
-            for item in items:
-              item['pk'] = f"user_{username}"
-              table.put_item(
-                Item=item
-              )
+            for email_invite in email_invites:
+              
+                email_invite_key = {
+                    'pk': email_invite['pk'],
+                    'sk': email_invite['sk']
+                }
+
+                logger.info(f"deleting email invite {email_invite_key}" )
+
+                table.delete_item(
+                    Key=email_invite_key
+                )
+
+                user_invite = email_invite.copy()
+
+                user_invite['pk'] = f"user_{username}"
+                user_invite['inviteeFirstName'] = first_name
+                user_invite['inviteeLastName'] = last_name
+
+                logger.info(f"adding user invite {user_invite}")
+                
+                table.put_item(
+                    Item=user_invite
+                )
 
             template_data = {
-              "firstName": first_name,
-              "foundationsId": did
+                "firstName": first_name,
+                "foundationsId": did
             }
 
             mail.send_email(email_address, "post-confirmation", template_data)
@@ -80,23 +99,20 @@ def lambda_handler(event, context):
             mail.send_email(email_address, "post-confirmation-forgot-password", template_data)
 
     # catch any application errors
-    except:
-        raise
-
-    # except errors.ApplicationError as error:
-    #     return {
-    #         'statusCode': 400,
-    #         "Error": error.get_error_dict()
-    #     }
-    # # catch unhandled exceptions
-    # except Exception as e:
+    except errors.ApplicationError as error:
+        return {
+            'statusCode': 400,
+            "Error": error.get_error_dict()
+        }
+    # catch unhandled exceptions
+    except Exception as e:
         
-    #     # logger.error(log.logging.exception("message"))
+        # logger.error(log.logging.exception("message"))
 
-    #     return {
-    #         'statusCode': 500,
-    #         'Error': errors.UnhandledException(context.log_group_name, context.log_stream_name, context.aws_request_id).get_error_dict()
-    #     }
+        return {
+            'statusCode': 500,
+            'Error': errors.UnhandledException(context.log_group_name, context.log_stream_name, context.aws_request_id).get_error_dict()
+        }
 
     return event
 
@@ -105,29 +121,7 @@ def lambda_handler(event, context):
 if __name__ == '__main__':
 
     event = {
-      "sign-up": {
-        "version": "1",
-        "region": "eu-west-1",
-        "userPoolId": "eu-west-1_VL7uVkjBo",
-        "userName": "4a9d66e8-f725-4c24-be3d-d3bdd417cb08",
-        "callerContext": {
-          "awsSdkVersion": "aws-sdk-unknown-unknown",
-          "clientId": "1heu4dbau7agvc2nee57o65fl0"
-        },
-        "triggerSource": "PostConfirmation_ConfirmSignUp",
-        "request": {
-          "userAttributes": {
-            "sub": "4a9d66e8-f725-4c24-be3d-d3bdd417cb08",
-            "cognito:email_alias": "mr.simon.hunt+test14@gmail.com",
-            "cognito:user_status": "CONFIRMED",
-            "email_verified": "true",
-            "email": "mr.simon.hunt+test14@gmail.com",
-            "given_name": "Simon",
-            "family_name": "Hunt"
-          }
-        },
-        "response": {}
-      },
+      "sign-up": {'version': '1', 'region': 'eu-west-1', 'userPoolId': 'eu-west-1_VL7uVkjBo', 'userName': 'cee1a188-7a4b-48fc-b4b1-5b9adbcf43cb', 'callerContext': {'awsSdkVersion': 'aws-sdk-unknown-unknown', 'clientId': 'fbss4knsc8gmgct526ci8kp3a'}, 'triggerSource': 'PostConfirmation_ConfirmSignUp', 'request': {'userAttributes': {'sub': 'cee1a188-7a4b-48fc-b4b1-5b9adbcf43cb', 'cognito:email_alias': 'mr.simon.hunt+test29@gmail.com', 'cognito:user_status': 'CONFIRMED', 'email_verified': 'true', 'given_name': 'Simon', 'family_name': 'Hunt', 'email': 'mr.simon.hunt+test29@gmail.com'}}, 'response': {}},
       "forgot-password": {
         "version": "1",
         "region": "eu-west-1",
@@ -155,4 +149,4 @@ if __name__ == '__main__':
 
     
 
-    print(lambda_handler(event["forgot-password"], {}))
+    print(lambda_handler(event["sign-up"], {}))
