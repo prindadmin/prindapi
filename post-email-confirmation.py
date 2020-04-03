@@ -38,7 +38,7 @@ def lambda_handler(event, context):
         email_address = event['request']['userAttributes'].get('email')
 
         if event['triggerSource'] == "PostConfirmation_ConfirmSignUp":
-            
+
             username = event['request']['userAttributes']['sub']
             first_name = event['request']['userAttributes'].get('given_name')
             last_name = event['request']['userAttributes'].get('family_name')
@@ -61,7 +61,7 @@ def lambda_handler(event, context):
 
             # put those invitations under the user account
             for email_invite in email_invites:
-              
+
                 email_invite_key = {
                     'pk': email_invite['pk'],
                     'sk': email_invite['sk']
@@ -106,7 +106,7 @@ def lambda_handler(event, context):
         }
     # catch unhandled exceptions
     except Exception as e:
-        
+
         # logger.error(log.logging.exception("message"))
 
         return {
