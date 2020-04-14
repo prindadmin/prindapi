@@ -14,6 +14,7 @@ from modules import user
 from modules import did
 from modules import log
 from modules import project
+from modules import field
 
 
 # If logger hasn"t been set up by a calling function, set it here
@@ -237,9 +238,40 @@ class Document():
 
         logger.info(f"api_url is: {api_url}")
 
+        document_field = field.Field(
+            field_index=self.field_index,
+            page_name=self.page, 
+            project_id=self.project_id 
+        )
+
+        document_attributes = [
+            {
+                "fieldName": "Filename",
+                "fieldValue": filename,
+                "fieldType": "Text"
+            },
+            {
+                "fieldName": "Project Name",
+                "fieldValue": project.Project(self.project_id).project_name,
+                "fieldType": "Text"
+            },
+            {
+                "fieldName": "Page Name",
+                "fieldValue": self.page,
+                "fieldType": "Text"
+            },
+            {
+                "fieldName": "Field Title",
+                "fieldValue": document_field.get()['title'],
+                "fieldType": "Text"
+            }
+        ]
+
         params = {
             "documentHash": file_hash,
-            "requesterReference": "File Uploader"
+            "requesterReference": "File Uploader",
+            "documentAttributes": document_attributes
+
         }
         
         logger.info(f"params are: {params}")
@@ -269,7 +301,8 @@ class Document():
                 "data": f"uploader_{uploading_username}_{datetime_suffix}",
                 "s3VersionId": s3_version_id,
                 "versionNumber": document_version_number,
-                "filename": filename
+                "filename": filename,
+                "documentAttributes": document_attributes
             }
         )
 
@@ -280,7 +313,8 @@ class Document():
                 "data": f"uploader_{uploading_username}_{datetime_suffix}",
                 "s3VersionId": s3_version_id,
                 "versionNumber": document_version_number,
-                "filename": filename
+                "filename": filename,
+                "documentAttributes": document_attributes
             }
         )
 
@@ -305,10 +339,40 @@ def create(
 
     logger.info(f"api_url is: {api_url}")
 
+    document_field = field.Field(
+        field_index=field_index,
+        page_name=page, 
+        project_id=project_id 
+    )
+
+    document_attributes = [
+        {
+            "fieldName": "Filename",
+            "fieldValue": filename,
+            "fieldType": "Text"
+        },
+        {
+            "fieldName": "Project Name",
+            "fieldValue": project.Project(project_id).project_name,
+            "fieldType": "Text"
+        },
+        {
+            "fieldName": "Page Name",
+            "fieldValue": page,
+            "fieldType": "Text"
+        },
+        {
+            "fieldName": "Field Title",
+            "fieldValue": document_field.get()['title'],
+            "fieldType": "Text"
+        }
+    ]
+
     params = {
         "documentName": document_name,
         "documentHash": file_hash,
-        "requesterReference": "File Uploader"
+        "requesterReference": "File Uploader",
+        "documentAttributes": document_attributes
     }
 
     logger.info(f"params are: {params}")
@@ -348,7 +412,8 @@ def create(
             "data": f"uploader_{uploading_username}_{datetime_suffix}",
             "s3VersionId": s3_version_id,
             "versionNumber": 1,
-            "filename": filename
+            "filename": filename,
+            "documentAttributes": document_attributes
         }
     )
 
@@ -359,7 +424,8 @@ def create(
             "data": f"uploader_{uploading_username}_{datetime_suffix}",
             "s3VersionId": s3_version_id,
             "versionNumber": 1,
-            "filename": filename
+            "filename": filename,
+            "documentAttributes": document_attributes
         }
     )
 
