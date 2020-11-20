@@ -33,7 +33,7 @@ sp_did = os.environ["SP_DID"]
 api_stage = os.environ["FOUNDATIONS_API_STAGE"]
 factom_explorer_domain = os.environ["FACTOM_EXPLORER_DOMAIN"]
 
-foundations_jwt = auth.get_foundations_jwt(sp_did)
+# foundations_jwt = auth.get_foundations_jwt(sp_did)
 
 class Document():
 

@@ -40,14 +40,14 @@ def lambda_handler(event, context):
                 raise errors.InsufficientPermission("You do not have permission to this project")
 
             subject_did_obj = did.Did(unquote(event['path']['foundations_id']))
-            subject_username = subject_did_obj.get_cognito_username(self)
+            subject_username = subject_did_obj.get_cognito_username()
 
             if not this_project.user_in_roles(subject_username, ["*"]):
                 raise errors.InsufficientPermission(f"{foundations_id} is not part of this project")
 
-            auth_user_obj = user.User(authenticating_username)
+            subject_user_obj = user.User(subject_username)
 
-            if auth_user_obj.first_name == 'Ben' and auth_user_obj.last_name == 'Jeater':
+            if subject_user_obj.first_name == 'Ben' and subject_user_obj.last_name == 'Jeater':
 
                 return_body = [
                     {
@@ -58,7 +58,7 @@ def lambda_handler(event, context):
                     }
                 ]
             else:
-                return_body == []
+                return_body = []
 
             status_code = 200
 
