@@ -8,6 +8,9 @@ from modules import user
 from modules import did
 from urllib.parse import unquote
 
+from botocore.exceptions import ClientError
+from boto3.dynamodb.conditions import Key, Attr
+
 from modules import log
 from modules.log import logger
 
@@ -15,6 +18,9 @@ try:
     stage_log_level = os.environ['PRIND_LOG_LEVEL']
 except (NameError, KeyError):
     stage_log_level = 'CRITICAL'
+
+dynamodb = boto3.resource("dynamodb")
+table = dynamodb.Table(os.environ["TABLE_NAME"])
 
 print('stage_log_level:', stage_log_level)
 
@@ -45,21 +51,19 @@ def lambda_handler(event, context):
             if not this_project.user_in_roles(subject_username, ["*"]):
                 raise errors.InsufficientPermission(f"{foundations_id} is not part of this project")
 
-            subject_user_obj = user.User(subject_username)
+            response = table.get_item(
+                Key={
+                    "pk": f"user_{subject_username}",
+                    "sk": "accreditations"
+                }
+            )
+        
+            try:
+                accreditations = response.get("Item")["accreditations"]
+            except (TypeError, KeyError):
+                accreditations = []
 
-            if subject_user_obj.first_name == 'Ben' and subject_user_obj.last_name == 'Jeater':
-
-                return_body = [
-                    {
-                        "accreditationName": "Construction Basics 1",
-                        "issuedDate": 1605213908,
-                        "issuer": "Acme Inc",
-                        "entryHash": "ee7514c2fe963160255645932f9f72416814b92a045b8dbba4ef6fb40b0c97d8"
-                    }
-                ]
-            else:
-                return_body = []
-
+            return_body = accreditations
             status_code = 200
 
         else:
