@@ -1,7 +1,7 @@
 [
   {
-    "pk": "defaultField_occupation",
-    "sk": "fieldIndex_1",
+    "pk": "defaultField_CDM2015Project",
+    "sk": "fieldIndex_occupation_1",
     "id": "1",
     "title": "Brief Description",
     "description": "Please upload a file containing your Brief Description",
@@ -11,8 +11,8 @@
     "fileDetails": []
   },
   {
-    "pk": "defaultField_occupation",
-    "sk": "fieldIndex_2",
+    "pk": "defaultField_CDM2015Project",
+    "sk": "fieldIndex_occupation_2",
     "id": "2",
     "title": "Residual Hazards",
     "description": "Please upload your Residual Hazards file",
@@ -22,8 +22,8 @@
     "fileDetails": []
   },
   {
-    "pk": "defaultField_occupation",
-    "sk": "fieldIndex_3",
+    "pk": "defaultField_CDM2015Project",
+    "sk": "fieldIndex_occupation_3",
     "id": "3",
     "title": "Key Structural Principles",
     "description": "Please upload your Key Structural Principles file",
@@ -33,8 +33,8 @@
     "fileDetails": []
   },
   {
-    "pk": "defaultField_occupation",
-    "sk": "fieldIndex_4",
+    "pk": "defaultField_CDM2015Project",
+    "sk": "fieldIndex_occupation_4",
     "id": "4",
     "title": "Hazardous Materials Used",
     "description": "Please upload your Hazardous Materials Used file",
@@ -44,8 +44,8 @@
     "fileDetails": []
   },
   {
-    "pk": "defaultField_occupation",
-    "sk": "fieldIndex_5",
+    "pk": "defaultField_CDM2015Project",
+    "sk": "fieldIndex_occupation_5",
     "id": "5",
     "title": "Removal And Dismantling Of Plant And Equipment",
     "description": "Please upload your Removal And Dismantling Of Plant And Equipment file",
@@ -55,8 +55,8 @@
     "fileDetails": []
   },
   {
-    "pk": "defaultField_occupation",
-    "sk": "fieldIndex_6",
+    "pk": "defaultField_CDM2015Project",
+    "sk": "fieldIndex_occupation_6",
     "id": "6",
     "title": "Cleaning and Maintenance",
     "description": "Please upload your Cleaning and Maintenance file",
@@ -66,8 +66,8 @@
     "fileDetails": []
   },
   {
-    "pk": "defaultField_occupation",
-    "sk": "fieldIndex_7",
+    "pk": "defaultField_CDM2015Project",
+    "sk": "fieldIndex_occupation_7",
     "id": "7",
     "title": "Significant Services Location",
     "description": "Please upload your Significant Services Location file",
@@ -77,8 +77,8 @@
     "fileDetails": []
   },
   {
-    "pk": "defaultField_occupation",
-    "sk": "fieldIndex_8",
+    "pk": "defaultField_CDM2015Project",
+    "sk": "fieldIndex_occupation_8",
     "id": "8",
     "title": "As-built Information",
     "description": "Please upload your As-built Information file",

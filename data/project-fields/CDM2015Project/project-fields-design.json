@@ -1,7 +1,7 @@
 [
   {
-    "pk": "defaultField_design",
-    "sk": "fieldIndex_1",
+    "pk": "defaultField_CDM2015Project",
+    "sk": "fieldIndex_design_1",
     "id": "1",
     "title": "Please Upload your Design Risk Assessment (DRA)",
     "description": "This document is required before any design work can start.",
