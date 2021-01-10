@@ -26,6 +26,8 @@ table = dynamodb.Table(os.environ["TABLE_NAME"])
 
 portal_hostname = os.environ.get('PORTAL_HOSTNAME')
 
+DEFAULT_PROJECT_TYPE = 'CDM2015Project'
+
 class Project():
 
     def __init__(self, project_id):
@@ -49,6 +51,7 @@ class Project():
         self.project_description = item['description']
         self.project_reference = item.get('reference')
         self.site_address = item['siteAddress']
+        self.project_type = item.get('projectType', DEFAULT_PROJECT_TYPE)
 
         # find out if project is deleted
         # projects are active by default
@@ -386,6 +389,7 @@ class Project():
                 "description": project_description,
                 "reference": project_reference,
                 "siteAddress": site_address,
+                "projectType": self.project_type
             }
         )
 
@@ -410,7 +414,30 @@ def get_user_projects(username):
     project_object = {}
     role_object = {}
 
+    def get_project_data(project_id, item):
 
+        # add project to the dictionary of projects if it is not already there
+        if not project_object[project_id]:
+            try:
+                project_object[project_id] = Project(project_id)
+            except errors.ProjectNotFound:
+                logger.info(f"project {project_id} was not found")
+                return None
+
+        # if the project is not active skip it
+        if not project_object[project_id].active:
+            return None
+
+        item.pop('pk')
+        item['projectId'] = project_id
+        item['projectName'] = project_object[project_id].project_name
+        item['projectDescription'] = project_object[project_id].project_description
+        item['dateTime'] = item.pop('dateJoined', '0000000000')
+        item['projectType'] = project_object[project_id].project_description
+
+        return item
+
+    # get the users owned project
     response = table.query(
         KeyConditionExpression=Key("pk").eq(f"user_{username}") & Key("sk").begins_with("projectOwner_")
     )
@@ -420,30 +447,15 @@ def get_user_projects(username):
     owned_projects = []
 
     for item in items:
+
         project_id = item.pop('sk').split('projectOwner_')[1]
 
-        item['projectId'] = project_id
+        owned_project = get_project_data(project_id, item)
+        
+        if owned_project:
+            owned_projects.append(owned_project)
 
-        try:
-            project_object[project_id] = Project(project_id)
-        except errors.ProjectNotFound:
-            logger.info(f"project {project_id} was not found")
-            continue
-
-        if not project_object[project_id].active:
-            continue
-
-        if not item.get('projectName'):
-            item['projectName'] = project_object[project_id].project_name
-
-        if not item.get('projectDescription'):
-            item['projectDescription'] = project_object[project_id].project_description
-
-        item["dateTime"] = item.pop('data', '0000000000')
-        item.pop("pk")
-
-        owned_projects.append(item)
-
+    # get the roles this user has
     response = table.query(
         KeyConditionExpression=Key("pk").eq(f"user_{username}") & Key("sk").begins_with("role_")
     )
@@ -460,32 +472,15 @@ def get_user_projects(username):
         if role_id == 'creator':
             continue
 
-        try:
-            project_object[project_id] = Project(project_id)
-        except errors.ProjectNotFound:
-            logger.info(f"project {project_id} was not found")
-            continue
-        
-        if not project_object[project_id].active:
-            continue
+        project_role = get_project_data(project_id, item)
 
-        item.pop('pk')
-        item['projectId'] = project_id
+        if project_role:
+            if not project_role.get('roleName'):
+                if not role_object.get(role_id):
+                    role_object[role_id] = role.Role(role_id)
+                project_role['roleName'] = role_object[role_id].role_name
 
-        if not item.get('projectName'):
-            item['projectName'] = project_object[project_id].project_name
-
-        if not item.get('projectDescription'):
-            item['projectDescription'] = project_object[project_id].project_description
-
-        if not item.get('roleName'):
-            role_object[role_id] = role.Role(role_id)
-            item['roleName'] = role_object[role_id].role_name
-
-        item['dateTime'] = item.pop('dateJoined', '0000000000')
-
-        project_roles.append(item)
-
+            project_roles.append(project_role)
 
     logger.debug(log.function_end_output(locals()))  
 
@@ -493,7 +488,6 @@ def get_user_projects(username):
         "projectCreator": owned_projects,
         "projectRole": project_roles
     }
-
 
 def camelize(string):
     from re import split
@@ -507,7 +501,8 @@ def create_project(
         project_creator,
         project_description,
         project_reference,
-        site_address
+        site_address,
+        project_type=DEFAULT_PROJECT_TYPE
     ):
 
     date_suffix = date.today().isoformat()
@@ -515,6 +510,9 @@ def create_project(
     project_id = camelize(project_name) + date_suffix
 
     project_owner = user.User(project_creator)
+
+    if project_type not in ['CDM2015Project', 'DHSFProject']:
+        raise errors.InvalidProjectType(f"Project type '{project_type}' is not a valid type")
 
     # check if project exists before adding it
     try:
@@ -529,6 +527,7 @@ def create_project(
                 "description": project_description,
                 "reference": project_reference,
                 "siteAddress": site_address,
+                "projectType": project_type,
             }
         )
 

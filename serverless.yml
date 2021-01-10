@@ -8,7 +8,7 @@ plugins:
   - serverless-aws-documentation
   - serverless-openapi-documentation
   - serverless-reqvalidator-plugin
-  - check-git-branch-before-deploy
+  # - check-git-branch-before-deploy
   - serverless-plugin-aws-alerts
 
 

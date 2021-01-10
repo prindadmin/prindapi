@@ -25,10 +25,12 @@ class Page():
 
     def __init__(self, page, project_id):
 
-        project.Project.__init__(self, project_id=project_id)
+        project_obj = project.Project(project_id=project_id)
+        
+        project_type = project_obj.project_type
 
         response = table.query(
-            KeyConditionExpression=Key("pk").eq(f"defaultField_{page}")
+            KeyConditionExpression=Key("pk").eq(f"defaultField_{project_type}") & Key("sk").begins_with(f"fieldIndex_{page}")
         )
 
         items = response['Items']

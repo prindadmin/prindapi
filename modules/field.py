@@ -7,7 +7,7 @@ from botocore.exceptions import ClientError
 from boto3.dynamodb.conditions import Key, Attr
 
 from modules import errors
-# from modules import page
+from modules import project
 from modules import log
 
 # If logger hasn"t been set up by a calling function, set it here
@@ -22,11 +22,16 @@ table = dynamodb.Table(os.environ["TABLE_NAME"])
 
 class Field():
 
-    def __init__(self, field_index, page_name, project_id):
+    def __init__(self, field_index, page_name, project_id, project_obj=None):
 
         self.page_name = page_name
         self.project_id = project_id
         self.field_index = field_index
+
+        if not project_obj:
+            project_obj = project.Project(project_id=project_id)
+
+        self.project_obj = project_obj
 
         logger.debug(log.function_end_output(locals()))
 
@@ -41,13 +46,14 @@ class Field():
 
         populated_field = response.get('Item')
 
-        #print("populated field", populated_field)
-
         if not populated_field:
+
+            project_type = self.project_obj.project_type
+
             response = table.get_item(
                 Key={
-                    "pk": f"defaultField_{self.page_name}",
-                    "sk": f"fieldIndex_{self.field_index}"
+                    "pk": f"defaultField_{project_type}",
+                    "sk": f"fieldIndex_{self.page_name}_{self.field_index}"
                 }
             )
 

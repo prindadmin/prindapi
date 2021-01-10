@@ -410,7 +410,8 @@ class User():
         this_field = field.Field(
             field_index=field_index,
             page_name=page, 
-            project_id=project_id 
+            project_id=project_id,
+            project_obj=this_project 
         )
 
         field_title = this_field.get()['title']
