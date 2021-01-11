@@ -433,7 +433,7 @@ def get_user_projects(username):
         item['projectName'] = project_object[project_id].project_name
         item['projectDescription'] = project_object[project_id].project_description
         item['dateTime'] = item.pop('dateJoined', '0000000000')
-        item['projectType'] = project_object[project_id].project_description
+        item['projectType'] = project_object[project_id].project_type
 
         return item
 

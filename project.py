@@ -118,6 +118,7 @@ def lambda_handler(event, context):
 
             return_body = {
                 "projectId": this_project.project_id,
+                "projectType": this_project.project_type,
                 "projectName": this_project.project_name,
                 "projectDescription": this_project.project_description,
                 "projectReference": this_project.project_reference,
