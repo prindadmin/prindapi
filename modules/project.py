@@ -417,7 +417,7 @@ def get_user_projects(username):
     def get_project_data(project_id, item):
 
         # add project to the dictionary of projects if it is not already there
-        if not project_object[project_id]:
+        if not project_object.get(project_id):
             try:
                 project_object[project_id] = Project(project_id)
             except errors.ProjectNotFound:
