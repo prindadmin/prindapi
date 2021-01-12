@@ -118,6 +118,7 @@ def lambda_handler(event, context):
 
             return_body = {
                 "projectId": this_project.project_id,
+                "projectType": this_project.project_type,
                 "projectName": this_project.project_name,
                 "projectDescription": this_project.project_description,
                 "projectReference": this_project.project_reference,
@@ -142,7 +143,7 @@ def lambda_handler(event, context):
                "projectAddressTown": event["body"].get("projectAddressTown"),
                "projectAddressRegion": event["body"].get("projectAddressRegion"),
                "projectAddressPostalCode": event["body"].get("projectAddressPostalCode"),
-               "projectAddressCountry": event["body"].get("projectAddressCountry")
+               "projectAddressCountry": event["body"].get("projectAddressCountry"),
             }
 
             
@@ -152,6 +153,7 @@ def lambda_handler(event, context):
                 project_description=event["body"].get('projectDescription'),
                 project_reference=event["body"].get('projectReference'),
                 site_address=site_address,
+                project_type=event["body"].get("projectType"),
             )
 
             return_body = project_dict
@@ -290,7 +292,7 @@ if __name__ == '__main__':
             "path": {}
         },        
         "get-project": {
-            "requestPath": "/project/TestProjectInTheNewFormat2020-03-03",
+            "requestPath": "/project/TestProject102021-01-10",
             "method": "GET", 
             "cognitoPoolClaims": {
                 "sub": "6a628546-9b4e-4c43-96a4-4e30c3c37511"
@@ -315,7 +317,8 @@ if __name__ == '__main__':
                "projectAddressPostalCode": "AB12 3CD",
                "projectAddressCountry": "Test",
                "projectDescription": "This is a non-descript description",
-               "projectReference": "123456"
+               "projectReference": "123456",
+               "projectType": "DHSFProject"
             }
         },
         "update-project": { 
@@ -401,4 +404,4 @@ if __name__ == '__main__':
         }
     }
 
-    print(lambda_handler(event["get-project-members"], {}))
+    print(lambda_handler(event["get-project"], {}))

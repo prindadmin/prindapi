@@ -10,19 +10,20 @@ table = dynamodb.Table(f'prind-{stage}')
 current_directory = os.path.dirname(os.path.realpath(__file__))
 
 files = [
-    "project-fields-construction.json",
-    "project-fields-design.json",
-    "project-fields-feasibility.json",
-    "project-fields-handover.json",
-    "project-fields-inception.json",
-    "project-fields-occupation.json",
-    "project-fields-tender.json"
+    "CDM2015Project/project-fields-construction.json",
+    "CDM2015Project/project-fields-design.json",
+    "CDM2015Project/project-fields-feasibility.json",
+    "CDM2015Project/project-fields-handover.json",
+    "CDM2015Project/project-fields-inception.json",
+    "CDM2015Project/project-fields-occupation.json",
+    "CDM2015Project/project-fields-tender.json",
+    "DHSFProject/project-fields-occupation.json",
 ]
 
 for file in files:
     print('loading file', file)
     
-    project_fields_file = open(f"{current_directory}/{file}")
+    project_fields_file = open(f"{current_directory}/project-fields/{file}")
     project_fields = project_fields_file.read()
     project_fields_file.close()
 

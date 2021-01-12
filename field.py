@@ -53,7 +53,7 @@ def lambda_handler(event, context):
             raise errors.InsufficientPermission("You do not have permission to update a field on this project")
 
         this_page = page.Page(page=page_name, project_id=project_id)
-        this_field = field.Field(field_index=field_index, page_name=page_name, project_id=project_id)
+        this_field = field.Field(field_index=field_index, page_name=page_name, project_id=project_id, project_obj=this_project)
 
         try:
             existing_field = this_field.get()
