@@ -78,14 +78,14 @@ def lambda_handler(event, context):
             "Error": error.get_error_dict()
         }
     # catch unhandled exceptions
-    # except Exception as e:
+    except Exception as e:
         
-    #     # logger.error(log.logging.exception("message"))
+        logger.error(log.logging.exception("message"))
 
-    #     return {
-    #         'statusCode': 500,
-    #         'Error': errors.UnhandledException(context.log_group_name, context.log_stream_name, context.aws_request_id).get_error_dict()
-    #     }
+        return {
+            'statusCode': 500,
+            'Error': errors.UnhandledException(context.log_group_name, context.log_stream_name, context.aws_request_id).get_error_dict()
+        }
 
     
     return {
