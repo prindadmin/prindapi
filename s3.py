@@ -59,7 +59,8 @@ def lambda_handler(event, context):
                         "Effect": "Allow",
                         "Action": [
                             "s3:PutObject",
-                            "s3:GetObject"
+                            "s3:GetObject",
+                            "s3:GetObjectVersion"
                         ],
                         "Resource": [f"{s3_bucket_arn}/{this_page.project_id}/{this_page.page_name}/*"]
                     }
@@ -155,7 +156,8 @@ def lambda_handler(event, context):
                         "Effect": "Allow",
                         "Action": [
                             "s3:PutObject",
-                            "s3:GetObject"
+                            "s3:GetObject",
+                            "s3:GetObjectVersion"
                         ],
                         "Resource": [f"{s3_user_profiles_bucket_arn}/profile-avatar/{authenticating_username}"]
                     }
