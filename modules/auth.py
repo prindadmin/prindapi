@@ -24,12 +24,12 @@ def get_foundations_jwt(did):
     called by function that needs to call Foundation to get an auth token
     """
     response = table.get_item(
-         Key={
+        Key={
             "pk": "apiKey_foundations",
             "sk": did
         }
-    ) 
-  
+    )
+
     try:
         api_key = response.get("Item")["apiKey"]
         expiry_time = response.get("Item")["expiryTimestamp"]
@@ -87,7 +87,7 @@ def get_private_key(did):
             "sk": did
         }
     )
-    
+
     try:
         private_key = response.get("Item")["key"]
     except (TypeError, KeyError):
