@@ -36,7 +36,7 @@ class Did():
         try:
             cognito_username = response.get("Items")[0]["pk"].split('_')[1]
         except (TypeError, KeyError, IndexError):
-            raise errors.DIDNotFound("The DID given is not in the database")
+            raise errors.DIDNotFound(f"There is no cognito username for the {self.did}")
 
         logger.debug(log.function_end_output(locals()))  
 

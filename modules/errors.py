@@ -118,5 +118,9 @@ class SigningRequestNotFound(ApplicationError):
     def __init__(self, message):
         ApplicationError.__init__(self, message, "SIGNING_REQUEST_NOT_FOUND", "0020")
 
+class InvalidProjectType(ApplicationError):
+    def __init__(self, message):
+        ApplicationError.__init__(self, message, "INVALID_PROJECT_TYPE", "0021")
+
 
 

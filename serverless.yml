@@ -8,7 +8,7 @@ plugins:
   - serverless-aws-documentation
   - serverless-openapi-documentation
   - serverless-reqvalidator-plugin
-  - check-git-branch-before-deploy
+  # - check-git-branch-before-deploy
   - serverless-plugin-aws-alerts
 
 
@@ -133,6 +133,27 @@ package:
 
 
 functions:
+
+  accreditation:
+    handler: accreditation.lambda_handler
+    events:
+      - http:
+          path: /project/{project_id}/accreditation/{foundations_id}
+          method: get
+          cors: true
+          response:
+            statusCodes:
+              200:
+                pattern: '' # Default response method
+              400:
+                pattern: '.*"statusCode":400,.*'
+              500:
+                pattern: '.*"statusCode":500,.*'
+          integration: lambda
+          authorizer: 
+            type: COGNITO_USER_POOLS
+            authorizerId: 
+              Ref: ApiGatewayAuthorizer    
 
   post-email-confirmation:
     handler: post-email-confirmation.lambda_handler
