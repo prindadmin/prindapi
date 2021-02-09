@@ -31,7 +31,7 @@ table = dynamodb.Table(os.environ["TABLE_NAME"])
 api_id = os.environ["FOUNDATIONS_API_ID"]
 sp_did = os.environ["SP_DID"]
 api_stage = os.environ["FOUNDATIONS_API_STAGE"]
-factom_explorer_url = os.environ["FACTOM_EXPLORER_URL"]
+factom_explorer_domain = os.environ["FACTOM_EXPLORER_DOMAIN"]
 
 class Document():
 
@@ -178,7 +178,7 @@ class Document():
             entry_hash = signing.pop('entryHash')
 
             if entry_hash != "unconfirmed":
-                signing['proofLink'] = factom_explorer_url.format(entry_hash=entry_hash)
+                signing['proofLink'] = f"https://{factom_explorer_domain}/entry?hash={entry_hash}"
 
         for version in versions:
 
@@ -190,7 +190,7 @@ class Document():
             entry_hash = version.pop('entryHash')
 
             if entry_hash != "unconfirmed":
-                version['proofLink'] = factom_explorer_url.format(entry_hash=entry_hash)
+                version['proofLink'] = f"https://{factom_explorer_domain}/entry?hash={entry_hash}"
 
             try:
                 uploaded_by_username = prind_version_info['uploadedBy']

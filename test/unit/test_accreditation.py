@@ -27,7 +27,7 @@ class TestGetAccreditation(TestCase):
                 "FOUNDATIONS_API_ID": "xxxxxx",
                 "FOUNDATIONS_API_STAGE": "test",
                 "SP_DID": "did:fnds:ca7722fabb7009aecf997a59973cd4fc810b820b15fd041b7671f146e97dcfc1",
-                "FACTOM_EXPLORER_URL": "https://testnet.explorer.factom.pro/entries/{entry_hash}"
+                "FACTOM_EXPLORER_DOMAIN": "testnet.factoid.org"
             })
             
         cls.environment.start()
