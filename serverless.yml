@@ -33,10 +33,10 @@ custom:
       dev: 'did:fnds:ca7722fabb7009aecf997a59973cd4fc810b820b15fd041b7671f146e97dcfc1'
       staging: 'did:fnds:ca7722fabb7009aecf997a59973cd4fc810b820b15fd041b7671f146e97dcfc1'
       production: 'did:fnds:6ab0363127d5ee96e534cbace0402bc097d4d4f06ee9500e926d04d48285c248'
-    FACTOM_EXPLORER_DOMAIN:
-      dev: 'testnet.factoid.org'
-      staging: 'testnet.factoid.org'
-      production: 'explorer.factoid.org'
+    FACTOM_EXPLORER_URL:
+      dev: 'https://testnet.explorer.factom.pro/entries/{entry_hash}'
+      staging: 'https://testnet.explorer.factom.pro/entries/{entry_hash}'
+      production: 'https://explorer.factoid.org/entry?hash={entry_hash}'
     PORTAL_HOSTNAME:
       dev: portal-dev
       staging: portal-staging
@@ -75,7 +75,7 @@ provider:
     FOUNDATIONS_API_STAGE: ${self:provider.stage}
     FOUNDATIONS_API_ID: ${self:custom.myEnvironment.FOUNDATIONS_API_ID.${self:provider.stage}}
     SP_DID: ${self:custom.myEnvironment.SP_DID.${self:provider.stage}}
-    FACTOM_EXPLORER_DOMAIN: ${self:custom.myEnvironment.FACTOM_EXPLORER_DOMAIN.${self:provider.stage}}
+    FACTOM_EXPLORER_URL: ${self:custom.myEnvironment.FACTOM_EXPLORER_URL.${self:provider.stage}}
     PORTAL_HOSTNAME: ${self:custom.myEnvironment.PORTAL_HOSTNAME.${self:provider.stage}}
     S3_BUCKET_NAME: ${self:custom.s3BucketName} 
     S3_BUCKET_ARN: "arn:aws:s3:::${self:custom.s3BucketName}"
