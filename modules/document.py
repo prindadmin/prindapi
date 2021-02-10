@@ -85,13 +85,17 @@ class Document():
         except KeyError:
             pass
 
+        # add the gitParams for a gitText field if they exist
+        git_params = item.pop('gitParams', {})
+        item = {**item, **git_params}
+
         logger.debug(log.function_end_output(locals()))  
 
         return item
 
     def get_current_version_number(self):
 
-        version = get_version(0)  
+        version = self.get_version(0)  
 
         return int(version['versionNumber'])
 
@@ -218,12 +222,19 @@ class Document():
 
             version["s3VersionId"] = prind_version_info['s3VersionId']
             version["uploadName"] = prind_version_info.get('filename')
+            
+            if prind_version_info.get('commitMessage'):
+                version["commitMessage"] = prind_version_info.get('commitMessage')
+
+            if prind_version_info.get('prevVer'):
+                version["prevVer"] = prind_version_info.get('prevVer')
+
 
         logger.debug(log.function_end_output(locals()))  
 
         return versions
 
-    def update(self, file_hash, uploading_username, s3_version_id, filename):
+    def update(self, file_hash, uploading_username, s3_version_id, filename, git_params={}):
 
         previous_version = self.get_version(0)
         
@@ -292,28 +303,28 @@ class Document():
         datetime_suffix = datetime.utcnow().isoformat()
         
         # Prin-D database entries
+        document_v0_item = {    
+            "pk": f"document_v0_{self.project_id}/{self.page}/{self.field_index}",
+            "sk": "documentVersion",
+            "data": f"uploader_{uploading_username}_{datetime_suffix}",
+            "s3VersionId": s3_version_id,
+            "versionNumber": document_version_number,
+            "filename": filename,
+            "documentAttributes": document_attributes
+        }
+
+        if git_params:
+            document_v0_item["gitParams"] = git_params
+        
         table.put_item(
-            Item={    
-                "pk": f"document_v0_{self.project_id}/{self.page}/{self.field_index}",
-                "sk": "documentVersion",
-                "data": f"uploader_{uploading_username}_{datetime_suffix}",
-                "s3VersionId": s3_version_id,
-                "versionNumber": document_version_number,
-                "filename": filename,
-                "documentAttributes": document_attributes
-            }
+            Item=document_v0_item
         )
 
+        document_vn_item = document_v0_item.copy()
+        document_vn_item["pk"] = f"document_v{document_version_number}_{self.project_id}/{self.page}/{self.field_index}"
+
         table.put_item(
-            Item={    
-                "pk": f"document_v{document_version_number}_{self.project_id}/{self.page}/{self.field_index}",
-                "sk": "documentVersion",
-                "data": f"uploader_{uploading_username}_{datetime_suffix}",
-                "s3VersionId": s3_version_id,
-                "versionNumber": document_version_number,
-                "filename": filename,
-                "documentAttributes": document_attributes
-            }
+            Item=document_vn_item
         )
 
 def create(
@@ -327,7 +338,8 @@ def create(
     s3_key,
     filename,
     document_name,
-    document_tags=[]
+    document_tags=[],
+    git_params={}
 ):
 
     foundations_jwt = auth.get_foundations_jwt(sp_did)
@@ -403,28 +415,28 @@ def create(
         }
     )
 
-    table.put_item(
-        Item={    
-            "pk": f"document_v0_{project_id}/{page}/{field_index}",
-            "sk": "documentVersion",
-            "data": f"uploader_{uploading_username}_{datetime_suffix}",
-            "s3VersionId": s3_version_id,
-            "versionNumber": 1,
-            "filename": filename,
-            "documentAttributes": document_attributes
-        }
-    )
+    document_v0_item={    
+        "pk": f"document_v0_{project_id}/{page}/{field_index}",
+        "sk": "documentVersion",
+        "data": f"uploader_{uploading_username}_{datetime_suffix}",
+        "s3VersionId": s3_version_id,
+        "versionNumber": 1,
+        "filename": filename,
+        "documentAttributes": document_attributes
+    }
+
+    if git_params:
+        document_v0_item["gitParams"] = git_params
 
     table.put_item(
-        Item={    
-            "pk": f"document_v1_{project_id}/{page}/{field_index}",
-            "sk": "documentVersion",
-            "data": f"uploader_{uploading_username}_{datetime_suffix}",
-            "s3VersionId": s3_version_id,
-            "versionNumber": 1,
-            "filename": filename,
-            "documentAttributes": document_attributes
-        }
+        Item=document_v0_item
+    )
+
+    document_v1_item=document_v0_item.copy()
+    document_v1_item["pk"] = f"document_v1_{project_id}/{page}/{field_index}"
+
+    table.put_item(
+        Item=document_v1_item
     )
 
     for tag in document_tags:

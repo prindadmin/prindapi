@@ -73,7 +73,15 @@ def lambda_handler(event, context):
             field_type = existing_field["type"]
 
 
-        if field_type == "file":
+        if field_type in ['file', 'gitText']:
+
+            git_params = {}
+            
+            if field_type == 'gitText':
+                git_params = {
+                    "commitMessage": field_data.pop('commitMessage', None),
+                    "prevVer": field_data.pop('prevVer', None)
+                }
 
             s3_bucket_name = os.environ.get("S3_BUCKET_NAME")
             s3_bucket_arn = os.environ.get("S3_BUCKET_ARN")
@@ -139,7 +147,8 @@ def lambda_handler(event, context):
                     s3_key=s3_key, 
                     filename=filename, 
                     document_name=document_name,
-                    document_tags=document_tags
+                    document_tags=document_tags,
+                    git_params=git_params
                 )
 
            
@@ -155,7 +164,8 @@ def lambda_handler(event, context):
                     file_hash, 
                     authenticating_username, 
                     s3_version_id, 
-                    filename
+                    filename,
+                    git_params
                 )
 
 
@@ -241,7 +251,26 @@ if __name__ == '__main__':
                     "tags": []
                 },
             }
+        },
+        "gitText": {
+            "cognitoPoolClaims": {
+                "sub": "ab0ae262-eedf-41c0-ac6e-e5109217b6c1"
+            },
+            "path": {
+                "project_id": "NewDayNewProject2020-03-05",
+                "page": "inception",
+                "field_index": 1
+            },
+            "body": {
+                "type": "file",
+                "fieldDetails": {
+                    "filename": "test.txt",
+                    "tags": [],
+                    "prevVer": 3,
+                    "commitMessage": "This is a test commit message"
+                },
+            }
         }
     }
 
-    print(lambda_handler(event["file"], {}))
+    print(lambda_handler(event["gitText"], {}))
