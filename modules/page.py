@@ -79,7 +79,7 @@ class Page():
             field_index = item["id"]
 
             # Add any file details
-            if item['type'] == 'file':
+            if item['type'] in ['file', 'gitText']:
                 try:
                     this_document = document.Document(
                         project_id=self.project_id, 
