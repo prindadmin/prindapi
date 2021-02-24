@@ -35,7 +35,7 @@ class Role():
         try:
             item = response['Item']
         except KeyError:
-            raise RoleNotFound(f"A role with ID {role_id} was not found.")
+            raise errors.RoleNotFound(f"A role with ID {role_id} was not found.")
 
         self.role_id = role_id
         self.role_name = item['data']
