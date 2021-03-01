@@ -1,5 +1,5 @@
 from unittest import TestCase, mock
-from mock import patch, MagicMock, Mock
+from unittest.mock import patch, MagicMock, Mock
 import time
 import sys
 import boto3

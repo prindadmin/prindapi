@@ -1,4 +1,3 @@
-org: kool4caats
 service: prind-api
 app: prind
 
@@ -8,17 +7,14 @@ plugins:
   - serverless-aws-documentation
   - serverless-openapi-documentation
   - serverless-reqvalidator-plugin
-  # - check-git-branch-before-deploy
-  - serverless-plugin-aws-alerts
-
-
+  # - serverless-plugin-aws-alerts
 custom:
   checkGitBranchBeforeDeploy:
       dev: dev
       staging: staging
       production: master
   pythonRequirements:
-    dockerizePip: true
+    dockerizePip: false
   myEnvironment:
     # map Factom network based on stage
     FOUNDATIONS_API_ID:
@@ -65,7 +61,7 @@ custom:
 
 provider:
   name: aws
-  runtime: python3.7
+  runtime: python3.8
   timeout: 10 # default is 6  
   region: ${opt:region, 'eu-west-1'}
   stage: ${opt:stage, 'dev'}
