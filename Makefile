@@ -28,7 +28,7 @@ ifeq ($(CI), true)
 	# branch that is needed for the current pipeline execution. `git flow init`
 	# tends to fail if the develop branch is not available, so we have to do 
 	# some messing around to make sure it's here before we execute `git flow init`.
-	git fetch origin "refs/heads/*:refs/remotes/origin/*
+	git fetch origin "+refs/heads/*:refs/remotes/origin/*"
 	git checkout -b develop origin/develop
 	# Switch back to the original branch
 	git checkout $(BITBUCKET_BRANCH)
