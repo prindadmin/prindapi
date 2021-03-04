@@ -34,8 +34,7 @@ ifeq ($(CI), true)
 	git checkout $(BITBUCKET_BRANCH)
 endif
 	# and finally, initialise git-flow with all defaults and v prefix for version tags
-	git flow init -f -d
-	git flow config set versiontagprefix v
+	git flow init -f -d -t v
 
 install-test-dependencies:
 	pip install -r requirements.txt
