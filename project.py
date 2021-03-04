@@ -239,13 +239,13 @@ def lambda_handler(event, context):
             return_body = "completed"
             status_code = 201
 
-        # respond to invitation
+        # delete project
         elif http_method == "POST" and resource_path.endswith("delete"):
 
             this_project = project.Project(unquote(event['path']['project_id']))
 
             if not this_project.user_in_roles(authenticating_username, ["client", "creator"]):
-                raise errors.InsufficientPermission("You do not have permission to remove members from this project")
+                raise errors.InsufficientPermission("You do not have permission to delete this project")
 
             this_project.delete()
 

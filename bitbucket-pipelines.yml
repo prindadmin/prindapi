@@ -1,0 +1,123 @@
+image: atlassian/default-image:2
+
+pipelines:
+  branches:
+    feature/*:
+      - step:
+          name: Test
+          image:
+            name: 434494845257.dkr.ecr.eu-west-1.amazonaws.com/deployment:latest
+            aws:
+              access-key: $AWS_ACCESS_KEY_ID
+              secret-key: $AWS_SECRET_ACCESS_KEY
+          services:
+            - docker
+          script:
+            - make install-test-dependencies
+            - make test
+      - step:
+          name: Build & Deploy
+          deployment: dev
+          image:
+            name: 434494845257.dkr.ecr.eu-west-1.amazonaws.com/deployment:latest
+            aws:
+              access-key: $AWS_ACCESS_KEY_ID
+              secret-key: $AWS_SECRET_ACCESS_KEY
+          services:
+            - docker
+          script:
+            - npm install
+            - make -e ENVIRONMENT=dev deploy
+
+    develop:
+      - step:
+          name: Test
+          image:
+            name: 434494845257.dkr.ecr.eu-west-1.amazonaws.com/deployment:latest
+            aws:
+              access-key: $AWS_ACCESS_KEY_ID
+              secret-key: $AWS_SECRET_ACCESS_KEY
+          services:
+            - docker
+          script:
+            - make install-test-dependencies
+            - make test
+      - step:
+          name: Build & Deploy
+          deployment: dev
+          image:
+            name: 434494845257.dkr.ecr.eu-west-1.amazonaws.com/deployment:latest
+            aws:
+              access-key: $AWS_ACCESS_KEY_ID
+              secret-key: $AWS_SECRET_ACCESS_KEY
+          services:
+            - docker
+          script:
+            - npm install
+            - make -e ENVIRONMENT=dev deploy
+
+    release/*:
+      - step:
+          name: Test
+          image:
+            name: 434494845257.dkr.ecr.eu-west-1.amazonaws.com/deployment:latest
+            aws:
+              access-key: $AWS_ACCESS_KEY_ID
+              secret-key: $AWS_SECRET_ACCESS_KEY
+          services:
+            - docker
+          script:
+            - make install-test-dependencies
+            - make test
+      - step:
+          name: Build & Deploy
+          deployment: staging
+          image:
+            name: 434494845257.dkr.ecr.eu-west-1.amazonaws.com/deployment:latest
+            aws:
+              access-key: $AWS_ACCESS_KEY_ID
+              secret-key: $AWS_SECRET_ACCESS_KEY
+          services:
+            - docker
+          script:
+            - npm install
+            - make -e ENVIRONMENT=staging deploy
+      - step:
+          # This step should be executed when a release is finalised and
+          # approved - it uses git flow to finish the release
+          trigger: manual
+          name: Finish release
+          image:
+            name: 434494845257.dkr.ecr.eu-west-1.amazonaws.com/deployment:latest
+            aws:
+              access-key: $AWS_ACCESS_KEY_ID
+              secret-key: $AWS_SECRET_ACCESS_KEY
+          services:
+            - docker
+          script:
+            - make git-flow-init
+            - make release-finish
+
+  tags:
+    v*.*.*:
+      - step:
+          # We add a dummy step in here as Bitbucket does not allow the first step in 
+          # a pipeline to have `trigger: manual` set, but we only want a manual step
+          # in this pipeline.
+          name: null
+          script:
+            - echo "No action"
+      - step:
+          trigger: manual
+          name: Build & Deploy
+          deployment: production
+          image:
+            name: 434494845257.dkr.ecr.eu-west-1.amazonaws.com/deployment:latest
+            aws:
+              access-key: $AWS_ACCESS_KEY_ID
+              secret-key: $AWS_SECRET_ACCESS_KEY
+          services:
+            - docker
+          script:
+            - npm install
+            - make -e ENVIRONMENT=production deploy
