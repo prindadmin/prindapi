@@ -28,14 +28,13 @@ ifeq ($(CI), true)
 	# branch that is needed for the current pipeline execution. `git flow init`
 	# tends to fail if the develop branch is not available, so we have to do 
 	# some messing around to make sure it's here before we execute `git flow init`.
-	git fetch origin "refs/heads/*:refs/remotes/origin/*
+	git fetch origin "+refs/heads/*:refs/remotes/origin/*"
 	git checkout -b develop origin/develop
 	# Switch back to the original branch
 	git checkout $(BITBUCKET_BRANCH)
 endif
 	# and finally, initialise git-flow with all defaults and v prefix for version tags
-	git flow init -f -d
-	git flow config set versiontagprefix v
+	git flow init -f -d -t v
 
 install-test-dependencies:
 	pip install -r requirements.txt
