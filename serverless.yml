@@ -93,7 +93,11 @@ provider:
     S3_BUCKET_ARN: "arn:aws:s3:::${self:custom.s3BucketName}"
     S3_USER_PROFILES_BUCKET_NAME: ${self:custom.s3UserProfilesBucketName} 
     S3_USER_PROFILES_BUCKET_ARN: "arn:aws:s3:::${self:custom.s3UserProfilesBucketName}"
-    PRIND_LOG_LEVEL: 'INFO'    
+    PRIND_LOG_LEVEL: 'INFO'
+    PROCORE_CLIENT_ID: ${self:custom.myEnvironment.PROCORE_CLIENT_ID.${self:provider.stage}}
+    PROCORE_AUTH_BASE_URL: ${self:custom.myEnvironment.PROCORE_AUTH_BASE_URL.${self:provider.stage}}
+    PROCORE_BASE_URL: ${self:custom.myEnvironment.PROCORE_BASE_URL.${self:provider.stage}}
+    RUNNING_ON_AWS: True    
 
   iamRoleStatements:
     - Effect: "Allow"
