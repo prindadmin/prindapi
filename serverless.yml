@@ -37,6 +37,18 @@ custom:
       dev: portal-dev
       staging: portal-staging
       production: portal 
+    PROCORE_CLIENT_ID:
+      dev: 238a7b66f9d4494a4e70612973c30af168d44e2c5291a6a71bb4306dcc5787fc
+      staging: 238a7b66f9d4494a4e70612973c30af168d44e2c5291a6a71bb4306dcc5787fc
+      production: TO_BE_ADDED
+    PROCORE_AUTH_BASE_URL:
+      dev: https://login-sandbox.procore.com
+      staging: https://login-sandbox.procore.com
+      production: https://login.procore.com
+    PROCORE_BASE_URL:
+      dev: https://sandbox.procore.com
+      staging: https://sandbox.procore.com
+      production: TO_BE_ADDED
   s3BucketName: prind-portal-user-files-${self:provider.stage}
   s3UserProfilesBucketName: prind-portal-user-profiles-${self:provider.stage}
  
@@ -58,6 +70,10 @@ custom:
         description:
         contentType: "application/json"
         schema: ${file(models/rolesGetResponse.json)}
+      - name: authoriseprocorePostRequest
+        description: The request to authoriseprocore POST
+        contentType: "application/json"
+        schema: ${file(models/userAuthoriseProcorePostRequest.json)}
 
 provider:
   name: aws
@@ -273,6 +289,50 @@ functions:
   user:
     handler: user.lambda_handler
     events:
+
+      - http:
+          path: /user/checkprocoreaccess
+          method: get
+          cors: true
+          response:
+            statusCodes:
+              200:
+                pattern: '' # Default response method
+              400:
+                pattern: '.*"statusCode":400,.*'
+              500:
+                pattern: '.*"statusCode":500,.*'
+          reqValidatorName: onlyBody
+          integration: lambda
+          authorizer: 
+            type: COGNITO_USER_POOLS
+            authorizerId: 
+              Ref: ApiGatewayAuthorizer
+
+      - http:
+          path: /user/authoriseprocore
+          method: post
+          cors: true
+          response:
+            statusCodes:
+              201:
+                pattern: '' # Default response method
+              400:
+                pattern: '.*"statusCode":400,.*'
+              500:
+                pattern: '.*"statusCode":500,.*'
+          integration: lambda
+          requestModels: 
+            "application/json": "authoriseprocorePostRequest"
+          reqValidatorName: onlyBody
+          documentation:
+            requestModels:
+              "application/json": "authoriseprocorePostRequest"
+          authorizer: 
+            type: COGNITO_USER_POOLS
+            authorizerId: 
+              Ref: ApiGatewayAuthorizer
+
       - http:
           path: /user/get-accessible-projects
           method: get
