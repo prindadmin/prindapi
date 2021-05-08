@@ -122,5 +122,9 @@ class InvalidProjectType(ApplicationError):
     def __init__(self, message):
         ApplicationError.__init__(self, message, "INVALID_PROJECT_TYPE", "0021")
 
+class InvalidProcoreAuth(ApplicationError):
+    def __init__(self, message):
+        ApplicationError.__init__(self, message, "INVALID_PROCORE_AUTH", "0022")
+
 
 
