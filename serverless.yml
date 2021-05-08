@@ -141,7 +141,7 @@ provider:
     - Effect: "Allow"
       Action:
         - 'ssm:GetParameter'
-      Resource: arn:aws:ssm:eu-west-1:#{AWS::AccountId}:parameter/foundations-procore-api/procore-client-secret/*
+      Resource: arn:aws:ssm:eu-west-1:#{AWS::AccountId}:parameter/prind-api/procore-client-secret/*
 
 
 
