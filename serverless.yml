@@ -137,6 +137,11 @@ provider:
     - Effect: "Allow"
       Action: "ses:GetTemplate"
       Resource: "*"
+    # To retrieve the Procore Client Secret
+    - Effect: "Allow"
+      Action:
+        - 'ssm:GetParameter'
+      Resource: arn:aws:ssm:eu-west-1:#{AWS::AccountId}:parameter/foundations-procore-api/procore-client-secret/*
 
 
 
