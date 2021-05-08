@@ -979,7 +979,49 @@ functions:
           authorizer: 
             type: COGNITO_USER_POOLS
             authorizerId: 
-              Ref: ApiGatewayAuthorizer    
+              Ref: ApiGatewayAuthorizer
+
+  file:
+    handler: file.lambda_handler
+    timeout: 60
+    events:
+      - http:
+          path: /files/{company_id}/{project_id}
+          method: get
+          cors: true
+          response:
+            statusCodes:
+              200:
+                pattern: '' # Default response method
+              400:
+                pattern: '.*"statusCode":400,.*'
+              500:
+                pattern: '.*"statusCode":500,.*'
+          reqValidatorName: onlyBody
+          integration: lambda
+          authorizer: 
+            type: COGNITO_USER_POOLS
+            authorizerId: 
+              Ref: ApiGatewayAuthorizer
+
+      - http:
+          path: /files/{company_id}/{project_id}/{folder_id}
+          method: get
+          cors: true
+          response:
+            statusCodes:
+              200:
+                pattern: '' # Default response method
+              400:
+                pattern: '.*"statusCode":400,.*'
+              500:
+                pattern: '.*"statusCode":500,.*'
+          reqValidatorName: onlyBody
+          integration: lambda
+          authorizer: 
+            type: COGNITO_USER_POOLS
+            authorizerId: 
+              Ref: ApiGatewayAuthorizer
 
 resources:
 

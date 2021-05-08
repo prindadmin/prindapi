@@ -126,5 +126,9 @@ class InvalidProcoreAuth(ApplicationError):
     def __init__(self, message):
         ApplicationError.__init__(self, message, "INVALID_PROCORE_AUTH", "0022")
 
+class ProcoreApiError(ApplicationError):
+    def __init__(self, message):
+        ApplicationError.__init__(self, message, "PROCORE_API_ERROR", "00023")
+
 
 
