@@ -29,7 +29,7 @@ def lambda_handler(event, context):
 
         authenticating_username = event["cognitoPoolClaims"]["sub"]
 
-        if http_method == "GET" and resource_path.startswith("/files"):
+        if http_method == "GET" and resource_path.startswith("/procorefiles"):
             """
             Handles the endpoints where folder_id is specified
             and folder_id is not specified

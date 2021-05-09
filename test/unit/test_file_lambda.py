@@ -179,7 +179,7 @@ class TestFileLambda(TestCase):
         event = {
             "cognitoPoolClaims": {"sub": self.authenticating_username},
             "method": "GET",
-            "requestPath": "/files/company_id/project_id",
+            "requestPath": "/procorefiles/company_id/project_id",
             "path": {"company_id": 1111, "project_id": 2222},
         }
 
@@ -201,7 +201,7 @@ class TestFileLambda(TestCase):
         event = {
             "cognitoPoolClaims": {"sub": self.authenticating_username},
             "method": "GET",
-            "requestPath": "/files/company_id/project_id",
+            "requestPath": "/procorefiles/company_id/project_id",
             "path": {"company_id": 1111, "project_id": 1234},
         }
 
@@ -221,7 +221,7 @@ class TestFileLambda(TestCase):
         event = {
             "cognitoPoolClaims": {"sub": self.authenticating_username},
             "method": "GET",
-            "requestPath": "/files/company_id/project_id",
+            "requestPath": "/procorefiles/company_id/project_id",
             "path": {"company_id": 1111, "project_id": 2222, "folder_id": 4444},
         }
 

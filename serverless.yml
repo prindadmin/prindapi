@@ -986,7 +986,7 @@ functions:
     handler: file.lambda_handler
     events:
       - http:
-          path: /files/{company_id}/{project_id}
+          path: /procorefiles/{company_id}/{project_id}
           method: get
           cors: true
           response:
@@ -1005,7 +1005,7 @@ functions:
               Ref: ApiGatewayAuthorizer
 
       - http:
-          path: /files/{company_id}/{project_id}/{folder_id}
+          path: /procorefiles/{company_id}/{project_id}/{folder_id}
           method: get
           cors: true
           response:
