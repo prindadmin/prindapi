@@ -4,6 +4,8 @@ import json
 import os
 import requests
 from datetime import datetime
+from hashlib import sha256
+
 
 from botocore.exceptions import ClientError
 from boto3.dynamodb.conditions import Key, Attr
@@ -520,13 +522,13 @@ def get_document_field(document_did):
 
     return field_details
 
-
 if __name__ == "__main__":
 
     pass
     
     #get_project("TestProject")
     #create_project("Test Project", "This is a test project", "West Street, Farnham, Surrey")
+
 
 
 
