@@ -649,6 +649,7 @@ functions:
 
   field:
     handler: field.lambda_handler
+    timeout: 60
     events:
       - http:
           path: /project/{project_id}/{page}/{field_index}
@@ -983,7 +984,6 @@ functions:
 
   file:
     handler: file.lambda_handler
-    timeout: 60
     events:
       - http:
           path: /files/{company_id}/{project_id}
