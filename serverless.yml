@@ -38,8 +38,8 @@ custom:
       staging: portal-staging
       production: portal 
     PROCORE_CLIENT_ID:
-      dev: 238a7b66f9d4494a4e70612973c30af168d44e2c5291a6a71bb4306dcc5787fc
-      staging: 238a7b66f9d4494a4e70612973c30af168d44e2c5291a6a71bb4306dcc5787fc
+      dev: b749f3180eccedbe8c1e05a19fbb21e59102919b429155fa929216420f2aeed9
+      staging: b749f3180eccedbe8c1e05a19fbb21e59102919b429155fa929216420f2aeed9
       production: TO_BE_ADDED
     PROCORE_AUTH_BASE_URL:
       dev: https://login-sandbox.procore.com
