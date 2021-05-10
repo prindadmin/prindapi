@@ -502,12 +502,16 @@ def create_project(
         project_description,
         project_reference,
         site_address,
-        project_type=DEFAULT_PROJECT_TYPE
+        project_type=DEFAULT_PROJECT_TYPE,
+        project_id_provided=None
     ):
 
-    date_suffix = date.today().isoformat()
-
-    project_id = camelize(project_name) + date_suffix
+    # Check if the project_id was provided; if it was, use it instead of generating an ID
+    if project_id_provided is None:
+        date_suffix = date.today().isoformat()
+        project_id = camelize(project_name) + date_suffix
+    else:
+        project_id = project_id_provided
 
     project_owner = user.User(project_creator)
 

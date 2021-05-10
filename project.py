@@ -146,6 +146,8 @@ def lambda_handler(event, context):
                "projectAddressCountry": event["body"].get("projectAddressCountry"),
             }
 
+            # Check if the project ID was provided
+            project_id_provided = event["body"].get("projectId", default=None) 
             
             project_dict = project.create_project(
                 project_name=event["body"].get('projectName'),
@@ -154,6 +156,7 @@ def lambda_handler(event, context):
                 project_reference=event["body"].get('projectReference'),
                 site_address=site_address,
                 project_type=event["body"].get("projectType"),
+                project_id_provided=project_id_provided
             )
 
             return_body = project_dict
