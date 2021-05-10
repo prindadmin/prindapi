@@ -147,7 +147,7 @@ def lambda_handler(event, context):
             }
 
             # Check if the project ID was provided
-            project_id_provided = event["body"].get("projectId", default=None) 
+            project_id_provided = event["body"].get("projectId", None) 
             
             project_dict = project.create_project(
                 project_name=event["body"].get('projectName'),
