@@ -165,7 +165,7 @@ class ProcoreAuth():
         response = requests.post(f'{base_url}/oauth/token', params)
 
         if not response.ok:
-            logger.error(response)
+            logger.error(response.json())
             raise errors.InvalidProcoreAuth('Could not authenticate with procore')
 
         return response.json()
