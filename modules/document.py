@@ -4,6 +4,7 @@ import json
 import os
 import requests
 from datetime import datetime
+from datetime import timezone
 from hashlib import sha256
 
 
@@ -302,7 +303,7 @@ class Document():
             logger.info(f"response from /sp/document-did/{self.document_did}/update is {response_dict}")
 
         document_version_number = response_dict['body']['documentVersionNumber']
-        datetime_suffix = datetime.fromtimestamp(datetime.utcnow())
+        datetime_suffix = datetime.utcnow().timestamp()
         
         # Prin-D database entries
         document_v0_item = {    
@@ -404,7 +405,7 @@ def create(
         logger.info(f"response from /sp/document/create is {response_dict}")
       
     document_did = response_dict['body']['documentDid']
-    datetime_suffix = datetime.fromtimestamp(datetime.utcnow())
+    datetime_suffix = datetime.utcnow().timestamp()
 
     table.put_item(
         Item={    
