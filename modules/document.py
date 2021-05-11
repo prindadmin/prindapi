@@ -302,7 +302,7 @@ class Document():
             logger.info(f"response from /sp/document-did/{self.document_did}/update is {response_dict}")
 
         document_version_number = response_dict['body']['documentVersionNumber']
-        datetime_suffix = datetime.utcnow().isoformat()
+        datetime_suffix = datetime.fromtimestamp(datetime.utcnow())
         
         # Prin-D database entries
         document_v0_item = {    
@@ -404,8 +404,7 @@ def create(
         logger.info(f"response from /sp/document/create is {response_dict}")
       
     document_did = response_dict['body']['documentDid']
-
-    datetime_suffix = datetime.utcnow().isoformat()
+    datetime_suffix = datetime.fromtimestamp(datetime.utcnow())
 
     table.put_item(
         Item={    

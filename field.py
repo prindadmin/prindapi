@@ -113,7 +113,7 @@ def lambda_handler(event, context):
             foundations_jwt = auth.get_foundations_jwt(sp_did)
 
             document_tags = field_data.get('tags', [])
-            filename = field_data['filename']
+            filename = field_data.get('filename')
 
             try:
                 this_document = document.Document(
@@ -150,8 +150,6 @@ def lambda_handler(event, context):
             file_hash = hashlib.sha256(file_bytes).hexdigest();
 
             document_name = f"{project_id}/{page_name}/{field_index}"
-
-            datetime_suffix = datetime.utcnow().isoformat()
 
             if action == "create":
 
