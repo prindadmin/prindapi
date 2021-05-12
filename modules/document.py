@@ -180,8 +180,9 @@ class Document():
 
             signing_user = user.User(signing_username)
             signing['signerName'] = f"{signing_user.first_name} {signing_user.last_name}"
-            signed_at_unixtime = signing.pop('signedAt')
-            signing['signatureDateTime'] = datetime.utcfromtimestamp(signed_at_unixtime).isoformat()
+            #signed_at_unixtime = signing.pop('signedAt')
+            #signing['signatureDateTime'] = datetime.utcfromtimestamp(signed_at_unixtime)
+            signing['signatureDateTime'] = signing.pop('signedAt')
             entry_hash = signing.pop('entryHash')
 
             if entry_hash != "unconfirmed":
@@ -191,8 +192,9 @@ class Document():
 
             prind_version_info = self.get_version(version['versionNumber'])
 
-            created_at_unixtime = version.pop('versionCreatedAt')
-            version['uploadedDateTime'] = datetime.utcfromtimestamp(created_at_unixtime).isoformat()
+            #created_at_unixtime = version.pop('versionCreatedAt')
+            #version['uploadedDateTime'] = datetime.utcfromtimestamp(created_at_unixtime)
+            version['uploadedDateTime'] = version.pop('versionCreatedAt')
             version['hash'] = version.pop('documentHash')
             entry_hash = version.pop('entryHash')
 
