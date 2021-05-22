@@ -15,12 +15,12 @@ exports.handler = async (event, context) => {
 
     var confirmEmailMessage = `
       Please confirm your sign up by clicking 
-      <a href="https://${portalHostname}.prind.tech/#/confirm-email?client_id=${event.callerContext.clientId}&user_name=${event.userName}&confirmation_code=${event.request.codeParameter}">this link</a>
+      <a href="https://${portalHostname}.prind.tech/confirm-email?client_id=${event.callerContext.clientId}&user_name=${event.userName}&confirmation_code=${event.request.codeParameter}">this link</a>
     `;
 
     var forgotPasswordMessage = `
       Please reset your password by clicking 
-      <a href="https://${portalHostname}.prind.tech/#/reset-password?client_id=${event.callerContext.clientId}&user_name=${event.userName}&confirmation_code=${event.request.codeParameter}">this link</a>
+      <a href="https://${portalHostname}.prind.tech/reset-password?client_id=${event.callerContext.clientId}&user_name=${event.userName}&confirmation_code=${event.request.codeParameter}">this link</a>
     `;
 
     if (event.triggerSource === "CustomMessage_SignUp") {
