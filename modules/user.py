@@ -462,7 +462,7 @@ class User():
             item['fieldTitle'] = item.get('fieldTitle')
             item['projectName'] = item.get('projectName')
 
-            item['signedAt'] = datetime.utcfromtimestamp(item['signedAt']).isoformat()
+            #item['signedAt'] = datetime.utcfromtimestamp(item['signedAt']).isoformat()
 
             item.pop('pk')
             item.pop('sk')

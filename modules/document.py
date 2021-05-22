@@ -4,6 +4,9 @@ import json
 import os
 import requests
 from datetime import datetime
+from datetime import timezone
+from hashlib import sha256
+
 
 from botocore.exceptions import ClientError
 from boto3.dynamodb.conditions import Key, Attr
@@ -177,8 +180,9 @@ class Document():
 
             signing_user = user.User(signing_username)
             signing['signerName'] = f"{signing_user.first_name} {signing_user.last_name}"
-            signed_at_unixtime = signing.pop('signedAt')
-            signing['signatureDateTime'] = datetime.utcfromtimestamp(signed_at_unixtime).isoformat()
+            #signed_at_unixtime = signing.pop('signedAt')
+            #signing['signatureDateTime'] = datetime.utcfromtimestamp(signed_at_unixtime)
+            signing['signatureDateTime'] = signing.pop('signedAt')
             entry_hash = signing.pop('entryHash')
 
             if entry_hash != "unconfirmed":
@@ -188,8 +192,9 @@ class Document():
 
             prind_version_info = self.get_version(version['versionNumber'])
 
-            created_at_unixtime = version.pop('versionCreatedAt')
-            version['uploadedDateTime'] = datetime.utcfromtimestamp(created_at_unixtime).isoformat()
+            #created_at_unixtime = version.pop('versionCreatedAt')
+            #version['uploadedDateTime'] = datetime.utcfromtimestamp(created_at_unixtime)
+            version['uploadedDateTime'] = version.pop('versionCreatedAt')
             version['hash'] = version.pop('documentHash')
             entry_hash = version.pop('entryHash')
 
@@ -300,7 +305,7 @@ class Document():
             logger.info(f"response from /sp/document-did/{self.document_did}/update is {response_dict}")
 
         document_version_number = response_dict['body']['documentVersionNumber']
-        datetime_suffix = datetime.utcnow().isoformat()
+        datetime_suffix = datetime.utcnow().timestamp()
         
         # Prin-D database entries
         document_v0_item = {    
@@ -402,8 +407,7 @@ def create(
         logger.info(f"response from /sp/document/create is {response_dict}")
       
     document_did = response_dict['body']['documentDid']
-
-    datetime_suffix = datetime.utcnow().isoformat()
+    datetime_suffix = datetime.utcnow().timestamp()
 
     table.put_item(
         Item={    
@@ -520,13 +524,13 @@ def get_document_field(document_did):
 
     return field_details
 
-
 if __name__ == "__main__":
 
     pass
     
     #get_project("TestProject")
     #create_project("Test Project", "This is a test project", "West Street, Farnham, Surrey")
+
 
 
 

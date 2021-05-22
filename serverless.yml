@@ -37,6 +37,18 @@ custom:
       dev: portal-dev
       staging: portal-staging
       production: portal 
+    PROCORE_CLIENT_ID:
+      dev: b749f3180eccedbe8c1e05a19fbb21e59102919b429155fa929216420f2aeed9
+      staging: b749f3180eccedbe8c1e05a19fbb21e59102919b429155fa929216420f2aeed9
+      production: 140031e6794966d6e804b36b2c228e9fbbb6545fade8707df0c5d51f913f3ba0
+    PROCORE_AUTH_BASE_URL:
+      dev: https://login-sandbox.procore.com
+      staging: https://login-sandbox.procore.com
+      production: https://login.procore.com
+    PROCORE_BASE_URL:
+      dev: https://sandbox.procore.com
+      staging: https://sandbox.procore.com
+      production: https://api.procore.com
   s3BucketName: prind-portal-user-files-${self:provider.stage}
   s3UserProfilesBucketName: prind-portal-user-profiles-${self:provider.stage}
  
@@ -58,6 +70,10 @@ custom:
         description:
         contentType: "application/json"
         schema: ${file(models/rolesGetResponse.json)}
+      - name: authoriseprocorePostRequest
+        description: The request to authoriseprocore POST
+        contentType: "application/json"
+        schema: ${file(models/userAuthoriseProcorePostRequest.json)}
 
 provider:
   name: aws
@@ -77,7 +93,11 @@ provider:
     S3_BUCKET_ARN: "arn:aws:s3:::${self:custom.s3BucketName}"
     S3_USER_PROFILES_BUCKET_NAME: ${self:custom.s3UserProfilesBucketName} 
     S3_USER_PROFILES_BUCKET_ARN: "arn:aws:s3:::${self:custom.s3UserProfilesBucketName}"
-    PRIND_LOG_LEVEL: 'INFO'    
+    PRIND_LOG_LEVEL: 'INFO'
+    PROCORE_CLIENT_ID: ${self:custom.myEnvironment.PROCORE_CLIENT_ID.${self:provider.stage}}
+    PROCORE_AUTH_BASE_URL: ${self:custom.myEnvironment.PROCORE_AUTH_BASE_URL.${self:provider.stage}}
+    PROCORE_BASE_URL: ${self:custom.myEnvironment.PROCORE_BASE_URL.${self:provider.stage}}
+    RUNNING_ON_AWS: True    
 
   iamRoleStatements:
     - Effect: "Allow"
@@ -117,6 +137,11 @@ provider:
     - Effect: "Allow"
       Action: "ses:GetTemplate"
       Resource: "*"
+    # To retrieve the Procore Client Secret
+    - Effect: "Allow"
+      Action:
+        - 'ssm:GetParameter'
+      Resource: arn:aws:ssm:eu-west-1:#{AWS::AccountId}:parameter/prind-api/procore-client-secret/*
 
 
 
@@ -273,6 +298,50 @@ functions:
   user:
     handler: user.lambda_handler
     events:
+
+      - http:
+          path: /user/checkprocoreaccess
+          method: get
+          cors: true
+          response:
+            statusCodes:
+              200:
+                pattern: '' # Default response method
+              400:
+                pattern: '.*"statusCode":400,.*'
+              500:
+                pattern: '.*"statusCode":500,.*'
+          reqValidatorName: onlyBody
+          integration: lambda
+          authorizer: 
+            type: COGNITO_USER_POOLS
+            authorizerId: 
+              Ref: ApiGatewayAuthorizer
+
+      - http:
+          path: /user/authoriseprocore
+          method: post
+          cors: true
+          response:
+            statusCodes:
+              201:
+                pattern: '' # Default response method
+              400:
+                pattern: '.*"statusCode":400,.*'
+              500:
+                pattern: '.*"statusCode":500,.*'
+          integration: lambda
+          requestModels: 
+            "application/json": "authoriseprocorePostRequest"
+          reqValidatorName: onlyBody
+          documentation:
+            requestModels:
+              "application/json": "authoriseprocorePostRequest"
+          authorizer: 
+            type: COGNITO_USER_POOLS
+            authorizerId: 
+              Ref: ApiGatewayAuthorizer
+
       - http:
           path: /user/get-accessible-projects
           method: get
@@ -580,6 +649,7 @@ functions:
 
   field:
     handler: field.lambda_handler
+    timeout: 300
     events:
       - http:
           path: /project/{project_id}/{page}/{field_index}
@@ -910,7 +980,48 @@ functions:
           authorizer: 
             type: COGNITO_USER_POOLS
             authorizerId: 
-              Ref: ApiGatewayAuthorizer    
+              Ref: ApiGatewayAuthorizer
+
+  file:
+    handler: file.lambda_handler
+    events:
+      - http:
+          path: /procorefiles/{company_id}/{project_id}
+          method: get
+          cors: true
+          response:
+            statusCodes:
+              200:
+                pattern: '' # Default response method
+              400:
+                pattern: '.*"statusCode":400,.*'
+              500:
+                pattern: '.*"statusCode":500,.*'
+          reqValidatorName: onlyBody
+          integration: lambda
+          authorizer: 
+            type: COGNITO_USER_POOLS
+            authorizerId: 
+              Ref: ApiGatewayAuthorizer
+
+      - http:
+          path: /procorefiles/{company_id}/{project_id}/{folder_id}
+          method: get
+          cors: true
+          response:
+            statusCodes:
+              200:
+                pattern: '' # Default response method
+              400:
+                pattern: '.*"statusCode":400,.*'
+              500:
+                pattern: '.*"statusCode":500,.*'
+          reqValidatorName: onlyBody
+          integration: lambda
+          authorizer: 
+            type: COGNITO_USER_POOLS
+            authorizerId: 
+              Ref: ApiGatewayAuthorizer
 
 resources:
 

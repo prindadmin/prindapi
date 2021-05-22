@@ -81,7 +81,7 @@ def lambda_handler(event, context):
             )
 
             if portal_hostname:
-                portal_url=f"https://{portal_hostname}.prind.tech/#/signin"
+                portal_url=f"https://{portal_hostname}.prind.tech/signin"
             else:
                 portal_url = None
 

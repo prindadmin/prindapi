@@ -6,7 +6,7 @@ import boto3
 import os
 import json
 import common
-from moto import mock_dynamodb2
+from moto import mock_dynamodb2, mock_ssm
 from boto3.dynamodb.conditions import Key, Attr
 sys.path.append('../../')
 
@@ -19,6 +19,43 @@ current_directory = os.path.dirname(os.path.realpath(__file__))
 def mock_send_email(*args, **kwargs):
     return
 
+def mocked_requests_post(*args, **kwargs):
+    class MockResponse:
+        def __init__(self, json_data, status_code):
+            self.json_data = json_data
+            self.status_code = status_code
+            self.content = json.dumps(self.json_data).encode("utf-8")
+
+        def json(self):
+            return self.json_data
+
+        def ok(self):
+            if self.status_code >= 200 and self.status_code <= 202:
+                return True
+            return False
+
+    if args[0].endswith("/oauth/token"):
+
+        params = args[1]
+        print(params)
+        if params["code"] == "valid-auth-code":
+            status_code = 200
+            body = {
+                "access_token": "eyxxxxxxxxxxxxxxx",
+                "token_type": "Bearer",
+                "expires_in": 7200,
+                "refresh_token": "xxxxxxxxxxxxxxx",
+                "created_at": 1618216444
+            }
+        else:
+            status_code = 401
+            body = {}
+
+        return MockResponse(body, status_code)
+
+    return MockResponse(None, 404)
+
+@mock_ssm
 @mock_dynamodb2
 class TestUser(TestCase):
 
@@ -73,9 +110,22 @@ class TestUser(TestCase):
                 Item=  item
             )
 
+        import user as module
+        self.module = module
+
+        from modules.auth import ProcoreAuth
+        self.procore_auth_module = ProcoreAuth
+
+        common.add_secure_ssm_parameter(
+            f'/prind-api/procore-client-secret/dev', 
+            'client-secret')
+
+        self.authenticating_username = '4a9d66e8-f725-4c24-be3d-d3bdd417cb08'
+
     def tearDown(self):
 
         self.table.delete()
+        common.delete_ssm_parameter(f'/prind-api/procore-client-secret/dev')
 
     def test_get_project_invitations(self):
 
@@ -315,4 +365,28 @@ class TestUser(TestCase):
         print(response)
 
         self.assertEqual(response['statusCode'], 200)
+
+    # @mock.patch("requests.post", side_effect=mocked_requests_post)
+    # def test_request_access_token_with_auth_code(self, mock_requests):
+
+
+    #     event = {
+    #         "cognitoPoolClaims": {
+    #             "sub": self.authenticating_username
+    #         },
+    #         "method": "POST",
+    #         "requestPath": "/user/authoriseprocore",
+    #         "path": {},
+    #         "body": {
+    #             "code": "valid-auth-code",
+    #             "redirectURI": "http://localhost:3000/procore-auth"
+    #         }
+    #     }
+
+    #     response = self.module.lambda_handler(event, {})
+
+    #     stored_item = self.procore_auth_module.retrieve_auth_token(self.authenticating_username)
+    #     expected_item = {'pk': 'user#4a9d66e8-f725-4c24-be3d-d3bdd417cb08', 'sk': 'procoreAuthentication', 'accessToken': 'eyxxxxxxxxxxxxxxx', 'refreshToken': 'xxxxxxxxxxxxxxx', 'createdAt': '1618216444', 'expiresAt': '1618223644', 'lifetime': '7200'}
+
+    #     self.assertDictEqual(stored_item, expected_item)
 
