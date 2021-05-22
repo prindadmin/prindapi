@@ -122,5 +122,17 @@ class InvalidProjectType(ApplicationError):
     def __init__(self, message):
         ApplicationError.__init__(self, message, "INVALID_PROJECT_TYPE", "0021")
 
+class InvalidProcoreAuth(ApplicationError):
+    def __init__(self, message):
+        ApplicationError.__init__(self, message, "INVALID_PROCORE_AUTH", "0022")
+
+class ProcoreApiError(ApplicationError):
+    def __init__(self, message):
+        ApplicationError.__init__(self, message, "PROCORE_API_ERROR", "00023")
+
+class ItemNotFound(ApplicationError):
+    def __init__(self, message):
+        ApplicationError.__init__(self, message, "ITEM_NOT_FOUND", "0024")
+
 
 

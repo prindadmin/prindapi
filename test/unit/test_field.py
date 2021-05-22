@@ -3,6 +3,7 @@ from unittest.mock import patch, MagicMock, Mock
 import time
 import sys
 import boto3
+from io import BytesIO
 import os
 import json
 import common
@@ -38,7 +39,26 @@ def mocked_requests_post(*args, **kwargs):
 
     return MockResponse(None, 404)
 
-@mock_s3
+def mocked_requests_get_file(*args, **kwargs):
+    class MockResponse:
+        def __init__(self, file_bytes, status_code):
+            self.status_code = status_code
+            self.content = file_bytes
+            self.ok = self.status_code >= 200 and self.status_code <= 202
+
+        def json(self):
+            return self.json_data
+
+    if "https://storage.procore.com" in args[0]:
+
+        with BytesIO() as f:
+            f.write(b'test content')
+            f.seek(0)
+            return MockResponse(f.read(), 200)
+
+    return MockResponse(None, 404)
+
+
 @mock_dynamodb2
 class TestPostField(TestCase):
 
@@ -90,6 +110,8 @@ class TestPostField(TestCase):
     def tearDown(self):
 
         self.table.delete()
+        # self.bucket.objects.delete()
+        # self.bucket.delete()
 
     def test_post_dropdown(self):
         
@@ -131,6 +153,7 @@ class TestPostField(TestCase):
 
         self.assertEqual(response['statusCode'], 200)
 
+    @mock_s3
     @mock.patch('requests.post', side_effect=mocked_requests_post)
     def test_post_file(self, mock_post):
         
@@ -152,9 +175,10 @@ class TestPostField(TestCase):
             }
         }
 
-        bucket = common.create_bucket_with_versioning(os.environ['S3_BUCKET_NAME'])
+        self.bucket = common.create_bucket_with_versioning(os.environ['S3_BUCKET_NAME'])
 
-        bucket.put_object(
+
+        self.bucket.put_object(
             Key=f'{self.project_id}/inception/1', 
             Body=(bytes(json.dumps({'data': 'test'}).encode('UTF-8')))
         )
@@ -165,7 +189,57 @@ class TestPostField(TestCase):
 
         self.assertEqual(response['statusCode'], 200)
 
-        s3_object = bucket.Object(f'{self.project_id}/inception/1')
+        s3_object = self.bucket.Object(f'{self.project_id}/inception/1')
         response = s3_object.get()
+
+    @mock_s3
+    @mock.patch('requests.post', side_effect=mocked_requests_post)
+    @mock.patch('requests.get', side_effect=mocked_requests_get_file)
+    def test_post_procore_file(self, mock_get, mock_post):
+
+        event = {
+            "cognitoPoolClaims": {
+                "sub": self.authenticating_username
+            },
+            "path": {
+                "project_id": self.project_id,
+                "page": "inception",
+                "field_index": 1
+            },
+            "body": {
+                "type": "file",
+                "fieldDetails": {
+                    "procoreFileUrl": "https://storage.procore.com/v4/d/us-east-1/pro-core.com-staging/companies/29582/01F352X91MGJDSXBDEWYGT3PVF?sig=f2d6a9c7229d221713db3dd01c638c7f748f75847ce9e7cb921d37781c8b54cd",
+                    "filename": "test.pdf",
+                    "tags": []
+                },
+            }
+        }
+
+        self.bucket = common.create_bucket_with_versioning(os.environ['S3_BUCKET_NAME'])
+
+        response = self.field_module.lambda_handler(event, {})
+        
+        print(response)
+
+        # self.assertEqual(response['statusCode'], 200)
+
+        # get the procore file from s3
+        s3_object = self.bucket.Object(f'{self.project_id}/inception/1')
+        response = s3_object.get()
+
+        # get the request body that Foundations was called with
+        post_body = json.loads(mock_post.call_args[1]['data'])
+
+        # check the document hash
+        self.assertEqual(post_body['documentHash'], '6ae8a75555209fd6c44157c0aed8016e763ff435a19cf186f76863140143ff72')
+
+        # check the filename is correct
+        for attribute in post_body['documentAttributes']:
+            if attribute['fieldName'] == 'Filename':
+                self.assertEqual(attribute['fieldValue'], 'test.pdf')
+
+        from modules.document import Document
+        created_document = Document(self.project_id, 'inception', 1)
 
 

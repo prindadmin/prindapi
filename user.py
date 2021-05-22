@@ -8,6 +8,7 @@ from urllib.parse import unquote
 
 from modules import log
 from modules.log import logger
+from modules.auth import ProcoreAuth
 
 try:
     stage_log_level = os.environ['PRIND_LOG_LEVEL']
@@ -26,7 +27,7 @@ def lambda_handler(event, context):
         resource_path = event['requestPath']
         http_method = event['method']
 
-        #print(event)
+        authenticating_username = event['cognitoPoolClaims']['sub']
 
         # get project invitatons
         if http_method == "GET" and resource_path.endswith("get-project-invitations"):
@@ -114,6 +115,26 @@ def lambda_handler(event, context):
                 projects=projects,
                 signedDocuments=signed_documents
             )
+
+        elif http_method == "POST" and resource_path.endswith("authoriseprocore"):
+
+            code = event["body"]["code"]
+            redirect_uri = event["body"]["redirectURI"]
+
+            auth_item = ProcoreAuth.request_access_token_with_auth_code(
+                code, redirect_uri
+            )
+            ProcoreAuth.store_auth_token(authenticating_username, auth_item)
+
+            return_body = {}
+            status_code = 201
+
+        elif http_method == "GET" and resource_path.endswith("checkprocoreaccess"):
+
+            ProcoreAuth.valid_access_token(authenticating_username)
+
+            return_body = {}
+            status_code = 200
 
             # print(return_body)
 

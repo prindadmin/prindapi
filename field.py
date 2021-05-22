@@ -46,6 +46,7 @@ def lambda_handler(event, context):
         title = event['body'].get('title')
         description = event['body'].get('description') 
         editable = event['body'].get('editable')
+        procore_file_url = event['body'].get('editable')
         authenticating_username = event['cognitoPoolClaims']['sub']
         this_project = project.Project(project_id)
 
@@ -75,6 +76,32 @@ def lambda_handler(event, context):
 
         if field_type in ['file', 'gitText']:
 
+            s3_bucket_name = os.environ.get("S3_BUCKET_NAME")
+            s3_bucket_arn = os.environ.get("S3_BUCKET_ARN")
+            api_id = os.environ["FOUNDATIONS_API_ID"]
+            sp_did = os.environ["SP_DID"]
+            api_stage = os.environ["FOUNDATIONS_API_STAGE"]
+            procore_file_url = field_data.get('procoreFileUrl')
+
+            s3_key = f"{project_id}/{page_name}/{field_index}"
+            
+            if procore_file_url:
+
+                url = procore_file_url
+                h = requests.head(url)
+                file_size = h.headers["Content-Length"]
+
+                print(f"file size is {int(file_size)/1024/1024}M")
+
+                response = requests.get(url)
+                body = response.content
+
+                s3.put_object(
+                    Bucket=s3_bucket_name,
+                    Key=s3_key,
+                    Body=body,
+                )
+
             git_params = {}
             
             if field_type == 'gitText':
@@ -83,18 +110,10 @@ def lambda_handler(event, context):
                     "prevVer": field_data.pop('prevVer', None)
                 }
 
-            s3_bucket_name = os.environ.get("S3_BUCKET_NAME")
-            s3_bucket_arn = os.environ.get("S3_BUCKET_ARN")
-            api_id = os.environ["FOUNDATIONS_API_ID"]
-            sp_did = os.environ["SP_DID"]
-            api_stage = os.environ["FOUNDATIONS_API_STAGE"]
-
-            s3_key = f"{project_id}/{page_name}/{field_index}"
-
             foundations_jwt = auth.get_foundations_jwt(sp_did)
 
             document_tags = field_data.get('tags', [])
-            filename = field_data['filename']
+            filename = field_data.get('filename')
 
             try:
                 this_document = document.Document(
@@ -131,8 +150,6 @@ def lambda_handler(event, context):
             file_hash = hashlib.sha256(file_bytes).hexdigest();
 
             document_name = f"{project_id}/{page_name}/{field_index}"
-
-            datetime_suffix = datetime.utcnow().isoformat()
 
             if action == "create":
 

@@ -28,6 +28,9 @@ environment = {
         "S3_BUCKET_NAME": "test_bucket",
         "S3_BUCKET_ARN": "arn:aws:s3:::test_bucket",
         "S3_USER_PROFILES_BUCKET_ARN": "arn:aws:s3:::test_bucket-profiles",
+        "PROCORE_CLIENT_ID":"238a7b66f9d4494a4e70612973c30af168d44e2c5291a6a71bb4306dcc5787fc",
+        "PROCORE_AUTH_BASE_URL":"https://login-sandbox.procore.com",
+        "PROCORE_BASE_URL": "https://sandbox.procore.com",        
         "AWS_ACCESS_KEY_ID": "AKIAIOSFODNN7EXAMPLE",
         "AWS_SECRET_ACCESS_KEY": "wJalrXUtnFEMI/K7MDENG/bPxRfiCYEXAMPLEKEY"
     }
@@ -132,4 +135,22 @@ def database_snapshot(table, gsi=False):
     response = table.scan(**scan_kwargs)
 
     return json.dumps(response.get('Items'), cls=DecimalEncoder)
+
+def add_secure_ssm_parameter(name, value):
+
+    ssm = boto3.client('ssm', os.environ['AWS_REGION'])
+
+    response = ssm.put_parameter(
+        Name=name,
+        Value=value,
+        Type='SecureString',
+    )
+
+def delete_ssm_parameter(name):
+
+    ssm = boto3.client('ssm', os.environ['AWS_REGION'])
+
+    response = ssm.delete_parameter(
+        Name=name
+    )
 
