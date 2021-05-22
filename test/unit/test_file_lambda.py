@@ -231,6 +231,6 @@ class TestFileLambda(TestCase):
         mock_requests.assert_called_with(
             "https://sandbox.procore.com/rest/v1.0/folders/4444",
             {'project_id': 2222},
-            headers={'Authorization': 'Bearer eyxxxxxxxxxxxxxxx'},
+            headers={'Procore-Company-Id': '1111', 'Authorization': 'Bearer eyxxxxxxxxxxxxxxx'},
         )
 
