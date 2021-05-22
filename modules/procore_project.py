@@ -43,6 +43,7 @@ class Project():
         params = dict(project_id=self.project_id)
 
         headers={
+            'Procore-Company-Id': str(self.company_id),
             'Authorization': f'Bearer {access_token}'
         }
 
@@ -60,48 +61,5 @@ class Project():
             raise errors.ProcoreApiError(data['message'])
 
         return data
-
-    # def merge_anchors_and_signatures(self, cognito_username, folder_id=None):
-
-    #     print('folder_id in merge_anchors_and_signatures is', folder_id)
-
-    #     procore_data = self.get_procore_files(cognito_username, folder_id)
-    #     signatures = self.get_signed_document_versions()
-    #     anchors = self.get_anchored_document_versions()
-
-    #     for file in procore_data.get('files', []):
-    #         for version in file['file_versions']:
-    #             version_signatures = signatures.get(f'{self.company_id}#{self.project_id}#{version["file_id"]}#{version["id"]}')
-    #             if version_signatures:
-    #                 print(version_signatures)
-    #                 version['signatures'] = [
-    #                     dict(
-    #                         signed_by_user_id=version_signature.cognito_username,
-    #                         signed_at=version_signature.signed_at,
-    #                         signature=version_signature.signature,
-    #                         signing_did=version_signature.signing_did,
-    #                         signing_did_version=version_signature.signing_did_version,
-    #                         signing_key=version_signature.signing_key,
-    #                         signed_string=version_signature.signed_string,
-    #                         signed_by=version_signature.signed_by,
-    #                         entry_hash=version_signature.entry_hash
-    #                     )
-    #                     for version_signature
-    #                     in version_signatures
-    #                 ]
-    #             else:
-    #                 version['signatures'] = list()
-    #             version_anchor = anchors.get(f'{self.company_id}#{self.project_id}#{version["file_id"]}#{version["id"]}')
-    #             if version_anchor:
-    #                 version['anchor'] = dict(
-    #                     did=version_anchor.did,
-    #                     foundations_version=version_anchor.foundations_version,
-    #                     entry_hash=version_anchor.entry_hash,
-    #                     created_at=version_anchor.created_at,
-    #                 )
-    #             else:
-    #                 version['anchor'] = dict()
-
-    #     return procore_data
 
                 

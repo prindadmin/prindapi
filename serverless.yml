@@ -40,7 +40,7 @@ custom:
     PROCORE_CLIENT_ID:
       dev: b749f3180eccedbe8c1e05a19fbb21e59102919b429155fa929216420f2aeed9
       staging: b749f3180eccedbe8c1e05a19fbb21e59102919b429155fa929216420f2aeed9
-      production: TO_BE_ADDED
+      production: 140031e6794966d6e804b36b2c228e9fbbb6545fade8707df0c5d51f913f3ba0
     PROCORE_AUTH_BASE_URL:
       dev: https://login-sandbox.procore.com
       staging: https://login-sandbox.procore.com
@@ -48,7 +48,7 @@ custom:
     PROCORE_BASE_URL:
       dev: https://sandbox.procore.com
       staging: https://sandbox.procore.com
-      production: TO_BE_ADDED
+      production: https://api.procore.com
   s3BucketName: prind-portal-user-files-${self:provider.stage}
   s3UserProfilesBucketName: prind-portal-user-profiles-${self:provider.stage}
  
