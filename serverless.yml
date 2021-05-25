@@ -49,6 +49,31 @@ custom:
       dev: https://sandbox.procore.com
       staging: https://sandbox.procore.com
       production: https://api.procore.com
+    PRIND_USER_POOL_BROWSER_CLIENT_ID:
+      dev: fbss4knsc8gmgct526ci8kp3a
+      staging: 7lhjmvjqo06fi41g47ntr7tgd8
+      production: 1usjkta252liocu6l4dfo2j0d5
+    PRIND_USER_POOL_PROCORE_BROWSER_CLIENT_ID:
+      dev: 4a0mmdd955kpc0g560cuilsdds
+      staging: TBC
+      production: 3mvcee5vsqdi0n3lr2tq2q2fiq
+    PRIND_PORTAL_CONFIRM_EMAIL_URL:
+      dev: https://portal-dev.prind.tech/confirm-email
+      staging: https://portal-staging.prind.tech/confirm-email
+      production: https://portal.prind.tech/confirm-email
+    PRIND_PROCORE_CONFIRM_EMAIL_URL:
+      dev: https://procore-dev.prind.tech/confirm-email
+      staging: https://procore-staging.prind.tech/confirm-email
+      production: https://procore.prind.tech/confirm-email
+    PRIND_WEBSITE_RESET_PASSWORD_URL:
+      dev: https://portal-dev.prind.tech/reset-password
+      staging: https://portal-staging.prind.tech/reset-password
+      production: https://portal.prind.tech/reset-password
+    PRIND_PROCORE_RESET_PASSWORD_URL:
+      dev: https://procore-dev.prind.tech/reset-password
+      staging: https://procore-staging.prind.tech/reset-password
+      production: https://procore.prind.tech/reset-password
+
   s3BucketName: prind-portal-user-files-${self:provider.stage}
   s3UserProfilesBucketName: prind-portal-user-profiles-${self:provider.stage}
  
@@ -97,6 +122,12 @@ provider:
     PROCORE_CLIENT_ID: ${self:custom.myEnvironment.PROCORE_CLIENT_ID.${self:provider.stage}}
     PROCORE_AUTH_BASE_URL: ${self:custom.myEnvironment.PROCORE_AUTH_BASE_URL.${self:provider.stage}}
     PROCORE_BASE_URL: ${self:custom.myEnvironment.PROCORE_BASE_URL.${self:provider.stage}}
+    PRIND_USER_POOL_BROWSER_CLIENT_ID: ${self:custom.myEnvironment.PRIND_USER_POOL_BROWSER_CLIENT_ID.${self:provider.stage}}
+    PRIND_USER_POOL_PROCORE_BROWSER_CLIENT_ID: ${self:custom.myEnvironment.PRIND_USER_POOL_PROCORE_BROWSER_CLIENT_ID.${self:provider.stage}}
+    PRIND_PORTAL_CONFIRM_EMAIL_URL: ${self:custom.myEnvironment.PRIND_PORTAL_CONFIRM_EMAIL_URL.${self:provider.stage}}
+    PRIND_PROCORE_CONFIRM_EMAIL_URL: ${self:custom.myEnvironment.PRIND_PROCORE_CONFIRM_EMAIL_URL.${self:provider.stage}}
+    PRIND_WEBSITE_RESET_PASSWORD_URL: ${self:custom.myEnvironment.PRIND_WEBSITE_RESET_PASSWORD_URL.${self:provider.stage}}
+    PRIND_PROCORE_RESET_PASSWORD_URL: ${self:custom.myEnvironment.PRIND_PROCORE_RESET_PASSWORD_URL.${self:provider.stage}}
     RUNNING_ON_AWS: True    
 
   iamRoleStatements:
@@ -185,8 +216,7 @@ functions:
           existing: true
 
   custom-message:
-    handler: custom-message.handler
-    runtime: nodejs12.x
+    handler: custom-message.lambda_handler
     events:
       - cognitoUserPool:
           pool: ${self:app}-${self:provider.stage}-user-pool
