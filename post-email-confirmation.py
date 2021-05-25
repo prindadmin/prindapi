@@ -90,13 +90,10 @@ def lambda_handler(event, context):
                 "foundationsId": did
             }
 
-            mail.send_email(email_address, "post-confirmation", template_data)
+            # Now send the verification confirmed email
+            mail.send_email(email_address, "PrinDEmailVerificationCompleteDesktop", template_data)
 
-        elif event['triggerSource'] == "PostConfirmation_ConfirmForgotPassword":
-
-            template_data = {}
-
-            mail.send_email(email_address, "post-confirmation-forgot-password", template_data)
+            
 
     # catch any application errors
     except errors.ApplicationError as error:

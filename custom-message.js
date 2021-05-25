@@ -1,3 +1,6 @@
+
+/*
+// Removed and moved to python
 console.log('Loading function');
 
 exports.handler = async (event, context) => {
@@ -39,3 +42,4 @@ exports.handler = async (event, context) => {
 
     return event;
 };
+*/
