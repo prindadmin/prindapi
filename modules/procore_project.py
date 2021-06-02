@@ -58,7 +58,9 @@ class Project():
         data = response.json()
 
         if not response.ok:
-            raise errors.ProcoreApiError(data['message'])
+            logger.error('Procore returned a status code of {}'.format(response.status_code))
+            logger.error(data)
+            raise errors.ProcoreApiError(data.get('message'))
 
         return data
 

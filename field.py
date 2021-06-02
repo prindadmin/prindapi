@@ -37,6 +37,7 @@ log.set_logging_level(stage_log_level)
 def lambda_handler(event, context):
 
     try:
+        logger.info(f'field lambda called with event {event}')
 
         project_id = unquote(event['path']['project_id'])
         page_name = unquote(event['path']['page'])
