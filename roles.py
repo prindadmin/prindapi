@@ -21,6 +21,7 @@ def lambda_handler(event, context):
 
 
     try:
+        logger.info(f'roles lambda called with event {event}')
 
         roles = role.list_all_roles()
     

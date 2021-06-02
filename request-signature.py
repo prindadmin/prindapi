@@ -33,6 +33,7 @@ portal_hostname = os.environ.get('PORTAL_HOSTNAME')
 def lambda_handler(event, context):
 
     try:
+        logger.info(f'request-signature lambda called with event {event}')
 
         requesting_user = user.User(event['cognitoPoolClaims']['sub'])
         signing_users = event['body']['signingUsernames']

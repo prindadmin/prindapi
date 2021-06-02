@@ -23,6 +23,7 @@ log.set_logging_level(stage_log_level)
 def lambda_handler(event, context):
 
     try:
+        logger.info(f'user lambda called with event {event}')
         
         resource_path = event['requestPath']
         http_method = event['method']

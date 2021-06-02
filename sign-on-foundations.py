@@ -32,6 +32,7 @@ log.set_logging_level(stage_log_level)
 def lambda_handler(event, context):
 
     try:
+        logger.info(f'sign-on-foundations lambda called with event {event}')
 
         this_user = user.User(event['cognitoPoolClaims']['sub'])
 
