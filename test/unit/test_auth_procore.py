@@ -136,11 +136,31 @@ class TestProcoreAuth(TestCase):
             refresh_token='bbbbb',
             created_at=1515151515,
             expires_at=1515151516,
-            lifetime=1
+            lifetime=1,
+            authorised_projects=[2222],
         )
-        response = self.item_class.valid_access_token(cognito_username='1111-2222-3333')
+        response = self.item_class.valid_access_token(cognito_username='1111-2222-3333', project_id=2222)
 
         auth_item = ProcoreAuthItem.get(cognito_username='1111-2222-3333')
 
         self.assertEqual(int(auth_item['expiresAt']), int(time.time()) + 7200)
+
+    @mock.patch("requests.post", side_effect=mocked_requests_post)
+    def test_previously_unauthorised_project(self, mock_requests):
+
+        from modules.auth import ProcoreAuthItem
+        ProcoreAuthItem.put(
+            cognito_username='1111-2222-3333',
+            access_token='aaaaa',
+            refresh_token='bbbbb',
+            created_at=1515151515,
+            expires_at=1515151516,
+            lifetime=1,
+            authorised_projects=[1111],
+        )
+        response = self.item_class.valid_access_token(cognito_username='1111-2222-3333', project_id=2222)
+
+        # auth_item = ProcoreAuthItem.get(cognito_username='1111-2222-3333')
+
+        self.assertEqual(response, False)
             

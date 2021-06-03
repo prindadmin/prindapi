@@ -161,7 +161,7 @@ class ProcoreAuth():
             params['refresh_token'] = refresh_token
         else:
             params['code'] = auth_code
-        
+
         response = requests.post(f'{base_url}/oauth/token', params)
 
         if not response.ok:
@@ -171,9 +171,8 @@ class ProcoreAuth():
         return response.json()
 
     @classmethod
-    def store_auth_token(cls, cognito_username, response):
+    def store_auth_token(cls, cognito_username, project_id, response):
 
-        print(response)
 
         access_token = response['access_token']
         refresh_token = response['refresh_token']
@@ -181,13 +180,18 @@ class ProcoreAuth():
         lifetime =  response['expires_in']
         expires_at = created_at + lifetime
 
+        existing_auth_item = ProcoreAuthItem.get(cognito_username)
+        authorised_projects = existing_auth_item.get('authorisedProjects', [])
+        authorised_projects.append('project_id')
+
         ProcoreAuthItem.put(
             cognito_username,
             access_token,
             refresh_token,
             created_at,
             expires_at,
-            lifetime
+            lifetime,
+            authorised_projects,
         )
 
     @classmethod
@@ -201,16 +205,20 @@ class ProcoreAuth():
         return item
 
     @classmethod
-    def valid_access_token(cls, cognito_username):
+    def valid_access_token(cls, cognito_username, project_id):
         """
         Refreshes the access token if required and returns true
-        if sucessful
+        if successful
         """
         item = cls.retrieve_auth_token(cognito_username)
 
+        # user needs to give access to any new project in Procore
+        if str(project_id) not in item.get('authorisedProjects', []):
+            return False
+
         if int(item['expiresAt']) < time.time():
             item = cls.refresh_access_token(item['refreshToken'])
-            cls.store_auth_token(cognito_username, item)
+            cls.store_auth_token(cognito_username, project_id, item)
 
         return True
 
@@ -224,7 +232,8 @@ class ProcoreAuthItem():
         refresh_token,
         created_at,
         expires_at,
-        lifetime
+        lifetime,
+        authorised_projects,
     ):
 
         item = {
@@ -235,6 +244,7 @@ class ProcoreAuthItem():
             "createdAt": str(created_at),
             "expiresAt": str(expires_at),
             "lifetime": str(lifetime),
+            "authorisedProjects": [str(p) for p in authorised_projects],
         }
 
         return item
@@ -247,7 +257,8 @@ class ProcoreAuthItem():
         refresh_token,
         created_at,
         expires_at,
-        lifetime
+        lifetime,
+        authorised_projects,
     ):
 
         item = cls.item(
@@ -256,7 +267,8 @@ class ProcoreAuthItem():
             refresh_token,
             created_at,
             expires_at,
-            lifetime
+            lifetime,
+            authorised_projects,
         )
 
         table.put_item(
@@ -280,7 +292,3 @@ class ProcoreAuthItem():
             raise errors.ItemNotFound('Item with specified key does not exist')
 
         return item
-
-
-
- 
