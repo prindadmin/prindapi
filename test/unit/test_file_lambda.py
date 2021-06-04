@@ -22,6 +22,7 @@ def mocked_requests_get(*args, **kwargs):
             self.status_code = status_code
             self.content = json.dumps(self.json_data).encode("utf-8")
             self.ok = self.status_code >= 200 and self.status_code <= 202
+            self.url = args[0]
 
         def json(self):
             return self.json_data
