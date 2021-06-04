@@ -133,6 +133,8 @@ def lambda_handler(event, context):
 
         elif http_method == "GET" and "checkprocoreaccess" in resource_path:
 
+            project_id = unquote(event['path']['project_id'])
+
             ProcoreAuth.valid_access_token(authenticating_username, project_id)
 
             return_body = {}
