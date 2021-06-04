@@ -131,7 +131,7 @@ def lambda_handler(event, context):
             return_body = {}
             status_code = 201
 
-        elif http_method == "GET" and resource_path.endswith("checkprocoreaccess"):
+        elif http_method == "GET" and "checkprocoreaccess" in resource_path:
 
             ProcoreAuth.valid_access_token(authenticating_username)
 
