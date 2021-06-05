@@ -121,18 +121,21 @@ def lambda_handler(event, context):
 
             code = event["body"]["code"]
             redirect_uri = event["body"]["redirectURI"]
+            project_id = event["body"]["projectId"]
 
             auth_item = ProcoreAuth.request_access_token_with_auth_code(
                 code, redirect_uri
             )
-            ProcoreAuth.store_auth_token(authenticating_username, auth_item)
+            ProcoreAuth.store_auth_token(authenticating_username, project_id, auth_item)
 
             return_body = {}
             status_code = 201
 
-        elif http_method == "GET" and resource_path.endswith("checkprocoreaccess"):
+        elif http_method == "GET" and "checkprocoreaccess" in resource_path:
 
-            ProcoreAuth.valid_access_token(authenticating_username)
+            project_id = unquote(event['path']['project_id'])
+
+            ProcoreAuth.valid_access_token(authenticating_username, project_id)
 
             return_body = {}
             status_code = 200

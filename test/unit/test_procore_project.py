@@ -75,7 +75,8 @@ class TestProject(TestCase):
             refresh_token='xxxxxxxxxxxxxxx',
             created_at=int(time.time()),
             expires_at=int(time.time())+7200,
-            lifetime=7200
+            lifetime=7200,
+            authorised_projects=['2222']
         )
 
     def tearDown(self):

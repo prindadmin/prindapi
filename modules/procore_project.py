@@ -33,8 +33,8 @@ class Project():
 
         print('folder_id in get_procore_files is', folder_id)
 
-        if not ProcoreAuth.valid_access_token(cognito_username):
-            raise errors.InvalidProcoreAuth('Your token can no longer be refreshed')
+        if not ProcoreAuth.valid_access_token(cognito_username, self.project_id):
+            raise errors.InvalidProcoreAuth('Your token is not valid for project {}'.format(self.project_id))
 
         base_url = os.environ['PROCORE_BASE_URL']
         auth_item = ProcoreAuth.retrieve_auth_token(cognito_username)

@@ -330,7 +330,7 @@ functions:
     events:
 
       - http:
-          path: /user/checkprocoreaccess
+          path: /user/checkprocoreaccess/{company_id}/{project_id}
           method: get
           cors: true
           response:
