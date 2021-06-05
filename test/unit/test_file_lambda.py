@@ -22,6 +22,7 @@ def mocked_requests_get(*args, **kwargs):
             self.status_code = status_code
             self.content = json.dumps(self.json_data).encode("utf-8")
             self.ok = self.status_code >= 200 and self.status_code <= 202
+            self.url = args[0]
 
         def json(self):
             return self.json_data
@@ -151,6 +152,7 @@ class TestFileLambda(TestCase):
             created_at=int(time.time()),
             expires_at=int(time.time()) + 7200,
             lifetime=7200,
+            authorised_projects=['2222', '1234'],
         )
         self.foundations_api_key = "eyJ0eXAiOiJKV1QiLCJhbGciOiJSUzI1NiJ9.eyJkaWQiOiJkaWQ6Zm5kczpjYTc3MjJmYWJiNzAwOWFlY2Y5OTdhNTk5NzNjZDRmYzgxMGI4MjBiMTVmZDA0MWI3NjcxZjE0NmU5N2RjZmMxIiwiZXhwIjoxNjA1MjE3ODMwfQ.KD_8hVXUkFhPOoac7Hk0BWlzRK4S5l3XvaOGOqFeYX77ZtTxB8xoj0ICzhKySk-iJ4p-qOlGU1JbD1QNobXACiCyZhrCL5aKc1y2vVE1hjZuR4oiUG7NgUcKsCkH9rTHIZfMb9FCRKeOjn1cjwPwCuFf6SQ0nescpnUQLPLGR4mMqHR30gVOrM9Cht1JVv0KVW08nAOstzJTKSpwbTWJhvsWVcuo8i6SgdyXDAbvtqJkrBuLaAESVNMpNk_GekqhCUoCbcfzL-7pu9bVkXjXZFw-amSKX943MpndZVF0ZCOMxS04M0cKL55eHtA1ICul2PojOP0E89dis2TLZzL21594EVPWZ5D5lOB1lvdRozrZLhJDYpmPxMfSEW_wbG8usCMUM0_Tv1SofjZZytP80h2W7bDrRQyPIlcvBEghjqdyMO-hTGZWXg-OOAutvFq09ObrpSydVJW3ZUKsl7sBCYzCuFg8SBpaok7MYBfeVEoX8-ole5u-EkY14nYDEyVcsNjoqKtEkRekdCm-YrudkvtOam1JYof_Xu9i98cJxOQ5CRS2a35e8QK1CFzu6tRjOvQIoRasYcvHD9m5NzMFhgxxuAre59Hi9Yumm9W6w_baYJmCLsK8Oqgmj9U_6pj0DK4En9wwHWd07A5SVlCqd6VB_v_9mko3mawgmvWQ4YM"
 
@@ -210,6 +212,30 @@ class TestFileLambda(TestCase):
         print(response)
         self.assertEqual(response['statusCode'], 400)
         self.assertEqual(response['Error']['ErrorMessage'],  "Invalid Project or Company")
+
+    @mock.patch("requests.get", side_effect=mocked_requests_get)
+    def test_unauthorised_project(self, mocked_request):
+        """
+        Tests that an error response is returned if the project has not
+        been specifically authorised by the user on Procore and stored in the ProcoreAuthItem
+        in authorisedProjects
+        """
+
+        event = {
+            "cognitoPoolClaims": {"sub": self.authenticating_username},
+            "method": "GET",
+            "requestPath": "/procorefiles/company_id/project_id",
+            "path": {"company_id": 1111, "project_id": 4444},
+        }
+
+        response = self.module.lambda_handler(event, {})
+
+        print(response)
+        self.assertEqual(response['statusCode'], 400)
+        self.assertEqual(response['Error']['ErrorMessage'],  "Your token is not valid for project 4444")
+
+        response = self.table.scan()
+        print(response['Items'])
 
     @mock.patch("requests.get", side_effect=mocked_requests_get)
     def test_passes_folder_id_into_api_request(self, mock_requests):

@@ -23,6 +23,7 @@ def mocked_requests_get(*args, **kwargs):
             self.status_code = status_code
             self.content = json.dumps(self.json_data).encode("utf-8")
             self.ok = self.status_code >= 200 and self.status_code <= 202
+            self.url = args[0]
 
         def json(self):
             return self.json_data
@@ -74,7 +75,8 @@ class TestProject(TestCase):
             refresh_token='xxxxxxxxxxxxxxx',
             created_at=int(time.time()),
             expires_at=int(time.time())+7200,
-            lifetime=7200
+            lifetime=7200,
+            authorised_projects=['2222']
         )
 
     def tearDown(self):

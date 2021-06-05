@@ -33,8 +33,8 @@ class Project():
 
         print('folder_id in get_procore_files is', folder_id)
 
-        if not ProcoreAuth.valid_access_token(cognito_username):
-            raise errors.InvalidProcoreAuth('Your token can no longer be refreshed')
+        if not ProcoreAuth.valid_access_token(cognito_username, self.project_id):
+            raise errors.InvalidProcoreAuth('Your token is not valid for project {}'.format(self.project_id))
 
         base_url = os.environ['PROCORE_BASE_URL']
         auth_item = ProcoreAuth.retrieve_auth_token(cognito_username)
@@ -47,6 +47,8 @@ class Project():
             'Authorization': f'Bearer {access_token}'
         }
 
+        logger.debug('headers for Procore API call {}'.format(headers))
+
         url = f'{base_url}/rest/v1.0/folders'
 
         if folder_id is not None:
@@ -54,6 +56,8 @@ class Project():
 
 
         response = requests.get(url, params, headers=headers)
+
+        logger.info(f'Procore API called with {response.url}')
 
         data = response.json()
 
