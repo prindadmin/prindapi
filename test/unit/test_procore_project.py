@@ -36,6 +36,17 @@ def mocked_requests_get(*args, **kwargs):
 
         return MockResponse(body, status_code)
 
+    if "/rest/v1.0/me" in args[0]:
+
+        status_code = 200
+        body = {
+            "id": 160586,
+            "login": "exampleuser@website.com",
+            "name": "Carl Contractor"
+        }
+
+        return MockResponse(body, status_code)
+
     return MockResponse(None, 404)
 
 @mock_ssm
@@ -75,8 +86,7 @@ class TestProject(TestCase):
             refresh_token='xxxxxxxxxxxxxxx',
             created_at=int(time.time()),
             expires_at=int(time.time())+7200,
-            lifetime=7200,
-            authorised_projects=['2222']
+            lifetime=7200
         )
 
     def tearDown(self):

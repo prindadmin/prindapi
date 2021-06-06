@@ -161,7 +161,7 @@ class ProcoreAuth():
             params['refresh_token'] = refresh_token
         else:
             params['code'] = auth_code
-
+        
         response = requests.post(f'{base_url}/oauth/token', params)
 
         if not response.ok:
@@ -171,8 +171,7 @@ class ProcoreAuth():
         return response.json()
 
     @classmethod
-    def store_auth_token(cls, cognito_username, project_id, response):
-
+    def store_auth_token(cls, cognito_username, response):
 
         access_token = response['access_token']
         refresh_token = response['refresh_token']
@@ -180,18 +179,13 @@ class ProcoreAuth():
         lifetime =  response['expires_in']
         expires_at = created_at + lifetime
 
-        existing_auth_item = ProcoreAuthItem.get(cognito_username)
-        authorised_projects = existing_auth_item.get('authorisedProjects', [])
-        authorised_projects.append('project_id')
-
         ProcoreAuthItem.put(
             cognito_username,
             access_token,
             refresh_token,
             created_at,
             expires_at,
-            lifetime,
-            authorised_projects,
+            lifetime
         )
 
     @classmethod
@@ -205,20 +199,40 @@ class ProcoreAuth():
         return item
 
     @classmethod
-    def valid_access_token(cls, cognito_username, project_id):
+    def valid_access_token(cls, cognito_username, company_id, project_id):
         """
         Refreshes the access token if required and returns true
-        if successful
+        if sucessful
         """
-        item = cls.retrieve_auth_token(cognito_username)
+        auth_item = cls.retrieve_auth_token(cognito_username)
 
-        # user needs to give access to any new project in Procore
-        if str(project_id) not in item.get('authorisedProjects', []):
-            return False
+        access_token = auth_item['accessToken']
 
-        if int(item['expiresAt']) < time.time():
-            item = cls.refresh_access_token(item['refreshToken'])
-            cls.store_auth_token(cognito_username, project_id, item)
+        if int(auth_item['expiresAt']) < time.time():
+            auth_response = cls.refresh_access_token(auth_item['refreshToken'])
+            cls.store_auth_token(cognito_username, auth_response)
+            access_token = auth_response['access_token']
+
+        base_url = os.environ['PROCORE_BASE_URL']
+        params = dict(
+            project_id=project_id
+        )
+        url = f'{base_url}/rest/v1.0/me'
+
+        headers={
+            'Procore-Company-Id': str(company_id),
+            'Authorization': f'Bearer {access_token}'
+        }
+
+        logger.debug('headers for Procore API call {}'.format(headers))
+
+        response = requests.get(url, params, headers=headers)
+
+        logger.info(f'Procore API called with {response.url}')
+
+        if not response.ok:
+            logger.info('Procore response is {}'.format(response.json()))
+            raise errors.InvalidProcoreAuth(f'Token not authorised for project_id: {project_id}')
 
         return True
 
@@ -232,8 +246,7 @@ class ProcoreAuthItem():
         refresh_token,
         created_at,
         expires_at,
-        lifetime,
-        authorised_projects,
+        lifetime
     ):
 
         item = {
@@ -244,7 +257,6 @@ class ProcoreAuthItem():
             "createdAt": str(created_at),
             "expiresAt": str(expires_at),
             "lifetime": str(lifetime),
-            "authorisedProjects": [str(p) for p in authorised_projects],
         }
 
         return item
@@ -257,8 +269,7 @@ class ProcoreAuthItem():
         refresh_token,
         created_at,
         expires_at,
-        lifetime,
-        authorised_projects,
+        lifetime
     ):
 
         item = cls.item(
@@ -267,8 +278,7 @@ class ProcoreAuthItem():
             refresh_token,
             created_at,
             expires_at,
-            lifetime,
-            authorised_projects,
+            lifetime
         )
 
         table.put_item(
@@ -292,3 +302,7 @@ class ProcoreAuthItem():
             raise errors.ItemNotFound('Item with specified key does not exist')
 
         return item
+
+
+
+ 
