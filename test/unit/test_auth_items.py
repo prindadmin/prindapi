@@ -52,7 +52,6 @@ class TestProcoreAuthItem(TestCase):
             created_at=12512515,
             expires_at=12512523,
             lifetime=7200,
-            authorised_projects=[2222]
         )
 
         self.table.put_item(Item=expected_item)
@@ -69,11 +68,10 @@ class TestProcoreAuthItem(TestCase):
             refresh_token="refresh-token",
             created_at=12512515,
             expires_at=12512523,
-            lifetime=7200,
-            authorised_projects=[2222]
+            lifetime=7200
         )
 
-        expected_item = {'pk': 'user#1234', 'sk': 'procoreAuthentication', 'accessToken': 'access-token', 'refreshToken': 'refresh-token', 'createdAt': '12512515', 'expiresAt': '12512523', 'lifetime': '7200', 'authorisedProjects': ['2222']}
+        expected_item = {'pk': 'user#1234', 'sk': 'procoreAuthentication', 'accessToken': 'access-token', 'refreshToken': 'refresh-token', 'createdAt': '12512515', 'expiresAt': '12512523', 'lifetime': '7200'}
 
         returned_item = self.item_class.get(
             cognito_username='1234'

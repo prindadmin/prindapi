@@ -6,11 +6,10 @@ import boto3
 import os
 import json
 import common
+from freezegun import freeze_time
 from moto import mock_dynamodb2, mock_ssm
 from boto3.dynamodb.conditions import Key, Attr
 sys.path.append('../../')
-
-print(sys.version_info)
 
 from data import populate_project_fields
 
@@ -37,15 +36,27 @@ def mocked_requests_post(*args, **kwargs):
     if args[0].endswith("/oauth/token"):
 
         params = args[1]
-        print(params)
-        if params["code"] == "valid-auth-code":
+        if params.get('code'):
+            if params["code"] == "valid-auth-code":
+                status_code = 200
+                body = {
+                    "access_token": "eyxxxxxxxxxxxxxxx",
+                    "token_type": "Bearer",
+                    "expires_in": 7200,
+                    "refresh_token": "xxxxxxxxxxxxxxx",
+                    "created_at": int(time.time())
+                }
+            else:
+                status_code = 401
+                body = {}
+        elif params.get('refresh_token'):
             status_code = 200
             body = {
                 "access_token": "eyxxxxxxxxxxxxxxx",
                 "token_type": "Bearer",
                 "expires_in": 7200,
                 "refresh_token": "xxxxxxxxxxxxxxx",
-                "created_at": 1618216444
+                "created_at": int(time.time())
             }
         else:
             status_code = 401
@@ -55,6 +66,38 @@ def mocked_requests_post(*args, **kwargs):
 
     return MockResponse(None, 404)
 
+def mocked_requests_get(*args, **kwargs):
+    class MockResponse:
+        def __init__(self, json_data, status_code):
+            self.status_code = status_code
+            self.content = json_data
+            self.ok = self.status_code >= 200 and self.status_code <= 202
+            self.url = args[0]
+            self.json_data = json_data
+
+        def json(self):
+            return self.json_data
+
+    if "/rest/v1.0/me" in args[0]:
+
+        if args[1]['project_id'] == 2222:
+
+            status_code = 200
+            body = {
+                "id": 160586,
+                "login": "exampleuser@website.com",
+                "name": "Carl Contractor"
+            }
+
+        else:
+            status_code = 403
+            body = {}
+
+        return MockResponse(body, status_code)
+
+    return MockResponse(None, 404)
+
+@freeze_time('2020-01-01')
 @mock_ssm
 @mock_dynamodb2
 class TestUser(TestCase):
@@ -157,8 +200,6 @@ class TestUser(TestCase):
 
         response = self.user_module.lambda_handler(event, {})
 
-        print(response)
-
         self.assertEqual(response['statusCode'], 200)
 
     def test_get_accessible_projects(self):
@@ -203,8 +244,6 @@ class TestUser(TestCase):
 
         response = self.user_module.lambda_handler(event, {})
 
-        print(response)
-
         self.assertEqual(response['statusCode'], 200)
 
     def test_get_profile(self):
@@ -220,8 +259,6 @@ class TestUser(TestCase):
         }
 
         response = self.user_module.lambda_handler(event, {})
-
-        print('profile', response)
 
         self.assertEqual(response['statusCode'], 200)
 
@@ -239,8 +276,6 @@ class TestUser(TestCase):
         }
 
         response = self.user_module.lambda_handler(event, {})
-
-        print('profile', response)
 
         self.assertEqual(response['statusCode'], 200)
 
@@ -344,8 +379,6 @@ class TestUser(TestCase):
         ]
 
         items = [signature_request, field, *document]
-
-        print(items)
     
         for item in items:
             self.table.put_item(
@@ -362,31 +395,183 @@ class TestUser(TestCase):
         
         response = self.user_module.lambda_handler(event, {})
 
-        print(response)
-
         self.assertEqual(response['statusCode'], 200)
 
-    # @mock.patch("requests.post", side_effect=mocked_requests_post)
-    # def test_request_access_token_with_auth_code(self, mock_requests):
+    @mock.patch("requests.post", side_effect=mocked_requests_post)
+    def test_request_access_token_with_auth_code(self, mock_requests):
 
 
-    #     event = {
-    #         "cognitoPoolClaims": {
-    #             "sub": self.authenticating_username
-    #         },
-    #         "method": "POST",
-    #         "requestPath": "/user/authoriseprocore",
-    #         "path": {},
-    #         "body": {
-    #             "code": "valid-auth-code",
-    #             "redirectURI": "http://localhost:3000/procore-auth"
-    #         }
-    #     }
+        event = {
+            "cognitoPoolClaims": {
+                "sub": self.authenticating_username
+            },
+            "method": "POST",
+            "requestPath": "/user/authoriseprocore",
+            "path": {},
+            "body": {
+                "code": "valid-auth-code",
+                "redirectURI": "http://localhost:3000/procore-auth",
+                "companyId": '1111',
+                "projectId": '2222'
+            }
+        }
 
-    #     response = self.module.lambda_handler(event, {})
+        response = self.module.lambda_handler(event, {})
 
-    #     stored_item = self.procore_auth_module.retrieve_auth_token(self.authenticating_username)
-    #     expected_item = {'pk': 'user#4a9d66e8-f725-4c24-be3d-d3bdd417cb08', 'sk': 'procoreAuthentication', 'accessToken': 'eyxxxxxxxxxxxxxxx', 'refreshToken': 'xxxxxxxxxxxxxxx', 'createdAt': '1618216444', 'expiresAt': '1618223644', 'lifetime': '7200'}
+        stored_item = self.procore_auth_module.retrieve_auth_token(self.authenticating_username)
+        expected_item = {'pk': f'user#{self.authenticating_username}', 'sk': 'procoreAuthentication', 'accessToken': 'eyxxxxxxxxxxxxxxx', 'refreshToken': 'xxxxxxxxxxxxxxx', 'createdAt': '1577836800', 'expiresAt': '1577844000', 'lifetime': '7200'}
 
-    #     self.assertDictEqual(stored_item, expected_item)
+        self.assertDictEqual(stored_item, expected_item)
 
+        mock_requests.assert_called_with(
+            'https://login-sandbox.procore.com/oauth/token',
+            {
+                'grant_type': 'authorization_code',
+                'client_id': '238a7b66f9d4494a4e70612973c30af168d44e2c5291a6a71bb4306dcc5787fc',
+                'client_secret': 'client-secret',
+                'redirect_uri': 'http://localhost:3000/procore-auth',
+                'code': 'valid-auth-code'
+                }
+            )
+
+    @mock.patch("requests.get", side_effect=mocked_requests_get)
+    @mock.patch("requests.post", side_effect=mocked_requests_post)
+    def test_checkprocoreaccess_with_refresh_token_and_authorised_project(self, mock_requests_post, mock_requests_get):
+        """
+        The user has previously authorised on Procore with
+        this project and has a refresh token stored in the
+        database
+        """
+        from modules.auth import ProcoreAuthItem
+        ProcoreAuthItem.put(
+            cognito_username='4a9d66e8-f725-4c24-be3d-d3bdd417cb08',
+            access_token='aaaaa',
+            refresh_token='bbbbb',
+            created_at=1515151515,
+            expires_at=1515151516,
+            lifetime=1
+        )
+
+        event = {
+            "cognitoPoolClaims": {
+                "sub": self.authenticating_username
+            },
+            "method": "GET",
+            "requestPath": "/user/checkprocoreaccess/{company_id}/{project_id}",
+            "path": {
+                "company_id": "1111",
+                "project_id": "2222"
+            },
+            "body": {}
+        }
+        response = self.module.lambda_handler(event, {})
+
+        self.assertEqual(response['statusCode'], 200)
+        
+        mock_requests_post.assert_called_with(
+            'https://login-sandbox.procore.com/oauth/token',
+            {
+                'grant_type': 'refresh_token',
+                'client_id': '238a7b66f9d4494a4e70612973c30af168d44e2c5291a6a71bb4306dcc5787fc',
+                'client_secret': 'client-secret',
+                'redirect_uri': None,
+                'refresh_token':
+                'bbbbb'
+            }
+        )
+
+        mock_requests_get.assert_called_with(
+            'https://sandbox.procore.com/rest/v1.0/me',
+            {
+                'project_id': 2222
+            },
+            headers={
+                'Procore-Company-Id': '1111',
+                'Authorization': 'Bearer eyxxxxxxxxxxxxxxx'
+            }
+        )
+
+    @mock.patch("requests.get", side_effect=mocked_requests_get)
+    @mock.patch("requests.post", side_effect=mocked_requests_post)
+    def test_checkprocoreaccess_with_refresh_token_and_unauthorised_project(self, mock_requests_post, mock_requests_get):
+        """
+        The user has previously authorised with Procore and has a refresh
+        token in the database, but the response from Procure says that
+        they are not authorised with this project
+        """
+
+        from modules.auth import ProcoreAuthItem
+        ProcoreAuthItem.put(
+            cognito_username='4a9d66e8-f725-4c24-be3d-d3bdd417cb08',
+            access_token='aaaaa',
+            refresh_token='bbbbb',
+            created_at=1515151515,
+            expires_at=1515151516,
+            lifetime=1
+        )
+
+        event = {
+            "cognitoPoolClaims": {
+                "sub": self.authenticating_username
+            },
+            "method": "GET",
+            "requestPath": "/user/checkprocoreaccess/{company_id}/{project_id}",
+            "path": {
+                "company_id": "1111",
+                "project_id": "8888"
+            },
+            "body": {}
+        }
+        response = self.module.lambda_handler(event, {})
+
+        self.assertEqual(response['statusCode'], 400)
+
+        mock_requests_post.called_with(
+            'https://login-sandbox.procore.com/oauth/token',
+            {
+                'grant_type': 'refresh_token',
+                'client_id': '238a7b66f9d4494a4e70612973c30af168d44e2c5291a6a71bb4306dcc5787fc',
+                'client_secret': 'client-secret',
+                'redirect_uri': None,
+                'refresh_token': 'bbbbb'
+            }
+        )
+
+        mock_requests_get.assert_called_with(
+            'https://sandbox.procore.com/rest/v1.0/me',
+            {
+                'project_id': 8888
+            },
+            headers={
+                'Procore-Company-Id': '1111',
+                'Authorization': 'Bearer eyxxxxxxxxxxxxxxx'
+            }
+        )
+
+    @mock.patch("requests.get", side_effect=mocked_requests_get)
+    @mock.patch("requests.post", side_effect=mocked_requests_post)
+    def test_checkprocoreaccess_without_refresh_token(self, mock_requests_post, mock_requests_get):
+        """
+        The user has not previous authorised on any project and does not have a
+        refresh token stored in the database
+        """
+
+        event = {
+            "cognitoPoolClaims": {
+                "sub": self.authenticating_username
+            },
+            "method": "GET",
+            "requestPath": "/user/checkprocoreaccess/{company_id}/{project_id}",
+            "path": {
+                "company_id": "1111",
+                "project_id": "2222"
+            },
+            "body": {}
+        }
+        response = self.module.lambda_handler(event, {})
+
+        self.assertEqual(response['statusCode'], 400)
+
+        mock_requests_post.assert_not_called()
+
+        mock_requests_get.assert_not_called()
